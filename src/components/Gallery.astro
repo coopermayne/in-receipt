@@ -10,6 +10,9 @@ interface Project {
   shortDescription: string;
   fullDescription: string;
   images: string[];
+  year?: string;
+  location?: string;
+  type?: string;
 }
 
 interface Props {
@@ -26,12 +29,13 @@ const commercial = projects.filter(p => p.category === 'commercial');
   <!-- Desktop: Contact Sidebar -->
   <aside class="contact-sidebar">
     <div class="contact-sidebar__content">
-      <h1 class="contact-sidebar__name">Studio Name</h1>
+      <p class="contact-sidebar__name">Studio Name</p>
       <p class="contact-sidebar__title">Architecture & Design</p>
       <a href="mailto:hello@studio.com" class="contact-sidebar__link">hello@studio.com</a>
       <a href="tel:+15551234567" class="contact-sidebar__link">+1 555 123 4567</a>
       <a href="#" class="contact-sidebar__link">Instagram</a>
     </div>
+    <h1 class="site-title">IN RECEIPT</h1>
   </aside>
 
   <!-- Mobile: Horizontal Rows -->
@@ -67,6 +71,29 @@ const commercial = projects.filter(p => p.category === 'commercial');
       {commercial.map((project, index) => (
         <ProjectCard {...project} isFirst={index === 0} />
       ))}
+    </div>
+  </div>
+
+  <!-- Project Detail Panel (slides with gallery) -->
+  <div class="project-panel" id="project-panel">
+    <button class="project-panel__close" aria-label="Close">X</button>
+    <div class="project-panel__content">
+      <div class="project-panel__meta">
+        <div class="project-panel__meta-item">
+          <span class="project-panel__meta-label">Year</span>
+          <span class="project-panel__meta-value" id="panel-year"></span>
+        </div>
+        <div class="project-panel__meta-item">
+          <span class="project-panel__meta-label">Location</span>
+          <span class="project-panel__meta-value" id="panel-location"></span>
+        </div>
+        <div class="project-panel__meta-item">
+          <span class="project-panel__meta-label">Type</span>
+          <span class="project-panel__meta-value" id="panel-type"></span>
+        </div>
+      </div>
+      <p class="project-panel__description" id="panel-description"></p>
+      <div class="project-panel__gallery" id="panel-gallery"></div>
     </div>
   </div>
 </main>

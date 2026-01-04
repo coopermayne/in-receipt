@@ -1,150 +1,68 @@
-// Modal FLIP animation logic
-const modal = document.getElementById('project-modal') as HTMLDivElement;
-const modalHero = document.getElementById('modal-hero') as HTMLImageElement;
-const modalTitle = document.getElementById('modal-title') as HTMLHeadingElement;
-const modalDescription = document.getElementById('modal-description') as HTMLParagraphElement;
-const modalGallery = document.getElementById('modal-gallery') as HTMLDivElement;
-const closeBtn = modal.querySelector('.modal-close') as HTMLButtonElement;
+// Sliding panel logic
+const mainGallery = document.querySelector('.main-gallery') as HTMLElement;
+const projectPanel = document.getElementById('project-panel') as HTMLDivElement;
+const panelCloseBtn = projectPanel?.querySelector('.project-panel__close') as HTMLButtonElement;
+const panelYear = document.getElementById('panel-year') as HTMLSpanElement;
+const panelLocation = document.getElementById('panel-location') as HTMLSpanElement;
+const panelType = document.getElementById('panel-type') as HTMLSpanElement;
+const panelDescription = document.getElementById('panel-description') as HTMLParagraphElement;
+const panelGallery = document.getElementById('panel-gallery') as HTMLDivElement;
 
-let currentSourceImage: HTMLImageElement | null = null;
-let flipImage: HTMLImageElement | null = null;
-
-function openModal(card: HTMLElement) {
-  const projectId = card.dataset.projectId;
-  const title = card.dataset.projectTitle || '';
-  const description = card.dataset.projectDescription || '';
-  const images: string[] = JSON.parse(card.dataset.projectImages || '[]');
-  const sourceImg = card.querySelector('.project-card__image') as HTMLImageElement;
-
-  if (!sourceImg) return;
-
-  currentSourceImage = sourceImg;
-
-  // Get source rect
-  const sourceRect = sourceImg.getBoundingClientRect();
-
-  // Set modal content
-  modalTitle.textContent = title;
-  modalDescription.textContent = description;
-  modalHero.src = sourceImg.src;
-  modalHero.alt = title;
-
-  // Populate gallery
-  modalGallery.innerHTML = images
-    .map(src => `<img class="modal-gallery__image" src="${src}" alt="${title}" loading="lazy" />`)
-    .join('');
-
-  // Create FLIP image clone
-  flipImage = document.createElement('img');
-  flipImage.src = sourceImg.src;
-  flipImage.className = 'flip-image';
-  flipImage.style.left = `${sourceRect.left}px`;
-  flipImage.style.top = `${sourceRect.top}px`;
-  flipImage.style.width = `${sourceRect.width}px`;
-  flipImage.style.height = `${sourceRect.height}px`;
-  document.body.appendChild(flipImage);
-
-  // Open modal (content fades in via CSS)
-  modal.classList.add('open');
-  modal.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-
-  // Calculate target position (hero image area)
-  requestAnimationFrame(() => {
-    const targetRect = modalHero.getBoundingClientRect();
-
-    // FLIP: calculate transform
-    const scaleX = targetRect.width / sourceRect.width;
-    const scaleY = targetRect.height / sourceRect.height;
-    const translateX = targetRect.left - sourceRect.left;
-    const translateY = targetRect.top - sourceRect.top;
-
-    if (flipImage) {
-      flipImage.style.transition = 'transform 350ms cubic-bezier(0.4, 0, 0.2, 1)';
-      flipImage.style.transformOrigin = 'top left';
-      flipImage.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`;
-    }
-
-    // Remove flip image after animation
-    setTimeout(() => {
-      if (flipImage) {
-        flipImage.remove();
-        flipImage = null;
-      }
-    }, 350);
-  });
+interface ProjectData {
+  images: string[];
+  year?: string;
+  location?: string;
+  type?: string;
 }
 
-function closeModal() {
-  if (!currentSourceImage) {
-    modal.classList.remove('open');
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-    return;
-  }
+function openProject(card: HTMLElement) {
+  // Determine which column the card is in
+  const isLeftColumn = card.closest('.gallery-column--left') !== null;
 
-  const sourceRect = currentSourceImage.getBoundingClientRect();
-  const heroRect = modalHero.getBoundingClientRect();
+  // Only handle left column for now
+  if (!isLeftColumn) return;
 
-  // Create FLIP image for close animation
-  flipImage = document.createElement('img');
-  flipImage.src = modalHero.src;
-  flipImage.className = 'flip-image';
-  flipImage.style.left = `${heroRect.left}px`;
-  flipImage.style.top = `${heroRect.top}px`;
-  flipImage.style.width = `${heroRect.width}px`;
-  flipImage.style.height = `${heroRect.height}px`;
-  document.body.appendChild(flipImage);
+  // Get project data
+  const description = card.dataset.projectDescription || '';
+  const projectData: ProjectData = JSON.parse(card.dataset.projectData || '{}');
 
-  // Start closing modal (fade out content)
-  modal.classList.remove('open');
-  modal.setAttribute('aria-hidden', 'true');
+  // Populate panel content
+  panelYear.textContent = projectData.year || '—';
+  panelLocation.textContent = projectData.location || '—';
+  panelType.textContent = projectData.type || '—';
+  panelDescription.textContent = description;
+  panelGallery.innerHTML = (projectData.images || [])
+    .map(src => `<img src="${src}" alt="Project image" loading="lazy" />`)
+    .join('');
 
-  // FLIP: animate back to source
-  requestAnimationFrame(() => {
-    const scaleX = sourceRect.width / heroRect.width;
-    const scaleY = sourceRect.height / heroRect.height;
-    const translateX = sourceRect.left - heroRect.left;
-    const translateY = sourceRect.top - heroRect.top;
+  // Slide the gallery left (pushes contact off, columns shift left)
+  // Panel appears and slides with everything
+  mainGallery.classList.add('project-open-left');
+}
 
-    if (flipImage) {
-      flipImage.style.transition = 'transform 300ms cubic-bezier(0.4, 0, 0.2, 1)';
-      flipImage.style.transformOrigin = 'top left';
-      flipImage.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`;
-    }
+function closeProject() {
+  // Slide gallery back
+  mainGallery.classList.remove('project-open-left');
+}
 
-    setTimeout(() => {
-      if (flipImage) {
-        flipImage.remove();
-        flipImage = null;
-      }
-      document.body.style.overflow = '';
-      currentSourceImage = null;
-    }, 300);
-  });
+// Close button
+if (panelCloseBtn) {
+  panelCloseBtn.addEventListener('click', closeProject);
 }
 
 // Event delegation for project cards
 document.addEventListener('click', (e) => {
   const card = (e.target as HTMLElement).closest('.project-card');
   if (card) {
-    openModal(card as HTMLElement);
+    openProject(card as HTMLElement);
     return;
-  }
-
-  // Close on backdrop click (above hero)
-  if (e.target === modal) {
-    closeModal();
   }
 });
 
-// Close button
-closeBtn.addEventListener('click', closeModal);
-
 // Escape key to close
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && modal.classList.contains('open')) {
-    closeModal();
+  if (e.key === 'Escape' && mainGallery.classList.contains('project-open-left')) {
+    closeProject();
   }
 });
 

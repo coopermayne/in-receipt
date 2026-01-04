@@ -6,10 +6,15 @@ interface Props {
   shortDescription: string;
   fullDescription: string;
   images: string[];
+  year?: string;
+  location?: string;
+  type?: string;
   isFirst?: boolean;
 }
 
-const { id, title, thumbnail, shortDescription, fullDescription, images, isFirst = false } = Astro.props;
+const { id, title, thumbnail, shortDescription, fullDescription, images, year, location, type, isFirst = false } = Astro.props;
+
+const projectData = JSON.stringify({ images, year, location, type });
 ---
 
 <article
@@ -17,7 +22,7 @@ const { id, title, thumbnail, shortDescription, fullDescription, images, isFirst
   data-project-id={id}
   data-project-title={title}
   data-project-description={fullDescription}
-  data-project-images={JSON.stringify(images)}
+  data-project-data={projectData}
 >
   <div class="project-card__image-container">
     <img

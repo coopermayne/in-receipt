@@ -1,13 +1,29 @@
 ---
 // Modal markup - content populated via JS
+// Shows project details in the right 2/3 of screen when project is clicked
 ---
 
 <div class="modal-backdrop" id="project-modal" aria-hidden="true">
-  <button class="modal-close" aria-label="Close modal">&times;</button>
-  <img class="modal-hero" id="modal-hero" src="" alt="" />
+  <button class="modal-close" aria-label="Close modal">X</button>
+
   <div class="modal-content">
-    <h1 class="modal-title" id="modal-title"></h1>
+    <div class="modal-meta" id="modal-meta">
+      <div class="modal-meta__item">
+        <span class="modal-meta__label">Year</span>
+        <span class="modal-meta__value" id="modal-year"></span>
+      </div>
+      <div class="modal-meta__item">
+        <span class="modal-meta__label">Location</span>
+        <span class="modal-meta__value" id="modal-location"></span>
+      </div>
+      <div class="modal-meta__item">
+        <span class="modal-meta__label">Type</span>
+        <span class="modal-meta__value" id="modal-type"></span>
+      </div>
+    </div>
+
     <p class="modal-description" id="modal-description"></p>
+
     <div class="modal-gallery" id="modal-gallery"></div>
   </div>
 </div>
