@@ -271,7 +271,7 @@ button {
     will-change: transform;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-    transition: transform 500ms var(--easing-smooth);
+    transition: transform 700ms var(--easing-smooth);
   }
 
   /* Ensure all children participate in the transform */
@@ -326,7 +326,7 @@ button {
     overflow: visible;
     z-index: 100;
     margin-bottom: var(--spacing-lg);
-    transition: transform 500ms var(--easing-smooth);
+    transition: transform 700ms var(--easing-smooth);
   }
 
   /* Slide title at half speed - counter-transform by half the container movement */
@@ -506,10 +506,7 @@ button {
   }
 
   .project-detail__line {
-    flex: 0 0 1px;
-    width: 1px;
-    height: 100%;
-    background: var(--color-text-muted);
+    display: none;
   }
 
   .project-detail__panel {
@@ -598,17 +595,6 @@ button {
     transform: translateX(-66.666vw);
   }
 
-  /* When right column is open, slide image and content left to align with left edge */
-  .gallery-column--right .project-card__image-container,
-  .gallery-column--right .project-card__content {
-    transition: transform 500ms var(--easing-smooth);
-  }
-
-  .main-gallery.project-open-right .gallery-column--right .project-card__image-container,
-  .main-gallery.project-open-right .gallery-column--right .project-card__content {
-    transform: translateX(-5vw);
-  }
-
   /* Left column click: layered slide */
   .main-gallery.project-open-left .contact-sidebar,
   .main-gallery.project-open-left .gallery-column-container--left {
@@ -632,7 +618,7 @@ button {
   .gallery-column-container--left,
   .gallery-column-container--right,
   .project-detail {
-    transition: transform 500ms var(--easing-smooth);
+    transition: transform 700ms var(--easing-smooth);
   }
 }
 
