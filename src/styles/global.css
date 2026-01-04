@@ -591,6 +591,17 @@ button {
     transform: translateX(-66.666vw);
   }
 
+  /* When right column is open, slide image and content left to align with left edge */
+  .gallery-column--right .project-card__image-container,
+  .gallery-column--right .project-card__content {
+    transition: transform 500ms var(--easing-smooth);
+  }
+
+  .main-gallery.project-open-right .gallery-column--right .project-card__image-container,
+  .main-gallery.project-open-right .gallery-column--right .project-card__content {
+    transform: translateX(-15%);
+  }
+
   /* Left column click: layered slide */
   .main-gallery.project-open-left .contact-sidebar,
   .main-gallery.project-open-left .gallery-column-container--left {
