@@ -1,0 +1,35 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  thumbnail: string;
+  shortDescription: string;
+  fullDescription: string;
+  images: string[];
+  isFirst?: boolean;
+}
+
+const { id, title, thumbnail, shortDescription, fullDescription, images, isFirst = false } = Astro.props;
+---
+
+<article
+  class="project-card"
+  data-project-id={id}
+  data-project-title={title}
+  data-project-description={fullDescription}
+  data-project-images={JSON.stringify(images)}
+>
+  <div class="project-card__image-container">
+    <img
+      class="project-card__image"
+      src={thumbnail}
+      alt={title}
+      loading={isFirst ? "eager" : "lazy"}
+      data-thumbnail={thumbnail}
+    />
+  </div>
+  <div class="project-card__content">
+    <h2 class="project-card__title">{title}</h2>
+    <p class="project-card__description">{shortDescription}</p>
+  </div>
+</article>

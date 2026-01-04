@@ -1,0 +1,14 @@
+---
+interface Props {
+  count: number;
+  galleryId: string;
+}
+
+const { count, galleryId } = Astro.props;
+---
+
+<div class="scroll-indicators" data-gallery-id={galleryId}>
+  {Array.from({ length: count }).map((_, i) => (
+    <div class={`scroll-indicators__dot ${i === 0 ? 'active' : ''}`} data-index={i}></div>
+  ))}
+</div>
