@@ -26,19 +26,7 @@ const commercial = projects.filter(p => p.category === 'commercial');
 ---
 
 <main class="main-gallery">
-  <!-- Desktop: Contact Sidebar -->
-  <aside class="contact-sidebar">
-    <div class="contact-sidebar__content">
-      <p class="contact-sidebar__name">Studio Name</p>
-      <p class="contact-sidebar__title">Architecture & Design</p>
-      <a href="mailto:hello@studio.com" class="contact-sidebar__link">hello@studio.com</a>
-      <a href="tel:+15551234567" class="contact-sidebar__link">+1 555 123 4567</a>
-      <a href="#" class="contact-sidebar__link">Instagram</a>
-    </div>
-    <h1 class="site-title">IN RECEIPT</h1>
-  </aside>
-
-  <!-- Mobile: Horizontal Rows -->
+  <!-- Mobile: Horizontal Rows (hidden on desktop) -->
   <div class="gallery-row-container" data-category="residential">
     <div class="gallery-row" data-gallery-id="residential">
       {residential.map((project, index) => (
@@ -57,7 +45,34 @@ const commercial = projects.filter(p => p.category === 'commercial');
     <ScrollIndicator count={commercial.length} galleryId="commercial" />
   </div>
 
-  <!-- Desktop: Vertical Columns -->
+  <!-- Desktop: Sliding Layout -->
+  <!-- Order: [left-panel] | Col1 | Contact | Col2 | [right-panel] -->
+
+  <!-- Off-screen Left Project Detail (slides in from left for Col1 clicks) -->
+  <div class="project-detail project-detail--left" id="project-detail-left">
+    <div class="project-detail__panel">
+      <div class="project-detail__content">
+        <div class="project-detail__meta">
+          <div class="project-detail__meta-item">
+            <span class="project-detail__meta-label">Year</span>
+            <span class="project-detail__meta-value" data-field="year"></span>
+          </div>
+          <div class="project-detail__meta-item">
+            <span class="project-detail__meta-label">Location</span>
+            <span class="project-detail__meta-value" data-field="location"></span>
+          </div>
+          <div class="project-detail__meta-item">
+            <span class="project-detail__meta-label">Type</span>
+            <span class="project-detail__meta-value" data-field="type"></span>
+          </div>
+        </div>
+        <p class="project-detail__description" data-field="description"></p>
+        <div class="project-detail__gallery" data-field="gallery"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Column 1: Residential Projects -->
   <div class="gallery-column-container gallery-column-container--left">
     <div class="gallery-column gallery-column--left" data-gallery-id="column-left">
       {residential.map((project, index) => (
@@ -66,6 +81,18 @@ const commercial = projects.filter(p => p.category === 'commercial');
     </div>
   </div>
 
+  <!-- Contact Sidebar (center) -->
+  <aside class="contact-sidebar">
+    <div class="contact-sidebar__spine">
+      <h1 class="site-title">IN RECEIPT</h1>
+      <div class="site-contact">
+        <span>123 Design Street, Los Angeles CA 90012</span>
+        <span>hello@inreceipt.com</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Column 2: Commercial Projects -->
   <div class="gallery-column-container gallery-column-container--right">
     <div class="gallery-column gallery-column--right" data-gallery-id="column-right">
       {commercial.map((project, index) => (
@@ -74,28 +101,26 @@ const commercial = projects.filter(p => p.category === 'commercial');
     </div>
   </div>
 
-  <!-- Off-screen Project Detail (white line + content, slides in from right) -->
-  <div class="project-detail" id="project-detail">
-    <div class="project-detail__line"></div>
+  <!-- Off-screen Right Project Detail (slides in from right for Col2 clicks) -->
+  <div class="project-detail project-detail--right" id="project-detail-right">
     <div class="project-detail__panel">
-      <button class="project-detail__close" aria-label="Close">X</button>
       <div class="project-detail__content">
         <div class="project-detail__meta">
           <div class="project-detail__meta-item">
             <span class="project-detail__meta-label">Year</span>
-            <span class="project-detail__meta-value" id="panel-year"></span>
+            <span class="project-detail__meta-value" data-field="year"></span>
           </div>
           <div class="project-detail__meta-item">
             <span class="project-detail__meta-label">Location</span>
-            <span class="project-detail__meta-value" id="panel-location"></span>
+            <span class="project-detail__meta-value" data-field="location"></span>
           </div>
           <div class="project-detail__meta-item">
             <span class="project-detail__meta-label">Type</span>
-            <span class="project-detail__meta-value" id="panel-type"></span>
+            <span class="project-detail__meta-value" data-field="type"></span>
           </div>
         </div>
-        <p class="project-detail__description" id="panel-description"></p>
-        <div class="project-detail__gallery" id="panel-gallery"></div>
+        <p class="project-detail__description" data-field="description"></p>
+        <div class="project-detail__gallery" data-field="gallery"></div>
       </div>
     </div>
   </div>

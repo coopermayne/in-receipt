@@ -1,12 +1,7 @@
 // Sliding panel logic for desktop project detail
 const mainGallery = document.querySelector('.main-gallery') as HTMLElement;
-const projectDetail = document.getElementById('project-detail') as HTMLDivElement;
-const detailCloseBtn = projectDetail?.querySelector('.project-detail__close') as HTMLButtonElement;
-const panelYear = document.getElementById('panel-year') as HTMLSpanElement;
-const panelLocation = document.getElementById('panel-location') as HTMLSpanElement;
-const panelType = document.getElementById('panel-type') as HTMLSpanElement;
-const panelDescription = document.getElementById('panel-description') as HTMLParagraphElement;
-const panelGallery = document.getElementById('panel-gallery') as HTMLDivElement;
+const leftPanel = document.getElementById('project-detail-left') as HTMLDivElement;
+const rightPanel = document.getElementById('project-detail-right') as HTMLDivElement;
 
 interface ProjectData {
   images: string[];
@@ -15,8 +10,23 @@ interface ProjectData {
   type?: string;
 }
 
+function populatePanel(panel: HTMLDivElement, description: string, projectData: ProjectData) {
+  const yearEl = panel.querySelector('[data-field="year"]') as HTMLSpanElement;
+  const locationEl = panel.querySelector('[data-field="location"]') as HTMLSpanElement;
+  const typeEl = panel.querySelector('[data-field="type"]') as HTMLSpanElement;
+  const descEl = panel.querySelector('[data-field="description"]') as HTMLParagraphElement;
+  const galleryEl = panel.querySelector('[data-field="gallery"]') as HTMLDivElement;
+
+  yearEl.textContent = projectData.year || '—';
+  locationEl.textContent = projectData.location || '—';
+  typeEl.textContent = projectData.type || '—';
+  descEl.textContent = description;
+  galleryEl.innerHTML = (projectData.images || [])
+    .map(src => `<img src="${src}" alt="Project image" loading="lazy" />`)
+    .join('');
+}
+
 function openProject(card: HTMLElement) {
-  // Determine which column the card is in
   const isLeftColumn = card.closest('.gallery-column--left') !== null;
   const isRightColumn = card.closest('.gallery-column--right') !== null;
 
@@ -27,36 +37,22 @@ function openProject(card: HTMLElement) {
   const description = card.dataset.projectDescription || '';
   const projectData: ProjectData = JSON.parse(card.dataset.projectData || '{}');
 
-  // Populate panel content
-  panelYear.textContent = projectData.year || '—';
-  panelLocation.textContent = projectData.location || '—';
-  panelType.textContent = projectData.type || '—';
-  panelDescription.textContent = description;
-  panelGallery.innerHTML = (projectData.images || [])
-    .map(src => `<img src="${src}" alt="Project image" loading="lazy" />`)
-    .join('');
-
-  // Add appropriate class based on which column was clicked
   if (isLeftColumn) {
+    populatePanel(leftPanel, description, projectData);
     mainGallery.classList.add('project-open-left');
   } else if (isRightColumn) {
+    populatePanel(rightPanel, description, projectData);
     mainGallery.classList.add('project-open-right');
   }
 }
 
 function closeProject() {
-  // Remove both classes (whichever is active)
   mainGallery.classList.remove('project-open-left', 'project-open-right');
 }
 
 function isProjectOpen(): boolean {
   return mainGallery.classList.contains('project-open-left') ||
          mainGallery.classList.contains('project-open-right');
-}
-
-// Close button
-if (detailCloseBtn) {
-  detailCloseBtn.addEventListener('click', closeProject);
 }
 
 // Event delegation for project cards
