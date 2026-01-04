@@ -326,6 +326,12 @@ button {
     overflow: visible;
     z-index: 100;
     margin-bottom: var(--spacing-lg);
+    transition: transform 500ms var(--easing-smooth);
+  }
+
+  /* Slide title at half speed - counter-transform by half the container movement */
+  .main-gallery.project-open-left .site-title {
+    transform: translateX(16.666vw);
   }
 
   .contact-sidebar__name {
@@ -515,8 +521,8 @@ button {
 
   .project-detail__close {
     position: absolute;
-    top: var(--spacing-xl);
-    right: var(--spacing-xl);
+    top: calc(var(--spacing-xl) * 2);
+    right: calc(var(--spacing-xl) * 2);
     font-family: Arial, Helvetica, sans-serif;
     font-size: clamp(6rem, 15vw, 12rem);
     font-weight: 100;
@@ -535,6 +541,7 @@ button {
 
   .project-detail__content {
     padding: var(--spacing-xl);
+    padding-left: calc(var(--spacing-xl) * 3);
     padding-top: calc(var(--spacing-xl) * 3);
     max-width: 700px;
   }
@@ -599,7 +606,7 @@ button {
 
   .main-gallery.project-open-right .gallery-column--right .project-card__image-container,
   .main-gallery.project-open-right .gallery-column--right .project-card__content {
-    transform: translateX(-15%);
+    transform: translateX(-5vw);
   }
 
   /* Left column click: layered slide */
