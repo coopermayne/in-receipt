@@ -74,26 +74,29 @@ const commercial = projects.filter(p => p.category === 'commercial');
     </div>
   </div>
 
-  <!-- Project Detail Panel (slides with gallery) -->
-  <div class="project-panel" id="project-panel">
-    <button class="project-panel__close" aria-label="Close">X</button>
-    <div class="project-panel__content">
-      <div class="project-panel__meta">
-        <div class="project-panel__meta-item">
-          <span class="project-panel__meta-label">Year</span>
-          <span class="project-panel__meta-value" id="panel-year"></span>
+  <!-- Off-screen Project Detail (white line + content, slides in from right) -->
+  <div class="project-detail" id="project-detail">
+    <div class="project-detail__line"></div>
+    <div class="project-detail__panel">
+      <button class="project-detail__close" aria-label="Close">X</button>
+      <div class="project-detail__content">
+        <div class="project-detail__meta">
+          <div class="project-detail__meta-item">
+            <span class="project-detail__meta-label">Year</span>
+            <span class="project-detail__meta-value" id="panel-year"></span>
+          </div>
+          <div class="project-detail__meta-item">
+            <span class="project-detail__meta-label">Location</span>
+            <span class="project-detail__meta-value" id="panel-location"></span>
+          </div>
+          <div class="project-detail__meta-item">
+            <span class="project-detail__meta-label">Type</span>
+            <span class="project-detail__meta-value" id="panel-type"></span>
+          </div>
         </div>
-        <div class="project-panel__meta-item">
-          <span class="project-panel__meta-label">Location</span>
-          <span class="project-panel__meta-value" id="panel-location"></span>
-        </div>
-        <div class="project-panel__meta-item">
-          <span class="project-panel__meta-label">Type</span>
-          <span class="project-panel__meta-value" id="panel-type"></span>
-        </div>
+        <p class="project-detail__description" id="panel-description"></p>
+        <div class="project-detail__gallery" id="panel-gallery"></div>
       </div>
-      <p class="project-panel__description" id="panel-description"></p>
-      <div class="project-panel__gallery" id="panel-gallery"></div>
     </div>
   </div>
 </main>

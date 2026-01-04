@@ -1,7 +1,7 @@
-// Sliding panel logic
+// Sliding panel logic for desktop project detail
 const mainGallery = document.querySelector('.main-gallery') as HTMLElement;
-const projectPanel = document.getElementById('project-panel') as HTMLDivElement;
-const panelCloseBtn = projectPanel?.querySelector('.project-panel__close') as HTMLButtonElement;
+const projectDetail = document.getElementById('project-detail') as HTMLDivElement;
+const detailCloseBtn = projectDetail?.querySelector('.project-detail__close') as HTMLButtonElement;
 const panelYear = document.getElementById('panel-year') as HTMLSpanElement;
 const panelLocation = document.getElementById('panel-location') as HTMLSpanElement;
 const panelType = document.getElementById('panel-type') as HTMLSpanElement;
@@ -18,9 +18,10 @@ interface ProjectData {
 function openProject(card: HTMLElement) {
   // Determine which column the card is in
   const isLeftColumn = card.closest('.gallery-column--left') !== null;
+  const isRightColumn = card.closest('.gallery-column--right') !== null;
 
-  // Only handle left column for now
-  if (!isLeftColumn) return;
+  // Only handle desktop columns
+  if (!isLeftColumn && !isRightColumn) return;
 
   // Get project data
   const description = card.dataset.projectDescription || '';
@@ -35,19 +36,27 @@ function openProject(card: HTMLElement) {
     .map(src => `<img src="${src}" alt="Project image" loading="lazy" />`)
     .join('');
 
-  // Slide the gallery left (pushes contact off, columns shift left)
-  // Panel appears and slides with everything
-  mainGallery.classList.add('project-open-left');
+  // Add appropriate class based on which column was clicked
+  if (isLeftColumn) {
+    mainGallery.classList.add('project-open-left');
+  } else if (isRightColumn) {
+    mainGallery.classList.add('project-open-right');
+  }
 }
 
 function closeProject() {
-  // Slide gallery back
-  mainGallery.classList.remove('project-open-left');
+  // Remove both classes (whichever is active)
+  mainGallery.classList.remove('project-open-left', 'project-open-right');
+}
+
+function isProjectOpen(): boolean {
+  return mainGallery.classList.contains('project-open-left') ||
+         mainGallery.classList.contains('project-open-right');
 }
 
 // Close button
-if (panelCloseBtn) {
-  panelCloseBtn.addEventListener('click', closeProject);
+if (detailCloseBtn) {
+  detailCloseBtn.addEventListener('click', closeProject);
 }
 
 // Event delegation for project cards
@@ -61,7 +70,7 @@ document.addEventListener('click', (e) => {
 
 // Escape key to close
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && mainGallery.classList.contains('project-open-left')) {
+  if (e.key === 'Escape' && isProjectOpen()) {
     closeProject();
   }
 });

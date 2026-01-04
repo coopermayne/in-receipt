@@ -274,11 +274,6 @@ button {
     transition: transform 500ms var(--easing-smooth);
   }
 
-  /* When left column project is open, slide everything left by 1/3 */
-  .main-gallery.project-open-left {
-    transform: translateX(-33.333vw);
-  }
-
   /* Ensure all children participate in the transform */
   .main-gallery > * {
     backface-visibility: hidden;
@@ -302,6 +297,7 @@ button {
     background: var(--color-bg);
     overflow: visible;
     padding: var(--spacing-xl);
+    z-index: 20;
   }
 
   /* Contact info - centered in sidebar */
@@ -328,7 +324,7 @@ button {
     color: var(--color-text);
     width: calc(60vw - var(--spacing-xl));
     overflow: visible;
-    z-index: 10;
+    z-index: 100;
     margin-bottom: var(--spacing-lg);
   }
 
@@ -494,25 +490,30 @@ button {
     display: none;
   }
 
-  /* Project Panel - overlays right column, slides with gallery */
-  .project-panel {
-    position: absolute;
-    top: 0;
-    left: 66.666vw;
+  /* Project Detail - off-screen container (white line + content) */
+  .project-detail {
+    flex: 0 0 66.666vw;
     width: 66.666vw;
     height: 100vh;
-    background: var(--color-bg);
-    z-index: 50;
-    display: none;
-    flex-direction: column;
-    overflow-y: auto;
-  }
-
-  .main-gallery.project-open-left .project-panel {
     display: flex;
+    background: var(--color-bg);
   }
 
-  .project-panel__close {
+  .project-detail__line {
+    flex: 0 0 1px;
+    width: 1px;
+    height: 100%;
+    background: var(--color-text-muted);
+  }
+
+  .project-detail__panel {
+    flex: 1;
+    height: 100vh;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .project-detail__close {
     position: absolute;
     top: var(--spacing-xl);
     right: var(--spacing-xl);
@@ -527,18 +528,18 @@ button {
     transition: opacity 200ms ease, transform 200ms ease;
   }
 
-  .project-panel__close:hover {
+  .project-detail__close:hover {
     opacity: 1;
     transform: rotate(5deg) scale(1.05);
   }
 
-  .project-panel__content {
+  .project-detail__content {
     padding: var(--spacing-xl);
     padding-top: calc(var(--spacing-xl) * 3);
     max-width: 700px;
   }
 
-  .project-panel__meta {
+  .project-detail__meta {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-xl);
@@ -547,42 +548,73 @@ button {
     border-bottom: 1px solid var(--color-text-muted);
   }
 
-  .project-panel__meta-item {
+  .project-detail__meta-item {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);
   }
 
-  .project-panel__meta-label {
+  .project-detail__meta-label {
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--color-text-muted);
   }
 
-  .project-panel__meta-value {
+  .project-detail__meta-value {
     font-size: 1rem;
     color: var(--color-text);
   }
 
-  .project-panel__description {
+  .project-detail__description {
     color: var(--color-text-muted);
     margin-bottom: var(--spacing-xl);
     white-space: pre-line;
     line-height: 1.7;
   }
 
-  .project-panel__gallery {
+  .project-detail__gallery {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-lg);
   }
 
-  .project-panel__gallery img {
+  .project-detail__gallery img {
     width: 100%;
     height: auto;
     object-fit: cover;
     border-radius: 4px;
+  }
+
+  /* Right column click: slide everything left by 2/3 */
+  .main-gallery.project-open-right {
+    transform: translateX(-66.666vw);
+  }
+
+  /* Left column click: layered slide */
+  .main-gallery.project-open-left .contact-sidebar,
+  .main-gallery.project-open-left .gallery-column-container--left {
+    transform: translateX(-33.333vw);
+  }
+
+  .main-gallery.project-open-left .gallery-column-container--right,
+  .main-gallery.project-open-left .project-detail {
+    transform: translateX(-66.666vw);
+  }
+
+  /* Left column needs background + z-index to hide right column sliding under */
+  .gallery-column-container--left {
+    position: relative;
+    z-index: 10;
+    background: var(--color-bg);
+  }
+
+  /* Transitions for smooth sliding */
+  .contact-sidebar,
+  .gallery-column-container--left,
+  .gallery-column-container--right,
+  .project-detail {
+    transition: transform 500ms var(--easing-smooth);
   }
 }
 
