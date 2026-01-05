@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IN RECEIPT - Image Admin</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Image Library</h1>
+      <button id="upload-btn" class="btn btn-primary">+ Upload Image</button>
+    </header>
+
+    <!-- Image Grid -->
+    <div id="image-grid" class="image-grid">
+      <!-- Images will be populated here -->
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="upload-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Upload Image</h2>
+          <button class="modal-close">&times;</button>
+        </div>
+
+        <div class="upload-area" id="upload-area">
+          <input type="file" id="file-input" accept="image/*" hidden>
+          <p>Drag & drop an image here or <button class="link-btn" id="browse-btn">browse</button></p>
+        </div>
+
+        <div id="preview-area" class="preview-area hidden">
+          <div class="preview-container">
+            <img id="preview-image" src="" alt="Preview">
+            <div id="focal-point" class="focal-point"></div>
+          </div>
+          <p class="help-text">Click on the image to set the focal point for cropped views.</p>
+
+          <div class="crop-previews">
+            <div class="crop-preview" data-ratio="1:1">
+              <div class="crop-preview-label">Square (1:1)</div>
+              <div class="crop-preview-box square">
+                <img id="crop-square" src="" alt="">
+              </div>
+            </div>
+            <div class="crop-preview" data-ratio="16:9">
+              <div class="crop-preview-label">Wide (16:9)</div>
+              <div class="crop-preview-box wide">
+                <img id="crop-wide" src="" alt="">
+              </div>
+            </div>
+            <div class="crop-preview" data-ratio="3:4">
+              <div class="crop-preview-label">Portrait (3:4)</div>
+              <div class="crop-preview-box portrait">
+                <img id="crop-portrait" src="" alt="">
+              </div>
+            </div>
+            <div class="crop-preview" data-ratio="4:3">
+              <div class="crop-preview-label">Landscape (4:3)</div>
+              <div class="crop-preview-box landscape">
+                <img id="crop-landscape" src="" alt="">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="image-id">Image ID</label>
+            <input type="text" id="image-id" placeholder="e.g., cedar-house-exterior">
+          </div>
+
+          <div class="form-group">
+            <label for="image-alt">Alt Text</label>
+            <input type="text" id="image-alt" placeholder="Describe the image">
+          </div>
+
+          <div class="focal-info">
+            <span>Focal Point: </span>
+            <span id="focal-display">x: 0.5, y: 0.5</span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
+          <button class="btn btn-primary" id="save-btn" disabled>Upload & Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Edit Image</h2>
+          <button class="modal-close">&times;</button>
+        </div>
+
+        <div class="preview-area">
+          <div class="preview-container">
+            <img id="edit-preview-image" src="" alt="Preview">
+            <div id="edit-focal-point" class="focal-point"></div>
+          </div>
+          <p class="help-text">Click to adjust the focal point.</p>
+
+          <div class="crop-previews">
+            <div class="crop-preview" data-ratio="1:1">
+              <div class="crop-preview-label">Square (1:1)</div>
+              <div class="crop-preview-box square">
+                <img id="edit-crop-square" src="" alt="">
+              </div>
+            </div>
+            <div class="crop-preview" data-ratio="16:9">
+              <div class="crop-preview-label">Wide (16:9)</div>
+              <div class="crop-preview-box wide">
+                <img id="edit-crop-wide" src="" alt="">
+              </div>
+            </div>
+            <div class="crop-preview" data-ratio="3:4">
+              <div class="crop-preview-label">Portrait (3:4)</div>
+              <div class="crop-preview-box portrait">
+                <img id="edit-crop-portrait" src="" alt="">
+              </div>
+            </div>
+            <div class="crop-preview" data-ratio="4:3">
+              <div class="crop-preview-label">Landscape (4:3)</div>
+              <div class="crop-preview-box landscape">
+                <img id="edit-crop-landscape" src="" alt="">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Image ID</label>
+            <input type="text" id="edit-image-id" readonly>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-image-alt">Alt Text</label>
+            <input type="text" id="edit-image-alt" placeholder="Describe the image">
+          </div>
+
+          <div class="focal-info">
+            <span>Focal Point: </span>
+            <span id="edit-focal-display">x: 0.5, y: 0.5</span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-danger" id="delete-btn">Delete</button>
+          <div class="spacer"></div>
+          <button class="btn btn-secondary" id="edit-cancel-btn">Cancel</button>
+          <button class="btn btn-primary" id="update-btn">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+admin/node_modules/
 
 # Build output
 dist/
