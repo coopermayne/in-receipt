@@ -24,17 +24,19 @@ const projectData = JSON.stringify({ images, year, location, type });
   data-project-description={fullDescription}
   data-project-data={projectData}
 >
-  <div class="project-card__image-container">
-    <img
-      class="project-card__image"
-      src={thumbnail}
-      alt={title}
-      loading={isFirst ? "eager" : "lazy"}
-      data-thumbnail={thumbnail}
-    />
-  </div>
-  <div class="project-card__content">
-    <h2 class="project-card__title">{title}</h2>
-    <p class="project-card__description">{shortDescription}</p>
+  <div class="project-card__inner">
+    <div class="project-card__image-container">
+      <img
+        class="project-card__image"
+        src={thumbnail}
+        alt={title}
+        loading={isFirst ? "eager" : "lazy"}
+        data-thumbnail={thumbnail}
+      />
+    </div>
+    <div class="project-card__content">
+      <h2 class="project-card__title">{title}</h2>
+      <p class="project-card__description">{shortDescription}</p>
+    </div>
   </div>
 </article>
