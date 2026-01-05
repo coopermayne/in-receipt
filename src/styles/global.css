@@ -335,9 +335,11 @@ button {
   display: none;
 }
 
-/* Mobile info button and popup - hidden by default */
+/* Mobile elements - hidden by default */
 .mobile-info-btn,
-.mobile-contact-popup {
+.mobile-contact-popup,
+.mobile-project-overlay,
+.mobile-floating-title {
   display: none;
 }
 

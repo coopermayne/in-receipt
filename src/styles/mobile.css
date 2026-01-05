@@ -137,7 +137,7 @@
     justify-content: center;
     /* Circle starts at 60% down, centered, with 0 radius */
     clip-path: circle(0% at 50% 60%);
-    transition: clip-path 500ms var(--easing-smooth);
+    /* No transition on close - immediate disappear */
     pointer-events: none;
   }
 
@@ -145,6 +145,7 @@
     /* Expand to cover full screen (150% ensures corners are covered) */
     clip-path: circle(150% at 50% 60%);
     pointer-events: auto;
+    transition: clip-path 500ms var(--easing-smooth);
   }
 
   .mobile-contact-popup__inner {
@@ -187,26 +188,126 @@
     margin: var(--spacing-sm) 0;
   }
 
+  /* White circle that expands from orange button position */
+  .mobile-project-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--color-text);
+    z-index: 100;
+    pointer-events: none;
+    clip-path: circle(0% at 50% 60%);
+    /* No transition on close - immediate disappear */
+  }
+
+  .mobile-project-overlay.active {
+    clip-path: circle(150% at 50% 60%);
+    pointer-events: auto;
+    transition: clip-path 800ms var(--easing-smooth);
+  }
+
+  /* Title that stays in place during transition - inherits card styling */
+  .mobile-floating-title {
+    display: block !important;
+    position: fixed !important;
+    z-index: 150;
+    pointer-events: none;
+    padding: 0;
+    background: none;
+  }
+
+  .mobile-floating-title .project-card__title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    display: inline;
+    background: #222;
+  }
+
+  /* Upper row: Extend black strip to left edge */
+  .mobile-floating-title--upper .project-card__title::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 100%;
+    width: 100vw;
+    background: #222;
+  }
+
+  /* Lower row: Extend black strip to right edge */
+  .mobile-floating-title--lower .project-card__title::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 100%;
+    width: 100vw;
+    background: #222;
+  }
+
+  /* Hide description in floating title */
+  .mobile-floating-title .project-card__description {
+    display: none;
+  }
+
+  /* Hide info button during transition */
+  .mobile-info-btn.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+  }
+
   /* Hide project pages on mobile */
   .project-page {
     display: none;
   }
 
-  /* Modal slides in from right */
+  /* Modal fades in after circle animation */
   .modal-backdrop {
     background: var(--color-text);
-    visibility: visible;
-    transform: translateX(100%);
-    transition: transform 400ms var(--easing-smooth);
+    opacity: 0;
+    visibility: hidden;
+    transform: none;
+    /* No transition on close - immediate disappear */
   }
 
   .modal-backdrop.open {
-    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 400ms var(--easing-smooth);
   }
 
-  /* Modal content styling to match project pages */
+  /* Modal content positioning based on which row was clicked */
+  .modal-backdrop.modal--upper .modal-content {
+    position: absolute;
+    top: var(--title-bottom, 60px);
+    left: 0;
+    right: 0;
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+
+  .modal-backdrop.modal--lower .modal-content {
+    position: absolute;
+    top: var(--spacing-lg);
+    left: 0;
+    right: 0;
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+
   .modal-close {
+    position: fixed;
+    top: var(--spacing-xl);
+    right: var(--spacing-xl);
+    background: none;
+    border: none;
+    font-size: 2rem;
     color: #222;
+    cursor: pointer;
+    z-index: 160;
   }
 
   .modal-meta {
