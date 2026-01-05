@@ -420,9 +420,9 @@ button {
     flex-direction: column;
     overflow-y: auto;
     overflow-x: hidden;
-    scroll-snap-type: y mandatory;
     overscroll-behavior-y: contain;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
 
   .gallery-column::-webkit-scrollbar {
@@ -435,8 +435,6 @@ button {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
     position: relative;
   }
 
