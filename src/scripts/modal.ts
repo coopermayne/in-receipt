@@ -15,15 +15,27 @@ function populatePanel(panel: HTMLDivElement, description: string, projectData: 
   const locationEl = panel.querySelector('[data-field="location"]') as HTMLSpanElement;
   const typeEl = panel.querySelector('[data-field="type"]') as HTMLSpanElement;
   const descEl = panel.querySelector('[data-field="description"]') as HTMLParagraphElement;
-  const galleryEl = panel.querySelector('[data-field="gallery"]') as HTMLDivElement;
+  const galleryEl = panel.querySelector('[data-field="gallery"]') as HTMLDivElement | null;
+  const featuredImageEl = panel.querySelector('[data-field="featured-image"]') as HTMLDivElement | null;
 
   yearEl.textContent = projectData.year || '—';
   locationEl.textContent = projectData.location || '—';
   typeEl.textContent = projectData.type || '—';
   descEl.textContent = description;
-  galleryEl.innerHTML = (projectData.images || [])
-    .map(src => `<img src="${src}" alt="Project image" loading="lazy" />`)
-    .join('');
+
+  // Left panel uses gallery, right panel uses single featured image
+  if (galleryEl) {
+    galleryEl.innerHTML = (projectData.images || [])
+      .map(src => `<img src="${src}" alt="Project image" loading="lazy" />`)
+      .join('');
+  }
+
+  if (featuredImageEl) {
+    const firstImage = projectData.images?.[0];
+    featuredImageEl.innerHTML = firstImage
+      ? `<img src="${firstImage}" alt="Project image" loading="lazy" />`
+      : '';
+  }
 }
 
 function openProject(card: HTMLElement) {
