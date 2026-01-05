@@ -58,6 +58,13 @@ function initSmoothScroll(column: HTMLElement) {
     downIndicator.style.pointerEvents = state.currentIndex < maxIndex ? 'auto' : 'none';
   }
 
+  function hideIndicators() {
+    upIndicator.style.opacity = '0';
+    upIndicator.style.pointerEvents = 'none';
+    downIndicator.style.opacity = '0';
+    downIndicator.style.pointerEvents = 'none';
+  }
+
   // Initial update
   updateIndicators();
 
@@ -90,6 +97,9 @@ function initSmoothScroll(column: HTMLElement) {
     const clampedIndex = Math.max(0, Math.min(index, maxIndex));
 
     if (clampedIndex === state.currentIndex) return;
+
+    // Hide indicators during scroll
+    hideIndicators();
 
     state.startPosition = column.scrollTop;
     state.targetPosition = clampedIndex * getCardHeight();
