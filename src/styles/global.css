@@ -436,12 +436,9 @@ button {
     display: none;
   }
 
-  /* Scroll indicators - subtle dotted chevrons */
+  /* Scroll indicators - line with fixed-size V dip in center */
   .scroll-indicator {
     position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 2rem;
     height: 1rem;
     background: none;
     border: none;
@@ -449,56 +446,83 @@ button {
     opacity: 0;
     transition: opacity 300ms ease;
     z-index: 15;
+    display: flex;
+    align-items: center;
   }
 
-  .scroll-indicator::before,
-  .scroll-indicator::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 1rem;
-    height: 0;
-    border-top: 1px dotted var(--color-text);
+  /* Col1: 90% of space from left of screen to contact left (61.8vw) */
+  .gallery-column-container--col1 .scroll-indicator {
+    left: 5%;
+    width: calc(55.6vw - 5%);
   }
 
-  .scroll-indicator::before {
-    right: 50%;
-  }
-
-  .scroll-indicator::after {
-    left: 50%;
+  /* Col4: 90% of space from contact right (74.3vw) to right edge */
+  .gallery-column-container--col4 .scroll-indicator {
+    right: 5%;
+    width: calc(23.1vw - 5%);
   }
 
   .scroll-indicator--up {
     top: 1.5rem;
   }
 
-  .scroll-indicator--up::before {
-    transform-origin: right center;
-    transform: rotate(-25deg);
-  }
-
-  .scroll-indicator--up::after {
-    transform-origin: left center;
-    transform: rotate(25deg);
-  }
-
   .scroll-indicator--down {
     bottom: 1.5rem;
   }
 
-  .scroll-indicator--down::before {
-    transform-origin: right center;
-    transform: rotate(25deg);
-  }
-
-  .scroll-indicator--down::after {
-    transform-origin: left center;
-    transform: rotate(-25deg);
-  }
-
   .scroll-indicator:hover {
     opacity: 1 !important;
+  }
+
+  /* Flexible lines on either side */
+  .scroll-indicator__line {
+    flex: 1;
+    height: 0;
+    border-top: 1px solid var(--color-text);
+  }
+
+  /* Fixed-size V in the center */
+  .scroll-indicator__v {
+    position: relative;
+    width: 16px;
+    height: 8px;
+    flex-shrink: 0;
+  }
+
+  .scroll-indicator__v::before,
+  .scroll-indicator__v::after {
+    content: '';
+    position: absolute;
+    width: 9px;
+    height: 0;
+    border-top: 1px solid var(--color-text);
+    top: 50%;
+  }
+
+  /* Down arrow: V points down */
+  .scroll-indicator--down .scroll-indicator__v::before {
+    left: 0;
+    transform-origin: left center;
+    transform: rotate(30deg);
+  }
+
+  .scroll-indicator--down .scroll-indicator__v::after {
+    right: 0;
+    transform-origin: right center;
+    transform: rotate(-30deg);
+  }
+
+  /* Up arrow: V points up */
+  .scroll-indicator--up .scroll-indicator__v::before {
+    left: 0;
+    transform-origin: left center;
+    transform: rotate(-30deg);
+  }
+
+  .scroll-indicator--up .scroll-indicator__v::after {
+    right: 0;
+    transform-origin: right center;
+    transform: rotate(30deg);
   }
 
   /* Project cards in columns: full viewport height */

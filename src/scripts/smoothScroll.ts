@@ -18,6 +18,20 @@ function createScrollIndicator(direction: 'up' | 'down'): HTMLElement {
   const indicator = document.createElement('button');
   indicator.className = `scroll-indicator scroll-indicator--${direction}`;
   indicator.setAttribute('aria-label', `Scroll ${direction}`);
+
+  // Create: [left line] [fixed V] [right line]
+  const leftLine = document.createElement('span');
+  leftLine.className = 'scroll-indicator__line';
+
+  const vShape = document.createElement('span');
+  vShape.className = 'scroll-indicator__v';
+
+  const rightLine = document.createElement('span');
+  rightLine.className = 'scroll-indicator__line';
+
+  indicator.appendChild(leftLine);
+  indicator.appendChild(vShape);
+  indicator.appendChild(rightLine);
   return indicator;
 }
 
