@@ -1,7 +1,7 @@
-// Sliding panel logic for desktop project detail
+// Sliding panel logic for desktop project pages
 const mainGallery = document.querySelector('.main-gallery') as HTMLElement;
-const leftPanel = document.getElementById('project-detail-left') as HTMLDivElement;
-const rightPanel = document.getElementById('project-detail-right') as HTMLDivElement;
+const leftPanel = document.getElementById('project-page-left') as HTMLDivElement;
+const rightPanel = document.getElementById('project-page-right') as HTMLDivElement;
 
 interface ProjectData {
   images: string[];
@@ -55,9 +55,22 @@ function isProjectOpen(): boolean {
          mainGallery.classList.contains('project-open-right');
 }
 
-// Event delegation for project cards
+// Event delegation for project cards and columns
 document.addEventListener('click', (e) => {
-  const card = (e.target as HTMLElement).closest('.project-card');
+  const target = e.target as HTMLElement;
+
+  // If project is open, clicking on either column closes it
+  if (isProjectOpen()) {
+    const isInColumn = target.closest('.gallery-column-container--col1') ||
+                       target.closest('.gallery-column-container--col4');
+    if (isInColumn) {
+      closeProject();
+      return;
+    }
+  }
+
+  // Otherwise, clicking a card opens the project
+  const card = target.closest('.project-card');
   if (card) {
     openProject(card as HTMLElement);
     return;

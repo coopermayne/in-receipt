@@ -272,8 +272,8 @@ button {
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     transition: transform 700ms var(--easing-smooth);
-    /* Default: offset to hide left panel, show Col1 | Contact | Col2 */
-    transform: translateX(-16.666vw);
+    /* Default: offset to hide left project page (55vw) */
+    transform: translateX(-55vw);
   }
 
   /* Ensure all children participate in the transform */
@@ -286,65 +286,76 @@ button {
     display: none;
   }
 
-  /* Contact sidebar: 1/6 of viewport (narrow center) */
+  /* Column 1: Projects Left (30vw) - right-aligned content */
+  .gallery-column-container--col1 {
+    display: flex;
+    flex: 0 0 30vw;
+    width: 30vw;
+    min-width: 0;
+  }
+
+  /* Column 2: Empty Space (32.5vw) - stays at bottom of layer stack */
+  .gallery-column-container--empty {
+    display: block;
+    flex: 0 0 32.5vw;
+    width: 32.5vw;
+    background: var(--color-bg);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Column 3: Contact sidebar (12.5vw) - white lines both sides */
   .contact-sidebar {
     display: flex;
-    flex: 0 0 16.666vw;
-    width: 16.666vw;
+    flex: 0 0 12.5vw;
+    width: 12.5vw;
     align-items: center;
     justify-content: center;
     position: relative;
     height: 100vh;
     background: var(--color-bg);
     overflow: visible;
+    border-left: 1px dotted var(--color-text);
   }
 
-  /* Spine container - rotated like a book spine */
-  .contact-sidebar__spine {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-lg);
-    transform: rotate(-90deg);
-    white-space: nowrap;
+  /* Right border as pseudo-element so it stays above sliding Col 1 */
+  .contact-sidebar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 100%;
+    border-right: 1px dotted var(--color-text);
+    z-index: 20;
   }
 
-  /* Site title - vertical book spine style */
+  /* Site title - large vertical text filling the sidebar */
   .site-title {
-    font-size: clamp(3rem, 8vw, 6rem);
+    display: block;
+    font-size: clamp(4rem, 12vw, 10rem);
     font-weight: 700;
-    line-height: 1;
+    line-height: 0.85;
     letter-spacing: -0.02em;
     color: var(--color-text);
     margin: 0;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
   }
 
-  /* Contact info below title */
-  .site-contact {
+  /* Column 4: Projects Right (25vw) - left-aligned content */
+  .gallery-column-container--col4 {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-sm);
-    font-size: 0.875rem;
-    color: var(--color-text-muted);
-  }
-
-  /* Gallery columns: 3:2 ratio (50vw and 33.333vw) */
-  .gallery-column-container {
-    display: flex;
+    flex: 0 0 25vw;
+    width: 25vw;
     min-width: 0;
+    border-left: 1px dotted transparent;
   }
 
-  .gallery-column-container--left {
-    flex: 0 0 50vw;
-    width: 50vw;
-    border-right: 1px solid var(--color-text-muted);
-  }
-
-  .gallery-column-container--right {
-    flex: 0 0 33.333vw;
-    width: 33.333vw;
-    border-left: 1px solid var(--color-text-muted);
+  /* Show white left border only when right project is open */
+  .main-gallery.project-open-right .gallery-column-container--col4 {
+    border-left-color: var(--color-text);
   }
 
   .gallery-column {
@@ -373,27 +384,28 @@ button {
     position: relative;
   }
 
-  /* LEFT COLUMN: Image top-left, text below */
+  /* LEFT COLUMN (Col1): Content right-aligned with 10px padding from dotted line */
   .gallery-column--left .project-card {
-    justify-content: flex-start;
-    align-items: flex-start;
+    justify-content: center;
+    align-items: flex-end;
+    padding-right: 10px;
   }
 
   .gallery-column--left .project-card__image-container {
-    width: 85%;
-    max-height: 60vh;
+    width: 80%;
+    max-height: 50vh;
     position: relative;
     display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
+    align-items: center;
+    justify-content: flex-end;
   }
 
   .gallery-column--left .project-card__image {
     width: 100%;
     height: auto;
-    max-height: 60vh;
+    max-height: 50vh;
     object-fit: contain;
-    object-position: top left;
+    object-position: center right;
     transform: translateZ(0);
   }
 
@@ -402,36 +414,35 @@ button {
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
+    align-items: flex-end;
+    text-align: right;
     padding: var(--spacing-lg) 0;
-    padding-left: 20%;
     background: var(--color-bg);
     color: var(--color-text);
   }
 
-  /* RIGHT COLUMN: Image bottom-right, text above aligned right */
+  /* RIGHT COLUMN (Col4): Content left-aligned with 10px padding from white line */
   .gallery-column--right .project-card {
-    justify-content: flex-end;
-    align-items: flex-end;
+    justify-content: center;
+    align-items: flex-start;
+    padding-left: 10px;
   }
 
   .gallery-column--right .project-card__image-container {
-    width: 85%;
-    max-height: 60vh;
+    width: 80%;
+    max-height: 50vh;
     position: relative;
     display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
-    order: 2;
+    align-items: center;
+    justify-content: flex-start;
   }
 
   .gallery-column--right .project-card__image {
     width: 100%;
     height: auto;
-    max-height: 60vh;
+    max-height: 50vh;
     object-fit: contain;
-    object-position: bottom right;
+    object-position: center left;
     transform: translateZ(0);
   }
 
@@ -440,23 +451,21 @@ button {
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    text-align: right;
+    align-items: flex-start;
+    text-align: left;
     padding: var(--spacing-lg) 0;
-    padding-right: 20%;
     background: var(--color-bg);
     color: var(--color-text);
-    order: 1;
   }
 
   .gallery-column .project-card__title {
-    font-size: 2rem;
-    margin-bottom: var(--spacing-md);
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-sm);
   }
 
   .gallery-column .project-card__description {
     display: block;
-    font-size: 1rem;
+    font-size: 0.875rem;
     color: var(--color-text-muted);
   }
 
@@ -469,109 +478,175 @@ button {
     display: none;
   }
 
-  /* Project Detail - off-screen panels (1/6 width each, matching contact) */
-  .project-detail {
-    flex: 0 0 16.666vw;
-    width: 16.666vw;
+  /* Project Pages - off-screen panels */
+  .project-page {
     height: 100vh;
     display: flex;
     background: var(--color-bg);
   }
 
-  .project-detail__line {
-    display: none;
+  /* Left project page: 55vw */
+  .project-page--left {
+    flex: 0 0 55vw;
+    width: 55vw;
   }
 
-  .project-detail__panel {
+  /* Right project page: 12.5vw (1/8) */
+  .project-page--right {
+    flex: 0 0 12.5vw;
+    width: 12.5vw;
+  }
+
+  .project-page__panel {
     flex: 1;
     height: 100vh;
     overflow-y: auto;
+    overflow-x: hidden;
     position: relative;
+    scrollbar-width: none;
   }
 
-  .project-detail__content {
+  .project-page__panel::-webkit-scrollbar {
+    display: none;
+  }
+
+  .project-page__content {
     padding: var(--spacing-xl);
-    padding-left: calc(var(--spacing-xl) * 3);
-    padding-top: calc(var(--spacing-xl) * 3);
-    max-width: 700px;
+    padding-top: calc(var(--spacing-xl) * 2);
   }
 
-  .project-detail__meta {
+  /* Left project page: content with left offset, no right constraint */
+  .project-page--left .project-page__content {
+    padding-left: 15vw;
+    padding-right: 0;
+    max-width: none;
+  }
+
+  .project-page__meta {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-xl);
     margin-bottom: var(--spacing-xl);
-    padding-bottom: var(--spacing-lg);
-    border-bottom: 1px solid var(--color-text-muted);
   }
 
-  .project-detail__meta-item {
+  .project-page__meta-item {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);
   }
 
-  .project-detail__meta-label {
+  .project-page__meta-label {
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--color-text-muted);
   }
 
-  .project-detail__meta-value {
+  .project-page__meta-value {
     font-size: 1rem;
     color: var(--color-text);
   }
 
-  .project-detail__description {
+  .project-page__description {
     color: var(--color-text-muted);
     margin-bottom: var(--spacing-xl);
     white-space: pre-line;
     line-height: 1.7;
   }
 
-  .project-detail__gallery {
+  .project-page__gallery {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-lg);
   }
 
-  .project-detail__gallery img {
+  .project-page__gallery img {
     width: 100%;
     height: auto;
     object-fit: cover;
     border-radius: 4px;
   }
 
+  /* Right project page has smaller gallery (single column due to narrow width) */
+  .project-page--right .project-page__gallery {
+    grid-template-columns: 1fr;
+  }
+
+  .project-page--right .project-page__content {
+    padding: var(--spacing-md);
+    max-width: none;
+  }
+
   /* Transitions for sliding elements */
-  .project-detail,
+  .project-page,
   .gallery-column-container,
   .contact-sidebar {
     transition: transform 700ms var(--easing-smooth);
   }
 
-  /* Sliding elements need z-index to cover contact sidebar */
-  .gallery-column-container,
-  .project-detail {
+  /* Sliding elements need z-index to layer properly */
+  .gallery-column-container--col1,
+  .gallery-column-container--col4,
+  .project-page {
     position: relative;
     z-index: 10;
     background: var(--color-bg);
   }
 
-  /* Left column click: left-panel + Col1 slide right, covering contact */
-  .main-gallery.project-open-left .project-detail--left {
-    transform: translateX(16.666vw);
-  }
-  .main-gallery.project-open-left .gallery-column-container--left {
-    transform: translateX(16.666vw);
+  .contact-sidebar {
+    z-index: 5;
   }
 
-  /* Right column click: right-panel + Col2 slide left, covering contact */
-  .main-gallery.project-open-right .gallery-column-container--right {
-    transform: translateX(-16.666vw);
+  /* Left click: left-page + Col1 slide right, stopping just before contact's right edge to keep white line visible */
+  .main-gallery.project-open-left .project-page--left {
+    transform: translateX(calc(45vw - 3px));
   }
-  .main-gallery.project-open-right .project-detail--right {
-    transform: translateX(-16.666vw);
+  .main-gallery.project-open-left .gallery-column-container--col1 {
+    transform: translateX(calc(45vw - 3px));
+  }
+
+  /* When left project open: Col1 not scrollable */
+  .main-gallery.project-open-left .gallery-column--left {
+    overflow: hidden;
+  }
+
+  /* When left project open: blur Col4 */
+  .gallery-column-container--col4 .gallery-column {
+    transition: filter 700ms var(--easing-smooth);
+  }
+
+  .main-gallery.project-open-left .gallery-column-container--col4 .gallery-column {
+    filter: blur(4px);
+  }
+
+  .main-gallery.project-open-left .gallery-column-container--col4 {
+    cursor: pointer;
+  }
+
+  /* Right click: Col4 + right-page slide left by 12.5vw, covering contact */
+  .main-gallery.project-open-right .gallery-column-container--col4 {
+    transform: translateX(-12.5vw);
+  }
+  .main-gallery.project-open-right .project-page--right {
+    transform: translateX(-12.5vw);
+  }
+
+  /* When right project open: Col4 not scrollable */
+  .main-gallery.project-open-right .gallery-column--right {
+    overflow: hidden;
+  }
+
+  /* When right project open: blur Col1 */
+  .gallery-column-container--col1 .gallery-column {
+    transition: filter 700ms var(--easing-smooth);
+  }
+
+  .main-gallery.project-open-right .gallery-column-container--col1 .gallery-column {
+    filter: blur(4px);
+  }
+
+  .main-gallery.project-open-right .gallery-column-container--col1 {
+    cursor: pointer;
   }
 }
 

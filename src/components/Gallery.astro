@@ -46,34 +46,34 @@ const commercial = projects.filter(p => p.category === 'commercial');
   </div>
 
   <!-- Desktop: Sliding Layout -->
-  <!-- Order: [left-panel] | Col1 | Contact | Col2 | [right-panel] -->
+  <!-- Order: [left-page] | Col1 | Empty | Contact | Col4 | [right-page] -->
 
-  <!-- Off-screen Left Project Detail (slides in from left for Col1 clicks) -->
-  <div class="project-detail project-detail--left" id="project-detail-left">
-    <div class="project-detail__panel">
-      <div class="project-detail__content">
-        <div class="project-detail__meta">
-          <div class="project-detail__meta-item">
-            <span class="project-detail__meta-label">Year</span>
-            <span class="project-detail__meta-value" data-field="year"></span>
+  <!-- Off-screen Left Project Page (50vw, slides in from left) -->
+  <div class="project-page project-page--left" id="project-page-left">
+    <div class="project-page__panel">
+      <div class="project-page__content">
+        <div class="project-page__meta">
+          <div class="project-page__meta-item">
+            <span class="project-page__meta-label">Year</span>
+            <span class="project-page__meta-value" data-field="year"></span>
           </div>
-          <div class="project-detail__meta-item">
-            <span class="project-detail__meta-label">Location</span>
-            <span class="project-detail__meta-value" data-field="location"></span>
+          <div class="project-page__meta-item">
+            <span class="project-page__meta-label">Location</span>
+            <span class="project-page__meta-value" data-field="location"></span>
           </div>
-          <div class="project-detail__meta-item">
-            <span class="project-detail__meta-label">Type</span>
-            <span class="project-detail__meta-value" data-field="type"></span>
+          <div class="project-page__meta-item">
+            <span class="project-page__meta-label">Type</span>
+            <span class="project-page__meta-value" data-field="type"></span>
           </div>
         </div>
-        <p class="project-detail__description" data-field="description"></p>
-        <div class="project-detail__gallery" data-field="gallery"></div>
+        <p class="project-page__description" data-field="description"></p>
+        <div class="project-page__gallery" data-field="gallery"></div>
       </div>
     </div>
   </div>
 
-  <!-- Column 1: Residential Projects -->
-  <div class="gallery-column-container gallery-column-container--left">
+  <!-- Column 1: Residential Projects (25vw, dotted right border, right-aligned) -->
+  <div class="gallery-column-container gallery-column-container--col1">
     <div class="gallery-column gallery-column--left" data-gallery-id="column-left">
       {residential.map((project, index) => (
         <ProjectCard {...project} isFirst={index === 0} />
@@ -81,19 +81,16 @@ const commercial = projects.filter(p => p.category === 'commercial');
     </div>
   </div>
 
-  <!-- Contact Sidebar (center) -->
+  <!-- Column 2: Empty Space (37.5vw) -->
+  <div class="gallery-column-container gallery-column-container--empty"></div>
+
+  <!-- Column 3: Contact Sidebar (12.5vw, white lines both sides) -->
   <aside class="contact-sidebar">
-    <div class="contact-sidebar__spine">
-      <h1 class="site-title">IN RECEIPT</h1>
-      <div class="site-contact">
-        <span>123 Design Street, Los Angeles CA 90012</span>
-        <span>hello@inreceipt.com</span>
-      </div>
-    </div>
+    <h1 class="site-title">IN RECEIPT</h1>
   </aside>
 
-  <!-- Column 2: Commercial Projects -->
-  <div class="gallery-column-container gallery-column-container--right">
+  <!-- Column 4: Commercial Projects (25vw, left-aligned) -->
+  <div class="gallery-column-container gallery-column-container--col4">
     <div class="gallery-column gallery-column--right" data-gallery-id="column-right">
       {commercial.map((project, index) => (
         <ProjectCard {...project} isFirst={index === 0} />
@@ -101,26 +98,26 @@ const commercial = projects.filter(p => p.category === 'commercial');
     </div>
   </div>
 
-  <!-- Off-screen Right Project Detail (slides in from right for Col2 clicks) -->
-  <div class="project-detail project-detail--right" id="project-detail-right">
-    <div class="project-detail__panel">
-      <div class="project-detail__content">
-        <div class="project-detail__meta">
-          <div class="project-detail__meta-item">
-            <span class="project-detail__meta-label">Year</span>
-            <span class="project-detail__meta-value" data-field="year"></span>
+  <!-- Off-screen Right Project Page (12.5vw, slides in from right) -->
+  <div class="project-page project-page--right" id="project-page-right">
+    <div class="project-page__panel">
+      <div class="project-page__content">
+        <div class="project-page__meta">
+          <div class="project-page__meta-item">
+            <span class="project-page__meta-label">Year</span>
+            <span class="project-page__meta-value" data-field="year"></span>
           </div>
-          <div class="project-detail__meta-item">
-            <span class="project-detail__meta-label">Location</span>
-            <span class="project-detail__meta-value" data-field="location"></span>
+          <div class="project-page__meta-item">
+            <span class="project-page__meta-label">Location</span>
+            <span class="project-page__meta-value" data-field="location"></span>
           </div>
-          <div class="project-detail__meta-item">
-            <span class="project-detail__meta-label">Type</span>
-            <span class="project-detail__meta-value" data-field="type"></span>
+          <div class="project-page__meta-item">
+            <span class="project-page__meta-label">Type</span>
+            <span class="project-page__meta-value" data-field="type"></span>
           </div>
         </div>
-        <p class="project-detail__description" data-field="description"></p>
-        <div class="project-detail__gallery" data-field="gallery"></div>
+        <p class="project-page__description" data-field="description"></p>
+        <div class="project-page__gallery" data-field="gallery"></div>
       </div>
     </div>
   </div>
