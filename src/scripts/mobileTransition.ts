@@ -71,6 +71,9 @@ function setupMobileTransition() {
 
     // Prevent body scroll
     document.body.style.overflow = 'hidden';
+
+    // Push history state so back button closes the project
+    history.pushState({ projectOpen: true }, '');
   });
 
   function closeActiveCard() {
@@ -99,6 +102,13 @@ function setupMobileTransition() {
   // Close on escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && activeCard) {
+      closeActiveCard();
+    }
+  });
+
+  // Close on browser back button
+  window.addEventListener('popstate', () => {
+    if (isMobile() && activeCard) {
       closeActiveCard();
     }
   });
