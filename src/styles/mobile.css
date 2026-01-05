@@ -52,6 +52,16 @@
     background: #222;
   }
 
+  /* Upper row: padding on right */
+  .gallery-row-container[data-category="residential"] .project-card__title {
+    padding-right: calc(var(--spacing-sm) / 2);
+  }
+
+  /* Lower row: padding on left */
+  .gallery-row-container[data-category="commercial"] .project-card__title {
+    padding-left: calc(var(--spacing-sm) / 2);
+  }
+
   /* Extend black strip to left edge for residential */
   .gallery-row-container[data-category="residential"] .project-card__title::before {
     content: '';
