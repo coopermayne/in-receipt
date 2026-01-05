@@ -421,11 +421,11 @@ button {
     color: var(--color-text);
   }
 
-  /* RIGHT COLUMN (Col4): Content left-aligned with 10px padding from white line */
+  /* RIGHT COLUMN (Col4): Content right-aligned with 10px padding from right edge */
   .gallery-column--right .project-card {
     justify-content: center;
-    align-items: flex-start;
-    padding-left: 10px;
+    align-items: flex-end;
+    padding-right: 10px;
   }
 
   .gallery-column--right .project-card__image-container {
@@ -434,7 +434,7 @@ button {
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: flex-end;
   }
 
   .gallery-column--right .project-card__image {
@@ -442,7 +442,7 @@ button {
     height: auto;
     max-height: 50vh;
     object-fit: contain;
-    object-position: center left;
+    object-position: center right;
     transform: translateZ(0);
   }
 
@@ -451,8 +451,8 @@ button {
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
+    align-items: flex-end;
+    text-align: right;
     padding: var(--spacing-lg) 0;
     background: var(--color-bg);
     color: var(--color-text);
