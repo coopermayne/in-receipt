@@ -1,36 +1,32 @@
 // Image preloading with Intersection Observer
+interface ProjectData {
+  images?: string[];
+  year?: string;
+  location?: string;
+  type?: string;
+}
+
 function preloadImage(src: string): void {
   const img = new Image();
   img.src = src;
 }
 
+function getProjectImages(card: HTMLElement): string[] {
+  try {
+    const projectData: ProjectData = JSON.parse(card.dataset.projectData || '{}');
+    return projectData.images || [];
+  } catch {
+    return [];
+  }
+}
+
 function setupPreloader() {
   const cards = document.querySelectorAll('.project-card');
 
-  // Preload adjacent images when card comes into view
-  const preloadObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const card = entry.target as HTMLElement;
-        const images: string[] = JSON.parse(card.dataset.projectImages || '[]');
-
-        // Preload project gallery images
-        images.forEach(src => preloadImage(src));
-      }
-    });
-  }, {
-    rootMargin: '100px',
-    threshold: 0
-  });
-
-  cards.forEach(card => preloadObserver.observe(card));
-
-  // Desktop: preload on hover
+  // Preload all project images immediately on page load
   cards.forEach(card => {
-    card.addEventListener('mouseenter', () => {
-      const images: string[] = JSON.parse((card as HTMLElement).dataset.projectImages || '[]');
-      images.forEach(src => preloadImage(src));
-    }, { once: true });
+    const images = getProjectImages(card as HTMLElement);
+    images.forEach(src => preloadImage(src));
   });
 }
 
