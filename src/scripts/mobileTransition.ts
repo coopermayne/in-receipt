@@ -7,7 +7,7 @@ function isMobile(): boolean {
 }
 
 let activeCard: HTMLElement | null = null;
-let savedScrollPositions: { row: HTMLElement; left: number }[] = [];
+let savedScrollPositions: number[] = [];
 
 function setupMobileTransition() {
   const infoBtn = document.querySelector('.mobile-info-btn');
@@ -70,13 +70,10 @@ function setupMobileTransition() {
     // Hide info button
     infoBtn?.classList.add('hidden');
 
-    // Save scroll positions before opening
+    // Save scroll positions before opening (values only, ViewTransitions replaces DOM)
     savedScrollPositions = [];
     document.querySelectorAll('.gallery-row').forEach((row) => {
-      savedScrollPositions.push({
-        row: row as HTMLElement,
-        left: row.scrollLeft
-      });
+      savedScrollPositions.push(row.scrollLeft);
     });
 
     // Prevent body scroll
@@ -120,12 +117,8 @@ function setupMobileTransition() {
   window.addEventListener('popstate', () => {
     if (isMobile() && activeCard) {
       closeActiveCard();
-      // Restore scroll positions after back navigation
-      setTimeout(() => {
-        savedScrollPositions.forEach(({ row, left }) => {
-          row.scrollLeft = left;
-        });
-      }, 0);
+      // Store scroll values for restoration after ViewTransitions completes
+      (window as any).__pendingScrollRestore = [...savedScrollPositions];
     }
   });
 }
@@ -136,3 +129,23 @@ if (document.readyState === 'loading') {
 } else {
   setupMobileTransition();
 }
+
+// Restore scroll after Astro ViewTransitions replaces DOM
+document.addEventListener('astro:page-load', () => {
+  const scrollValues = (window as any).__pendingScrollRestore;
+  if (scrollValues && isMobile()) {
+    const rows = document.querySelectorAll('.gallery-row');
+    rows.forEach((row, i) => {
+      const targetScroll = scrollValues[i] || 0;
+      (row as HTMLElement).style.scrollSnapType = 'none';
+      row.scrollLeft = targetScroll;
+    });
+    // Re-enable scroll snap after position is set
+    setTimeout(() => {
+      rows.forEach((row) => {
+        (row as HTMLElement).style.scrollSnapType = '';
+      });
+    }, 50);
+    (window as any).__pendingScrollRestore = null;
+  }
+});
