@@ -1,5 +1,6 @@
 // Custom smooth scroll with momentum for gallery columns
 const SCROLL_DURATION = 1200; // ms - slower for more deliberate feel
+const PROJECT_SLIDE_DURATION = 700; // ms - matches CSS transition for project open/close
 const EASING = (t: number): number => {
   // Ease-out cubic for smooth deceleration
   return 1 - Math.pow(1 - t, 3);
@@ -75,6 +76,19 @@ function initSmoothScroll(column: HTMLElement) {
   downIndicator.addEventListener('click', () => {
     if (!isScrollDisabled()) scrollToIndex(state.currentIndex + 1);
   });
+
+  // Watch for project open/close to show/hide indicators
+  if (mainGallery) {
+    const observer = new MutationObserver(() => {
+      if (isScrollDisabled()) {
+        hideIndicators();
+      } else {
+        // Wait for close animation before showing indicators
+        setTimeout(updateIndicators, PROJECT_SLIDE_DURATION);
+      }
+    });
+    observer.observe(mainGallery, { attributes: true, attributeFilter: ['class'] });
+  }
 
   function isScrollDisabled(): boolean {
     if (!mainGallery) return false;
