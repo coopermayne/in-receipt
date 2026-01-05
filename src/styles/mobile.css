@@ -188,28 +188,14 @@
     margin: var(--spacing-sm) 0;
   }
 
-  /* White circle that expands from orange button position */
-  .mobile-project-overlay {
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--color-text);
-    z-index: 100;
+  /* Hide info button during transition */
+  .mobile-info-btn.hidden {
+    opacity: 0;
     pointer-events: none;
-    clip-path: circle(0% at 50% 60%);
-    /* No transition on close - immediate disappear */
+    transition: opacity 200ms ease;
   }
 
-  .mobile-project-overlay.active {
-    clip-path: circle(150% at 50% 60%);
-    pointer-events: auto;
-    transition: clip-path 800ms var(--easing-smooth);
-  }
-
-  /* Title that stays in place during transition - inherits card styling */
+  /* Title that stays in place during expansion */
   .mobile-floating-title {
     display: block !important;
     position: fixed !important;
@@ -254,75 +240,121 @@
     display: none;
   }
 
-  /* Hide info button during transition */
-  .mobile-info-btn.hidden {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 200ms ease;
-  }
-
   /* Hide project pages on mobile */
   .project-page {
     display: none;
   }
 
-  /* Modal fades in after circle animation */
+  /* Hide modal backdrop on mobile (we use expanded cards instead) */
   .modal-backdrop {
-    background: var(--color-text);
-    opacity: 0;
-    visibility: hidden;
-    transform: none;
-    /* No transition on close - immediate disappear */
+    display: none !important;
   }
 
-  .modal-backdrop.open {
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 400ms var(--easing-smooth);
-  }
+  /* ============================================
+     Expanded Project Card - Preloaded Content
+     ============================================ */
 
-  /* Modal content positioning based on which row was clicked */
-  .modal-backdrop.modal--upper .modal-content {
-    position: absolute;
-    top: var(--title-bottom, 60px);
-    left: 0;
-    right: 0;
-    padding: var(--spacing-md) var(--spacing-lg);
-  }
-
-  .modal-backdrop.modal--lower .modal-content {
-    position: absolute;
-    top: var(--spacing-lg);
-    left: 0;
-    right: 0;
-    padding: var(--spacing-md) var(--spacing-lg);
-  }
-
-  .modal-close {
+  /* Hidden by default */
+  .project-card__expanded {
+    display: none;
     position: fixed;
-    top: var(--spacing-xl);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--color-text);
+    z-index: 100;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Show when card is expanded */
+  .project-card.expanded .project-card__expanded {
+    display: block;
+  }
+
+  /* Close button - aligned with title position */
+  .project-card__close {
+    position: fixed;
+    top: var(--spacing-lg);
     right: var(--spacing-xl);
     background: none;
     border: none;
     font-size: 2rem;
     color: #222;
     cursor: pointer;
-    z-index: 160;
+    z-index: 110;
+    line-height: 1;
+    padding: 0;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .modal-meta {
+  /* Content container */
+  .project-card__expanded-content {
+    padding: var(--spacing-lg);
+    padding-top: 80px;
+  }
+
+  /* When expanded from upper row - content starts below the title */
+  .project-card.expanded--upper .project-card__expanded-content {
+    padding-top: calc(var(--title-bottom, 100px) + var(--spacing-md));
+  }
+
+  /* When expanded from lower row - content at top */
+  .project-card.expanded--lower .project-card__expanded-content {
+    padding-top: var(--spacing-xl);
+  }
+
+  /* Meta info */
+  .project-card__expanded-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
     border-bottom: 1px solid rgba(34, 34, 34, 0.2);
   }
 
-  .modal-meta__label {
+  .project-card__expanded-meta-item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-sm);
+  }
+
+  .project-card__expanded-meta-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     color: var(--color-bg);
   }
 
-  .modal-meta__value {
+  .project-card__expanded-meta-value {
+    font-size: 0.875rem;
     color: #222;
   }
 
-  .modal-description {
+  /* Description */
+  .project-card__expanded-description {
+    font-size: 1rem;
+    line-height: 1.6;
     color: #222;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  /* Gallery */
+  .project-card__expanded-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .project-card__expanded-gallery img {
+    width: 100%;
+    height: auto;
+    display: block;
   }
 }

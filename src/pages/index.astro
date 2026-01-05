@@ -1,7 +1,6 @@
 ---
 import { ViewTransitions } from 'astro:transitions';
 import Gallery from '../components/Gallery.astro';
-import ProjectModal from '../components/ProjectModal.astro';
 import projectData from '../data/projects.json';
 import '../styles/global.css';
 import '../styles/mobile.css';
@@ -20,7 +19,6 @@ import '../styles/mobile.css';
     <div class="contact-border-left"></div>
     <div class="contact-border-right"></div>
     <Gallery projects={projectData.projects} />
-    <ProjectModal />
     <script src="../scripts/modal.ts"></script>
     <script src="../scripts/smoothScroll.ts"></script>
     <script src="../scripts/preloader.ts"></script>

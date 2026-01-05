@@ -1,34 +1,30 @@
-// Mobile project transition animation
-// 1. White circle expands from orange button position
-// 2. Project title stays exactly where it is
-// 3. Project content fades in around the title
+// Mobile project transition - instant expand
+// Content is preloaded in cards, just show/hide on click
+// Original title stays in place (no cloning = no flicker)
 
 function isMobile(): boolean {
   return window.innerWidth < 768;
 }
 
-let floatingTitle: HTMLElement | null = null;
+let activeCard: HTMLElement | null = null;
 
 function setupMobileTransition() {
-  const overlay = document.querySelector('.mobile-project-overlay');
   const infoBtn = document.querySelector('.mobile-info-btn');
-  const modal = document.getElementById('project-modal');
-  const modalClose = modal?.querySelector('.modal-close');
-
-  // Modal content elements
-  const modalYear = document.getElementById('modal-year');
-  const modalLocation = document.getElementById('modal-location');
-  const modalType = document.getElementById('modal-type');
-  const modalDescription = document.getElementById('modal-description');
-  const modalGallery = document.getElementById('modal-gallery');
-
-  if (!overlay || !modal) return;
 
   // Handle project card clicks on mobile
   document.addEventListener('click', (e) => {
     if (!isMobile()) return;
 
     const target = e.target as HTMLElement;
+
+    // Handle close button click
+    if (target.closest('.project-card__close')) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeActiveCard();
+      return;
+    }
+
     const card = target.closest('.project-card') as HTMLElement;
     const isInGalleryRow = target.closest('.gallery-row');
 
@@ -37,106 +33,73 @@ function setupMobileTransition() {
     e.preventDefault();
     e.stopPropagation();
 
-    // Get project data
-    const title = card.getAttribute('data-project-title') || '';
-    const description = card.getAttribute('data-project-description') || '';
-    const projectDataStr = card.getAttribute('data-project-data') || '{}';
-    const projectData = JSON.parse(projectDataStr);
+    // Close any existing open card first
+    if (activeCard && activeCard !== card) {
+      closeActiveCard();
+    }
 
     // Determine which row (residential = upper, commercial = lower)
     const rowContainer = card.closest('.gallery-row-container') as HTMLElement;
     const isUpperRow = rowContainer?.getAttribute('data-category') === 'residential';
 
-    // Get the title element and fix it in place
-    const titleEl = card.querySelector('.project-card__title') as HTMLElement;
+    // Get title position and fix it in place
     const contentEl = card.querySelector('.project-card__content') as HTMLElement;
-    let titleBottom = 0;
 
-    if (titleEl && contentEl) {
+    if (contentEl) {
       const contentRect = contentEl.getBoundingClientRect();
-      titleBottom = contentRect.bottom;
 
-      // Clone the entire content element (includes the ::before pseudo-element styling context)
-      floatingTitle = contentEl.cloneNode(true) as HTMLElement;
-      floatingTitle.className = 'mobile-floating-title';
-      floatingTitle.style.top = `${contentRect.top}px`;
-      floatingTitle.style.left = `${contentRect.left}px`;
-      floatingTitle.style.right = 'auto';
-      floatingTitle.style.bottom = 'auto';
+      // Fix the original title in its current viewport position
+      contentEl.style.position = 'fixed';
+      contentEl.style.top = `${contentRect.top}px`;
+      contentEl.style.left = `${contentRect.left}px`;
+      contentEl.style.zIndex = '150';
 
-      if (isUpperRow) {
-        floatingTitle.classList.add('mobile-floating-title--upper');
-      } else {
-        floatingTitle.classList.add('mobile-floating-title--lower');
-      }
-
-      document.body.appendChild(floatingTitle);
+      // Store bottom position for content layout
+      card.style.setProperty('--title-bottom', `${contentRect.bottom}px`);
     }
 
-    // Add class to modal for positioning based on row
-    modal.classList.remove('modal--upper', 'modal--lower');
-    modal.classList.add(isUpperRow ? 'modal--upper' : 'modal--lower');
+    // Add position class
+    card.classList.remove('expanded--upper', 'expanded--lower');
+    card.classList.add(isUpperRow ? 'expanded--upper' : 'expanded--lower');
 
-    // Store title bottom position for content placement
-    if (isUpperRow) {
-      modal.style.setProperty('--title-bottom', `${titleBottom}px`);
-    }
+    // Expand the card
+    card.classList.add('expanded');
+    activeCard = card;
 
     // Hide info button
     infoBtn?.classList.add('hidden');
 
-    // White circle expands
-    overlay.classList.add('active');
-
-    // After white expands, show modal content
-    setTimeout(() => {
-      // Populate modal content
-      if (modalYear) modalYear.textContent = projectData.year || '—';
-      if (modalLocation) modalLocation.textContent = projectData.location || '—';
-      if (modalType) modalType.textContent = projectData.type || '—';
-      if (modalDescription) modalDescription.textContent = description;
-      if (modalGallery) {
-        modalGallery.innerHTML = (projectData.images || [])
-          .map((src: string) => `<img src="${src}" alt="Project image" loading="lazy" />`)
-          .join('');
-      }
-
-      modal.classList.add('open');
-      modal.setAttribute('aria-hidden', 'false');
-    }, 800);
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
   });
 
-  // Close modal
-  function closeModal() {
-    if (!isMobile()) return;
+  function closeActiveCard() {
+    if (!activeCard) return;
 
-    modal.classList.remove('open');
-    modal.setAttribute('aria-hidden', 'true');
-
-    // Reset transition elements
-    overlay.classList.remove('active');
-    infoBtn?.classList.remove('hidden');
-    modal.classList.remove('modal--upper', 'modal--lower');
-    modal.style.removeProperty('--title-bottom');
-
-    // Remove floating title
-    if (floatingTitle) {
-      floatingTitle.remove();
-      floatingTitle = null;
+    // Reset title positioning
+    const contentEl = activeCard.querySelector('.project-card__content') as HTMLElement;
+    if (contentEl) {
+      contentEl.style.position = '';
+      contentEl.style.top = '';
+      contentEl.style.left = '';
+      contentEl.style.zIndex = '';
     }
+
+    activeCard.classList.remove('expanded', 'expanded--upper', 'expanded--lower');
+    activeCard.style.removeProperty('--title-bottom');
+    activeCard = null;
+
+    // Show info button
+    infoBtn?.classList.remove('hidden');
+
+    // Restore body scroll
+    document.body.style.overflow = '';
   }
 
-  modalClose?.addEventListener('click', closeModal);
-
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      closeModal();
-    }
-  });
-
+  // Close on escape
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.classList.contains('open')) {
-      closeModal();
+    if (e.key === 'Escape' && activeCard) {
+      closeActiveCard();
     }
   });
 }

@@ -39,4 +39,31 @@ const projectData = JSON.stringify({ images, year, location, type });
       <p class="project-card__description">{shortDescription}</p>
     </div>
   </div>
+
+  <!-- Mobile: Preloaded project content (hidden until clicked) -->
+  <div class="project-card__expanded">
+    <button class="project-card__close" aria-label="Close">&times;</button>
+    <div class="project-card__expanded-content">
+      <div class="project-card__expanded-meta">
+        <div class="project-card__expanded-meta-item">
+          <span class="project-card__expanded-meta-label">Year</span>
+          <span class="project-card__expanded-meta-value">{year || '—'}</span>
+        </div>
+        <div class="project-card__expanded-meta-item">
+          <span class="project-card__expanded-meta-label">Location</span>
+          <span class="project-card__expanded-meta-value">{location || '—'}</span>
+        </div>
+        <div class="project-card__expanded-meta-item">
+          <span class="project-card__expanded-meta-label">Type</span>
+          <span class="project-card__expanded-meta-value">{type || '—'}</span>
+        </div>
+      </div>
+      <p class="project-card__expanded-description">{fullDescription}</p>
+      <div class="project-card__expanded-gallery">
+        {images.map((src) => (
+          <img src={src} alt="Project image" loading="lazy" />
+        ))}
+      </div>
+    </div>
+  </div>
 </article>

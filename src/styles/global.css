@@ -186,6 +186,12 @@ button {
   display: none;
 }
 
+/* Hide mobile expanded content by default (shown on mobile only) */
+.project-card__expanded,
+.project-card__close {
+  display: none;
+}
+
 /* Scroll Indicators - hidden on mobile */
 .scroll-indicators {
   display: none;
