@@ -294,11 +294,11 @@ button {
     min-width: 0;
   }
 
-  /* Column 2: Empty Space (32.5vw) - stays at bottom of layer stack */
+  /* Column 2: Empty Space (31.8vw) - stays at bottom of layer stack */
   .gallery-column-container--empty {
     display: block;
-    flex: 0 0 32.5vw;
-    width: 32.5vw;
+    flex: 0 0 31.8vw;
+    width: 31.8vw;
     background: var(--color-bg);
     position: relative;
     z-index: 1;
@@ -318,17 +318,7 @@ button {
     border-left: 1px dotted var(--color-text);
   }
 
-  /* Right border as pseudo-element so it stays above sliding Col 1 */
-  .contact-sidebar::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 0;
-    height: 100%;
-    border-right: 1px dotted var(--color-text);
-    z-index: 20;
-  }
+  /* Right border removed - using separate element instead */
 
   /* Site title - large vertical text filling the sidebar */
   .site-title {
@@ -344,13 +334,13 @@ button {
     transform: rotate(180deg);
   }
 
-  /* Column 4: Projects Right (20vw) - right-aligned content, 5vw gap from contact */
+  /* Column 4: Projects Right (20vw) - right-aligned content, 5.7vw gap from contact */
   .gallery-column-container--col4 {
     display: flex;
     flex: 0 0 20vw;
     width: 20vw;
     min-width: 0;
-    margin-left: 5vw;
+    margin-left: 5.7vw;
     border-left: 1px dotted transparent;
   }
 
@@ -385,12 +375,12 @@ button {
     position: relative;
   }
 
-  /* LEFT COLUMN (Col1): Content right-aligned, slightly above center */
+  /* LEFT COLUMN (Col1): Content right-aligned, centered in top 61.8% (above golden ratio line) */
   .gallery-column--left .project-card {
     justify-content: center;
     align-items: flex-end;
     padding-right: 10px;
-    padding-bottom: 15vh;
+    padding-bottom: 38.2vh;
   }
 
   .gallery-column--left .project-card__image-container {
@@ -423,12 +413,12 @@ button {
     color: var(--color-text);
   }
 
-  /* RIGHT COLUMN (Col4): Content right-aligned, toward bottom */
+  /* RIGHT COLUMN (Col4): Content right-aligned, centered in bottom 38.2% (below golden ratio line) */
   .gallery-column--right .project-card {
-    justify-content: flex-end;
+    justify-content: center;
     align-items: flex-end;
     padding-right: 3vw;
-    padding-bottom: 10vh;
+    padding-top: 61.8vh;
   }
 
   .gallery-column--right .project-card__image-container {
@@ -600,12 +590,24 @@ button {
     z-index: 5;
   }
 
-  /* Left click: left-page + Col1 slide right, stopping just before contact's right edge to keep white line visible */
+  /* Contact right border - separate element so it can stay above Col1 */
+  .contact-border-right {
+    position: fixed;
+    top: 0;
+    left: 74.3vw;
+    width: 0;
+    height: 100%;
+    border-right: 1px dotted var(--color-text);
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  /* Left click: left-page + Col1 slide right, stopping at contact's right edge (74.3vw - 30vw = 44.3vw) */
   .main-gallery.project-open-left .project-page--left {
-    transform: translateX(calc(45vw - 3px));
+    transform: translateX(44.3vw);
   }
   .main-gallery.project-open-left .gallery-column-container--col1 {
-    transform: translateX(calc(45vw - 3px));
+    transform: translateX(44.3vw);
   }
 
   /* When left project open: Col1 not scrollable */
@@ -626,12 +628,12 @@ button {
     cursor: pointer;
   }
 
-  /* Right click: Col4 + right-page slide left by 17.5vw (12.5vw contact + 5vw gap), stopping at contact's left edge */
+  /* Right click: Col4 + right-page slide left by 18.2vw (12.5vw contact + 5.7vw gap), stopping at contact's left edge */
   .main-gallery.project-open-right .gallery-column-container--col4 {
-    transform: translateX(-17.5vw);
+    transform: translateX(-18.2vw);
   }
   .main-gallery.project-open-right .project-page--right {
-    transform: translateX(-17.5vw);
+    transform: translateX(-18.2vw);
   }
 
   /* When right project open: Col4 not scrollable */
@@ -651,6 +653,34 @@ button {
   .main-gallery.project-open-right .gallery-column-container--col1 {
     cursor: pointer;
   }
+}
+
+/* Golden ratio guide lines (debug) */
+.golden-ratio-guides {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.golden-ratio-guides::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 61.8%;
+  width: 0;
+  height: 100%;
+  border-left: 1px dotted rgba(255, 255, 255, 0.5);
+}
+
+.golden-ratio-guides::after {
+  content: '';
+  position: absolute;
+  top: 61.8%;
+  left: 0;
+  width: 100%;
+  height: 0;
+  border-top: 1px dotted rgba(255, 255, 255, 0.5);
 }
 
 /* Preload skeleton */
