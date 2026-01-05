@@ -386,15 +386,16 @@ button {
     position: relative;
     height: 100vh;
     background: var(--color-bg);
-    overflow: visible;
+    overflow: hidden;
+    container-type: size;
   }
 
   /* Right border removed - using separate element instead */
 
-  /* Site title - large vertical text filling the sidebar */
+  /* Site title - vertical text scaled to container height */
   .site-title {
     display: block;
-    font-size: clamp(4rem, 12vw, 10rem);
+    font-size: 11cqh;  /* ~11% of container height = ~90% for 9 chars */
     font-weight: 700;
     line-height: 0.85;
     letter-spacing: -0.02em;
