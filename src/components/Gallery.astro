@@ -45,6 +45,24 @@ const commercial = projects.filter(p => p.category === 'commercial');
     <ScrollIndicator count={commercial.length} galleryId="commercial" />
   </div>
 
+  <!-- Mobile: Info Button -->
+  <button class="mobile-info-btn" aria-label="Contact information">
+    <span class="mobile-info-btn__icon">i</span>
+  </button>
+
+  <!-- Mobile: Contact Popup -->
+  <div class="mobile-contact-popup">
+    <div class="mobile-contact-popup__inner">
+      <button class="mobile-contact-popup__close" aria-label="Close">&times;</button>
+      <h2 class="mobile-contact-popup__title">IN RECEIPT</h2>
+      <div class="mobile-contact-popup__content">
+        <p>Architecture Studio</p>
+        <p>info@inreceipt.com</p>
+        <p>+1 (555) 123-4567</p>
+      </div>
+    </div>
+  </div>
+
   <!-- Desktop: Sliding Layout -->
   <!-- Order: [left-page] | Col1 | Empty | Contact | Col4 | [right-page] -->
 

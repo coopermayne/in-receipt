@@ -4,6 +4,7 @@ import Gallery from '../components/Gallery.astro';
 import ProjectModal from '../components/ProjectModal.astro';
 import projectData from '../data/projects.json';
 import '../styles/global.css';
+import '../styles/mobile.css';
 ---
 
 <!DOCTYPE html>
@@ -23,5 +24,25 @@ import '../styles/global.css';
     <script src="../scripts/modal.ts"></script>
     <script src="../scripts/smoothScroll.ts"></script>
     <script src="../scripts/preloader.ts"></script>
+    <script>
+      // Mobile info popup
+      const infoBtn = document.querySelector('.mobile-info-btn');
+      const popup = document.querySelector('.mobile-contact-popup');
+      const closeBtn = document.querySelector('.mobile-contact-popup__close');
+
+      infoBtn?.addEventListener('click', () => {
+        popup?.classList.add('open');
+      });
+
+      closeBtn?.addEventListener('click', () => {
+        popup?.classList.remove('open');
+      });
+
+      popup?.addEventListener('click', (e) => {
+        if (e.target === popup) {
+          popup.classList.remove('open');
+        }
+      });
+    </script>
   </body>
 </html>

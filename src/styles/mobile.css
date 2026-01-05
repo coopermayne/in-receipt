@@ -1,0 +1,227 @@
+/* Mobile-specific styles (max-width: 767px) */
+@media (max-width: 767px) {
+  /* Layout ratios: 60% residential, 40% commercial */
+  .gallery-row-container {
+    position: relative;
+    min-height: 0;
+  }
+
+  .gallery-row-container[data-category="residential"] {
+    flex: 0 0 60%;
+  }
+
+  .gallery-row-container[data-category="commercial"] {
+    flex: 0 0 40%;
+  }
+
+  /* Gallery row fills container */
+  .gallery-row {
+    height: 100%;
+  }
+
+  /* Project card inner and image container fill space */
+  .project-card__inner {
+    width: 100%;
+    height: 100%;
+  }
+
+  .project-card__image-container {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Title positioning - residential: top left */
+  .project-card__content {
+    position: absolute;
+    top: var(--spacing-lg);
+    left: var(--spacing-xl);
+    right: auto;
+    bottom: auto;
+    padding: 0;
+    background: none;
+    color: var(--color-text);
+  }
+
+  /* Title styling with tight black background */
+  .project-card__title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    position: relative;
+    display: inline;
+    background: #222;
+  }
+
+  /* Extend black strip to left edge for residential */
+  .gallery-row-container[data-category="residential"] .project-card__title::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 100%;
+    width: var(--spacing-xl);
+    background: #222;
+  }
+
+  /* Commercial row: title at bottom right */
+  .gallery-row-container[data-category="commercial"] .project-card__content {
+    top: auto;
+    bottom: var(--spacing-lg);
+    left: auto;
+    right: var(--spacing-xl);
+    text-align: right;
+  }
+
+  /* Extend black strip to right edge for commercial */
+  .gallery-row-container[data-category="commercial"] .project-card__title::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 100%;
+    width: var(--spacing-xl);
+    background: #222;
+  }
+
+  /* Contact Sidebar - hidden on mobile */
+  .contact-sidebar {
+    display: none;
+  }
+
+  /* Mobile Info Button - orange circle at 60% */
+  .mobile-info-btn {
+    display: flex;
+    position: fixed;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-bg);
+    border: none;
+    cursor: pointer;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    color: var(--color-text);
+    transition: transform 200ms ease;
+  }
+
+  .mobile-info-btn:active {
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+
+  .mobile-info-btn__icon {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  /* Mobile Contact Popup - circle expand animation using clip-path */
+  .mobile-contact-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--color-bg);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Circle starts at 60% down, centered, with 0 radius */
+    clip-path: circle(0% at 50% 60%);
+    transition: clip-path 500ms var(--easing-smooth);
+    pointer-events: none;
+  }
+
+  .mobile-contact-popup.open {
+    /* Expand to cover full screen (150% ensures corners are covered) */
+    clip-path: circle(150% at 50% 60%);
+    pointer-events: auto;
+  }
+
+  .mobile-contact-popup__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 300ms ease 300ms;
+  }
+
+  .mobile-contact-popup.open .mobile-contact-popup__inner {
+    opacity: 1;
+  }
+
+  .mobile-contact-popup__close {
+    position: absolute;
+    top: var(--spacing-xl);
+    right: var(--spacing-xl);
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .mobile-contact-popup__title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .mobile-contact-popup__content {
+    text-align: center;
+    color: var(--color-text);
+  }
+
+  .mobile-contact-popup__content p {
+    margin: var(--spacing-sm) 0;
+  }
+
+  /* Hide project pages on mobile */
+  .project-page {
+    display: none;
+  }
+
+  /* Modal slides in from right */
+  .modal-backdrop {
+    background: var(--color-text);
+    visibility: visible;
+    transform: translateX(100%);
+    transition: transform 400ms var(--easing-smooth);
+  }
+
+  .modal-backdrop.open {
+    transform: translateX(0);
+  }
+
+  /* Modal content styling to match project pages */
+  .modal-close {
+    color: #222;
+  }
+
+  .modal-meta {
+    border-bottom: 1px solid rgba(34, 34, 34, 0.2);
+  }
+
+  .modal-meta__label {
+    color: var(--color-bg);
+  }
+
+  .modal-meta__value {
+    color: #222;
+  }
+
+  .modal-description {
+    color: #222;
+  }
+}

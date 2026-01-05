@@ -335,6 +335,12 @@ button {
   display: none;
 }
 
+/* Mobile info button and popup - hidden by default */
+.mobile-info-btn,
+.mobile-contact-popup {
+  display: none;
+}
+
 /* Desktop Layout */
 @media (min-width: 768px) {
   .main-gallery {
