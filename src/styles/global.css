@@ -74,7 +74,7 @@
   --color-bg: #aa4925;
   --color-text: #f8f4e9;
   --color-text-muted: rgba(248, 244, 233, 0.7);
-  --color-overlay: rgba(0, 0, 0, 0.4);
+  --color-overlay: rgba(34, 34, 34, 0.4);
   --color-backdrop: rgba(170, 73, 37, 0.97);
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -171,7 +171,7 @@ button {
   padding: var(--spacing-lg);
   padding-top: calc(var(--spacing-lg) + env(safe-area-inset-top, 0px));
   background: linear-gradient(to bottom, var(--color-overlay) 0%, transparent 100%);
-  color: white;
+  color: var(--color-text);
 }
 
 .project-card__title {
@@ -195,12 +195,12 @@ button {
   width: 6px;
   height: 6px;
   border-radius: 0;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(248, 244, 233, 0.5);
   transition: background var(--transition-fast) ease;
 }
 
 .scroll-indicators__dot.active {
-  background: white;
+  background: var(--color-text);
 }
 
 /* Gallery Row Container (for positioning indicators) */
@@ -695,7 +695,7 @@ button {
   .project-page {
     height: 100vh;
     display: flex;
-    background: #fff;
+    background: var(--color-text);
     color: #222;
   }
 
@@ -751,7 +751,7 @@ button {
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: rgba(34, 34, 34, 0.6);
+    color: var(--color-bg);
   }
 
   .project-page__meta-value {
@@ -760,7 +760,7 @@ button {
   }
 
   .project-page__description {
-    color: rgba(34, 34, 34, 0.7);
+    color: #222;
     margin-bottom: var(--spacing-xl);
     white-space: pre-line;
     line-height: 1.7;
