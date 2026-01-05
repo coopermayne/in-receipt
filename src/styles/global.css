@@ -450,16 +450,16 @@ button {
     align-items: center;
   }
 
-  /* Col1: 90% of space from left of screen to contact left (61.8vw) */
+  /* Col1: from left edge to contact left (61.8vw) with fixed padding */
   .gallery-column-container--col1 .scroll-indicator {
-    left: 5%;
-    width: calc(55.6vw - 5%);
+    left: 1.5rem;
+    width: calc(61.8vw - 3rem);  /* 1.5rem padding each side */
   }
 
-  /* Col4: 90% of space from contact right (74.3vw) to right edge */
+  /* Col4: from contact right (74.3vw) to right edge with fixed padding */
   .gallery-column-container--col4 .scroll-indicator {
-    right: 5%;
-    width: calc(23.1vw - 5%);
+    right: 1.5rem;
+    width: calc(25.7vw - 3rem);  /* 1.5rem padding each side */
   }
 
   .scroll-indicator--up {
@@ -479,6 +479,8 @@ button {
     flex: 1;
     height: 0;
     border-top: 1px solid var(--color-text);
+    opacity: 0.2;
+    transition: opacity 200ms ease;
   }
 
   /* Fixed-size V in the center */
@@ -487,6 +489,13 @@ button {
     width: 16px;
     height: 8px;
     flex-shrink: 0;
+    opacity: 0.2;
+    transition: opacity 200ms ease;
+  }
+
+  .scroll-indicator:hover .scroll-indicator__line,
+  .scroll-indicator:hover .scroll-indicator__v {
+    opacity: 1;
   }
 
   .scroll-indicator__v::before,
