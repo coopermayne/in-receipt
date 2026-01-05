@@ -1,5 +1,12 @@
 /* Mobile-specific styles (max-width: 767px) */
 @media (max-width: 767px) {
+  /* Disable tap highlight on interactive elements */
+  .mobile-info-btn,
+  .mobile-contact-popup__close,
+  .project-card,
+  .project-card__close {
+    -webkit-tap-highlight-color: transparent;
+  }
   /* Layout ratios: 60% residential, 40% commercial */
   .gallery-row-container {
     position: relative;
