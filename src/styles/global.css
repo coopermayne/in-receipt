@@ -363,6 +363,7 @@ button {
     flex: 0 0 30vw;
     width: 30vw;
     min-width: 0;
+    outline: none;
   }
 
   /* Column 2: Empty Space (31.8vw) - stays at bottom of layer stack */
@@ -412,6 +413,7 @@ button {
     width: 20vw;
     min-width: 0;
     margin-left: 5.7vw;
+    outline: none;
   }
 
   .gallery-column {
@@ -423,6 +425,11 @@ button {
     overscroll-behavior-y: contain;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
+    outline: none;
+  }
+
+  .gallery-column:focus {
+    outline: none;
   }
 
   .gallery-column::-webkit-scrollbar {
