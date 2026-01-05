@@ -551,7 +551,7 @@ button {
     position: relative;
   }
 
-  /* LEFT COLUMN (Col1): Image+text as unit, image visually centered in top 61.8% */
+  /* LEFT COLUMN (Col1): Image+text as unit, positioned in upper safe zone */
   .gallery-column--left .project-card {
     position: relative;
     padding-right: 10px;
@@ -559,9 +559,9 @@ button {
 
   .gallery-column--left .project-card__inner {
     position: absolute;
-    top: 30.9vh;
+    top: 35%;
     right: 10px;
-    transform: translateY(calc(-50% + 1.25rem));
+    transform: translateY(-50%);
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -600,7 +600,7 @@ button {
     color: var(--color-text);
   }
 
-  /* RIGHT COLUMN (Col4): Image+text as unit, image visually centered in bottom 38.2% */
+  /* RIGHT COLUMN (Col4): Image+text as unit, positioned in lower safe zone */
   .gallery-column--right .project-card {
     position: relative;
     padding-right: 3vw;
@@ -608,9 +608,9 @@ button {
 
   .gallery-column--right .project-card__inner {
     position: absolute;
-    top: 80.9vh;
+    top: 65%;
     right: 3vw;
-    transform: translateY(calc(-50% + 1.25rem));
+    transform: translateY(-50%);
     display: flex;
     flex-direction: column;
     align-items: flex-end;
