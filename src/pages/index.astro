@@ -24,22 +24,74 @@ import '../styles/mobile.css';
     <script src="../scripts/preloader.ts"></script>
     <script src="../scripts/mobileTransition.ts"></script>
     <script>
-      // Mobile info popup
-      const infoBtn = document.querySelector('.mobile-info-btn');
-      const popup = document.querySelector('.mobile-contact-popup');
-      const closeBtn = document.querySelector('.mobile-contact-popup__close');
+      // Mobile info popup - use event delegation to survive ViewTransitions
+      let infoPopupOpen = false;
+      let infoScrollPositions: number[] = [];
 
-      infoBtn?.addEventListener('click', () => {
-        popup?.classList.add('open');
+      function openInfoPopup() {
+        // Save scroll positions before opening
+        infoScrollPositions = [];
+        document.querySelectorAll('.gallery-row').forEach((row) => {
+          infoScrollPositions.push(row.scrollLeft);
+        });
+        document.querySelector('.mobile-contact-popup')?.classList.add('open');
+        infoPopupOpen = true;
+        history.pushState({ infoOpen: true }, '');
+      }
+
+      function closeInfoPopup() {
+        document.querySelector('.mobile-contact-popup')?.classList.remove('open');
+        infoPopupOpen = false;
+      }
+
+      document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+
+        // Open popup when info button clicked
+        if (target.closest('.mobile-info-btn')) {
+          openInfoPopup();
+          return;
+        }
+
+        // Close popup when close button clicked
+        if (target.closest('.mobile-contact-popup__close')) {
+          closeInfoPopup();
+          history.back();
+          return;
+        }
+
+        // Close popup when clicking backdrop
+        if (target.classList.contains('mobile-contact-popup')) {
+          closeInfoPopup();
+          history.back();
+        }
       });
 
-      closeBtn?.addEventListener('click', () => {
-        popup?.classList.remove('open');
+      // Handle back button for info popup
+      window.addEventListener('popstate', () => {
+        if (infoPopupOpen) {
+          closeInfoPopup();
+          // Store for restoration after ViewTransitions
+          (window as any).__pendingInfoScrollRestore = [...infoScrollPositions];
+        }
       });
 
-      popup?.addEventListener('click', (e) => {
-        if (e.target === popup) {
-          popup.classList.remove('open');
+      // Restore scroll after ViewTransitions
+      document.addEventListener('astro:page-load', () => {
+        const scrollValues = (window as any).__pendingInfoScrollRestore;
+        if (scrollValues) {
+          const rows = document.querySelectorAll('.gallery-row');
+          rows.forEach((row, i) => {
+            const targetScroll = scrollValues[i] || 0;
+            (row as HTMLElement).style.scrollSnapType = 'none';
+            row.scrollLeft = targetScroll;
+          });
+          setTimeout(() => {
+            rows.forEach((row) => {
+              (row as HTMLElement).style.scrollSnapType = '';
+            });
+          }, 50);
+          (window as any).__pendingInfoScrollRestore = null;
         }
       });
     </script>
