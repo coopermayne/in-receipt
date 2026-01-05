@@ -436,6 +436,53 @@ button {
     display: none;
   }
 
+  /* Scroll indicators - subtle dotted chevrons */
+  .scroll-indicator {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1.5rem;
+    height: 1.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 300ms ease;
+    z-index: 15;
+  }
+
+  .scroll-indicator::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    border: 1px dotted var(--color-text);
+    border-top: none;
+    border-left: none;
+  }
+
+  .scroll-indicator--up {
+    top: 1.5rem;
+  }
+
+  .scroll-indicator--up::before {
+    transform: translate(-50%, -25%) rotate(-135deg);
+  }
+
+  .scroll-indicator--down {
+    bottom: 1.5rem;
+  }
+
+  .scroll-indicator--down::before {
+    transform: translate(-50%, -75%) rotate(45deg);
+  }
+
+  .scroll-indicator:hover {
+    opacity: 1 !important;
+  }
+
   /* Project cards in columns: full viewport height */
   .gallery-column .project-card {
     flex: 0 0 100vh;

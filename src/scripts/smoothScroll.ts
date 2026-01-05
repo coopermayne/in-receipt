@@ -13,6 +13,13 @@ interface ScrollState {
   targetPosition: number;
 }
 
+function createScrollIndicator(direction: 'up' | 'down'): HTMLElement {
+  const indicator = document.createElement('button');
+  indicator.className = `scroll-indicator scroll-indicator--${direction}`;
+  indicator.setAttribute('aria-label', `Scroll ${direction}`);
+  return indicator;
+}
+
 function initSmoothScroll(column: HTMLElement) {
   const cards = column.querySelectorAll('.project-card');
   if (cards.length === 0) return;
@@ -31,6 +38,36 @@ function initSmoothScroll(column: HTMLElement) {
   const isLeftColumn = column.classList.contains('gallery-column--left');
   const isRightColumn = column.classList.contains('gallery-column--right');
   const mainGallery = document.querySelector('.main-gallery');
+
+  // Create scroll indicators
+  const container = column.closest('.gallery-column-container') as HTMLElement;
+  const upIndicator = createScrollIndicator('up');
+  const downIndicator = createScrollIndicator('down');
+
+  if (container) {
+    container.style.position = 'relative';
+    container.appendChild(upIndicator);
+    container.appendChild(downIndicator);
+  }
+
+  function updateIndicators() {
+    const maxIndex = cards.length - 1;
+    upIndicator.style.opacity = state.currentIndex > 0 ? '1' : '0';
+    upIndicator.style.pointerEvents = state.currentIndex > 0 ? 'auto' : 'none';
+    downIndicator.style.opacity = state.currentIndex < maxIndex ? '1' : '0';
+    downIndicator.style.pointerEvents = state.currentIndex < maxIndex ? 'auto' : 'none';
+  }
+
+  // Initial update
+  updateIndicators();
+
+  // Click handlers for indicators
+  upIndicator.addEventListener('click', () => {
+    if (!isScrollDisabled()) scrollToIndex(state.currentIndex - 1);
+  });
+  downIndicator.addEventListener('click', () => {
+    if (!isScrollDisabled()) scrollToIndex(state.currentIndex + 1);
+  });
 
   function isScrollDisabled(): boolean {
     if (!mainGallery) return false;
@@ -76,6 +113,7 @@ function initSmoothScroll(column: HTMLElement) {
       } else {
         state.isScrolling = false;
         state.currentIndex = targetIndex;
+        updateIndicators();
       }
     }
 
