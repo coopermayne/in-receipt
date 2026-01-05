@@ -446,22 +446,21 @@ button {
     position: relative;
   }
 
-  /* LEFT COLUMN (Col1): Content right-aligned, centered in top 61.8% (above golden ratio line) */
+  /* LEFT COLUMN (Col1): Content right-aligned, image centered at 30.9vh (middle of top 61.8%) */
   .gallery-column--left .project-card {
-    justify-content: center;
+    justify-content: flex-start;
     align-items: flex-end;
     padding-right: 10px;
-    padding-bottom: 38.2vh;
     gap: 1rem;
   }
 
   .gallery-column--left .project-card__image-container {
     width: 80%;
     max-height: 50vh;
-    position: relative;
-    display: block;
-    margin: 0;
-    padding: 0;
+    position: absolute;
+    top: 30.9vh;
+    right: 10px;
+    transform: translateY(-50%);
   }
 
   .gallery-column--left .project-card__image {
@@ -476,15 +475,14 @@ button {
   }
 
   .gallery-column--left .project-card__content {
-    position: relative;
-    width: 100%;
+    position: absolute;
+    top: calc(30.9vh + 25vh + 1rem);
+    right: 10px;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     text-align: right;
     gap: 0;
-    margin: 0;
-    padding: 0;
     background: var(--color-bg);
     color: var(--color-text);
   }
