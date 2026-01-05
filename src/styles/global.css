@@ -343,8 +343,8 @@ button {
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     transition: transform 700ms var(--easing-smooth);
-    /* Default: offset to hide left project page (55vw) */
-    transform: translateX(-55vw);
+    /* Default: offset to hide left project page (44.3vw) */
+    transform: translateX(-44.3vw);
   }
 
   /* Ensure all children participate in the transform */
@@ -695,19 +695,20 @@ button {
   .project-page {
     height: 100vh;
     display: flex;
-    background: var(--color-bg);
+    background: #fff;
+    color: #222;
   }
 
-  /* Left project page: 55vw */
+  /* Left project page: 44.3vw (visible area when opened: 0 to 44.3vw) */
   .project-page--left {
-    flex: 0 0 55vw;
-    width: 55vw;
+    flex: 0 0 44.3vw;
+    width: 44.3vw;
   }
 
-  /* Right project page: 15vw (narrower for minor projects) */
+  /* Right project page: 18.2vw (100vw - 81.8vw where col4 ends after slide) */
   .project-page--right {
-    flex: 0 0 15vw;
-    width: 15vw;
+    flex: 0 0 18.2vw;
+    width: 18.2vw;
   }
 
   .project-page__panel {
@@ -730,9 +731,7 @@ button {
 
   /* Left project page: content with left offset, no right constraint */
   .project-page--left .project-page__content {
-    padding-left: 15vw;
-    padding-right: 0;
-    max-width: none;
+    padding: 24px;
   }
 
   .project-page__meta {
@@ -752,16 +751,16 @@ button {
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--color-text-muted);
+    color: rgba(34, 34, 34, 0.6);
   }
 
   .project-page__meta-value {
     font-size: 1rem;
-    color: var(--color-text);
+    color: #222;
   }
 
   .project-page__description {
-    color: var(--color-text-muted);
+    color: rgba(34, 34, 34, 0.7);
     margin-bottom: var(--spacing-xl);
     white-space: pre-line;
     line-height: 1.7;
@@ -782,8 +781,7 @@ button {
 
   /* Right project page: simplified layout with fixed-height image */
   .project-page--right .project-page__content {
-    padding: var(--spacing-md);
-    max-width: none;
+    padding: var(--spacing-lg);
   }
 
   .project-page--right .project-page__featured-image {
@@ -815,11 +813,15 @@ button {
 
   /* Sliding elements need z-index to layer properly */
   .gallery-column-container--col1,
-  .gallery-column-container--col4,
-  .project-page {
+  .gallery-column-container--col4 {
     position: relative;
     z-index: 10;
     background: var(--color-bg);
+  }
+
+  .project-page {
+    position: relative;
+    z-index: 10;
   }
 
   .contact-sidebar {
