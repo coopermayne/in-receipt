@@ -1,3 +1,74 @@
+/* Akkurat Font Family */
+@font-face {
+  font-family: 'Akkurat';
+  src: url('/fonts/AkkuratLLTT-Thin.ttf') format('truetype');
+  font-weight: 100;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Akkurat';
+  src: url('/fonts/AkkuratLLTT-ThinItalic.ttf') format('truetype');
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Akkurat';
+  src: url('/fonts/AkkuratLLTT-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Akkurat';
+  src: url('/fonts/AkkuratLLTT-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Akkurat';
+  src: url('/fonts/AkkuratLLTT-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Akkurat';
+  src: url('/fonts/AkkuratLLTT-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Akkurat';
+  src: url('/fonts/AkkuratLLTT-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Akkurat';
+  src: url('/fonts/AkkuratLLTT-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Akkurat';
+  src: url('/fonts/AkkuratLLTT-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Akkurat';
+  src: url('/fonts/AkkuratLLTT-BlackItalic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
+}
+
 /* CSS Custom Properties */
 :root {
   --color-bg: #aa4925;
@@ -12,7 +83,7 @@
   --transition-fast: 200ms;
   --transition-modal: 350ms;
   --easing-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-  --font-stack: Arial, sans-serif;
+  --font-stack: 'Akkurat', Arial, sans-serif;
 }
 
 /* Reset */
@@ -381,15 +452,16 @@ button {
     align-items: flex-end;
     padding-right: 10px;
     padding-bottom: 38.2vh;
+    gap: 1rem;
   }
 
   .gallery-column--left .project-card__image-container {
     width: 80%;
     max-height: 50vh;
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
+    display: block;
+    margin: 0;
+    padding: 0;
   }
 
   .gallery-column--left .project-card__image {
@@ -399,6 +471,8 @@ button {
     object-fit: contain;
     object-position: center right;
     transform: translateZ(0);
+    display: block;
+    margin: 0;
   }
 
   .gallery-column--left .project-card__content {
@@ -408,7 +482,9 @@ button {
     flex-direction: column;
     align-items: flex-end;
     text-align: right;
-    padding: var(--spacing-lg) 0;
+    gap: 0;
+    margin: 0;
+    padding: 0;
     background: var(--color-bg);
     color: var(--color-text);
   }
@@ -419,24 +495,27 @@ button {
     align-items: flex-end;
     padding-right: 3vw;
     padding-top: 61.8vh;
+    gap: 1rem;
   }
 
   .gallery-column--right .project-card__image-container {
     width: 60%;
     max-height: 40vh;
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
+    display: block;
+    margin: 0;
+    padding: 0;
   }
 
   .gallery-column--right .project-card__image {
     width: 100%;
     height: auto;
-    max-height: 50vh;
+    max-height: 40vh;
     object-fit: contain;
     object-position: center right;
     transform: translateZ(0);
+    display: block;
+    margin: 0;
   }
 
   .gallery-column--right .project-card__content {
@@ -446,20 +525,27 @@ button {
     flex-direction: column;
     align-items: flex-end;
     text-align: right;
-    padding: var(--spacing-lg) 0;
+    gap: 0;
+    margin: 0;
+    padding: 0;
     background: var(--color-bg);
     color: var(--color-text);
   }
 
   .gallery-column .project-card__title {
     font-size: 1.5rem;
-    margin-bottom: var(--spacing-sm);
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
   }
 
   .gallery-column .project-card__description {
     display: block;
     font-size: 0.875rem;
     color: var(--color-text-muted);
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
   }
 
   .scroll-indicators {
