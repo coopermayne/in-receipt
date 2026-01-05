@@ -20,6 +20,29 @@ function getProjectImages(card: HTMLElement): string[] {
   }
 }
 
+function setupCardFadeIn() {
+  const cardInners = document.querySelectorAll('.gallery-column .project-card__inner');
+
+  cardInners.forEach(inner => {
+    const img = inner.querySelector('.project-card__image') as HTMLImageElement;
+    if (!img) return;
+
+    if (img.complete && img.naturalHeight !== 0) {
+      // Image already loaded
+      inner.classList.add('loaded');
+    } else {
+      // Wait for image to load
+      img.addEventListener('load', () => {
+        inner.classList.add('loaded');
+      });
+      // Handle error case - still show content
+      img.addEventListener('error', () => {
+        inner.classList.add('loaded');
+      });
+    }
+  });
+}
+
 function setupPreloader() {
   const cards = document.querySelectorAll('.project-card');
 
@@ -28,6 +51,9 @@ function setupPreloader() {
     const images = getProjectImages(card as HTMLElement);
     images.forEach(src => preloadImage(src));
   });
+
+  // Setup fade-in for card content when thumbnail loads
+  setupCardFadeIn();
 }
 
 setupPreloader();

@@ -405,6 +405,12 @@ button {
     text-orientation: mixed;
     transform: rotate(180deg);
     cursor: default;
+    animation: fade-in 800ms ease forwards;
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
   /* Column 4: Projects Right (20vw) - right-aligned content, 5.7vw gap from contact */
@@ -550,6 +556,16 @@ button {
     display: flex;
     flex-direction: column;
     position: relative;
+  }
+
+  /* Hide card content until image loads, then fade in */
+  .gallery-column .project-card__inner {
+    opacity: 0;
+    transition: opacity 800ms ease;
+  }
+
+  .gallery-column .project-card__inner.loaded {
+    opacity: 1;
   }
 
   /* LEFT COLUMN (Col1): Image+text as unit, positioned in upper safe zone */
