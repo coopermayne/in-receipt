@@ -76,7 +76,7 @@
       "id": "studio-campus",
       "title": "Studio Campus",
       "category": "commercial",
-      "thumbnail": "https://picsum.photos/650/950",
+      "thumbnail": "https://picsum.photos/950/650",
       "shortDescription": "Creative offices organized around courtyards.",
       "fullDescription": "A series of interconnected studios designed for collaboration and focused work.",
       "year": "2023",
@@ -84,7 +84,7 @@
       "type": "Office Campus",
       "images": [
         "https://picsum.photos/seed/studio1/900/600",
-        "https://picsum.photos/seed/studio2/600/900",
+        "https://picsum.photos/seed/studio2/900/600",
         "https://picsum.photos/seed/studio3/800/600"
       ]
     },
@@ -100,7 +100,7 @@
       "type": "Public Institution",
       "images": [
         "https://picsum.photos/seed/civic1/900/600",
-        "https://picsum.photos/seed/civic2/800/900"
+        "https://picsum.photos/seed/civic2/900/800"
       ]
     }
   ]
