@@ -28,13 +28,26 @@ function initSmoothScroll(column: HTMLElement) {
   // Disable native scroll snap - we'll handle it
   column.style.scrollSnapType = 'none';
 
+  const isLeftColumn = column.classList.contains('gallery-column--left');
+  const isRightColumn = column.classList.contains('gallery-column--right');
+  const mainGallery = document.querySelector('.main-gallery');
+
+  function isScrollDisabled(): boolean {
+    if (!mainGallery) return false;
+    // When left project open, left column can't scroll
+    if (isLeftColumn && mainGallery.classList.contains('project-open-left')) return true;
+    // When right project open, right column can't scroll
+    if (isRightColumn && mainGallery.classList.contains('project-open-right')) return true;
+    return false;
+  }
+
   function getCardHeight(): number {
     return window.innerHeight;
   }
 
   function scrollToIndex(index: number) {
-    // Block input while animating - one at a time only
-    if (state.isScrolling) return;
+    // Block input while animating or if scroll disabled for this column
+    if (state.isScrolling || isScrollDisabled()) return;
 
     const maxIndex = cards.length - 1;
     const clampedIndex = Math.max(0, Math.min(index, maxIndex));
@@ -76,8 +89,8 @@ function initSmoothScroll(column: HTMLElement) {
   column.addEventListener('wheel', (e) => {
     e.preventDefault();
 
-    // Ignore wheel during animation
-    if (state.isScrolling) return;
+    // Ignore wheel during animation or if scroll disabled
+    if (state.isScrolling || isScrollDisabled()) return;
 
     accumulatedDelta += e.deltaY;
 
@@ -103,8 +116,8 @@ function initSmoothScroll(column: HTMLElement) {
   }, { passive: true });
 
   column.addEventListener('touchend', (e) => {
-    // Ignore touch during animation
-    if (state.isScrolling) return;
+    // Ignore touch during animation or if scroll disabled
+    if (state.isScrolling || isScrollDisabled()) return;
 
     const touchEndY = e.changedTouches[0].clientY;
     const deltaY = touchStartY - touchEndY;
@@ -123,7 +136,7 @@ function initSmoothScroll(column: HTMLElement) {
 
   // Handle keyboard navigation
   column.addEventListener('keydown', (e) => {
-    if (state.isScrolling) return;
+    if (state.isScrolling || isScrollDisabled()) return;
 
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
