@@ -31,6 +31,7 @@ const projectData = JSON.stringify({ images, year, location, type });
         src={thumbnail}
         alt={title}
         loading={isFirst ? "eager" : "lazy"}
+        fetchpriority={isFirst ? "high" : "auto"}
         data-thumbnail={thumbnail}
       />
     </div>
