@@ -7,6 +7,7 @@ function isMobile(): boolean {
 }
 
 let activeCard: HTMLElement | null = null;
+let savedScrollPositions: { row: HTMLElement; left: number }[] = [];
 
 function setupMobileTransition() {
   const infoBtn = document.querySelector('.mobile-info-btn');
@@ -69,6 +70,15 @@ function setupMobileTransition() {
     // Hide info button
     infoBtn?.classList.add('hidden');
 
+    // Save scroll positions before opening
+    savedScrollPositions = [];
+    document.querySelectorAll('.gallery-row').forEach((row) => {
+      savedScrollPositions.push({
+        row: row as HTMLElement,
+        left: row.scrollLeft
+      });
+    });
+
     // Prevent body scroll
     document.body.style.overflow = 'hidden';
 
@@ -110,6 +120,12 @@ function setupMobileTransition() {
   window.addEventListener('popstate', () => {
     if (isMobile() && activeCard) {
       closeActiveCard();
+      // Restore scroll positions after back navigation
+      setTimeout(() => {
+        savedScrollPositions.forEach(({ row, left }) => {
+          row.scrollLeft = left;
+        });
+      }, 0);
     }
   });
 }
