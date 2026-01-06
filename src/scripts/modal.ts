@@ -251,13 +251,16 @@ function closeLightbox() {
 
 // Event listeners for lightbox
 if (lightbox) {
-  // Click on gallery images (desktop left panel and mobile expanded)
+  // Click on gallery images (desktop only)
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
 
-    // Check if clicked on a gallery image
+    // Check if clicked on a gallery image (skip lightbox on mobile)
     const galleryImage = target.closest('.project-page__gallery img, .project-card__expanded-gallery img');
     if (galleryImage && galleryImage instanceof HTMLImageElement) {
+      // Don't open lightbox on mobile devices
+      if (window.innerWidth < 768) return;
+
       e.preventDefault();
       e.stopPropagation();
       openLightbox(galleryImage);
