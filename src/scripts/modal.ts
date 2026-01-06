@@ -114,9 +114,10 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// Escape key to close
+// Escape key to close project (only if lightbox is not open)
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && isProjectOpen()) {
+  const lightboxEl = document.getElementById('lightbox');
+  if (e.key === 'Escape' && isProjectOpen() && !lightboxEl?.classList.contains('open')) {
     closeProject();
   }
 });
