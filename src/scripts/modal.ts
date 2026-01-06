@@ -160,6 +160,12 @@ setupScrollIndicators();
 const lightbox = document.getElementById('lightbox') as HTMLDivElement;
 const lightboxImage = lightbox?.querySelector('.lightbox__image') as HTMLImageElement;
 const lightboxClose = lightbox?.querySelector('.lightbox__close') as HTMLButtonElement;
+const lightboxPrev = lightbox?.querySelector('.lightbox__nav--prev') as HTMLButtonElement;
+const lightboxNext = lightbox?.querySelector('.lightbox__nav--next') as HTMLButtonElement;
+
+// State for gallery navigation
+let currentGalleryImages: HTMLImageElement[] = [];
+let currentImageIndex = 0;
 
 // Extract Cloudflare image ID from URL and create high-quality version
 function getLightboxUrl(originalSrc: string): string {
@@ -172,14 +178,55 @@ function getLightboxUrl(originalSrc: string): string {
   return `https://imagedelivery.net/${accountHash}/${cloudflareId}/w=2560,q=90,f=auto`;
 }
 
-function openLightbox(imgElement: HTMLImageElement) {
-  if (!lightbox || !lightboxImage) return;
+function updateNavVisibility() {
+  if (!lightboxPrev || !lightboxNext) return;
 
+  // Hide prev at first image, hide next at last image
+  lightboxPrev.classList.toggle('hidden', currentImageIndex === 0);
+  lightboxNext.classList.toggle('hidden', currentImageIndex >= currentGalleryImages.length - 1);
+}
+
+function showImage(index: number) {
+  if (!lightboxImage || index < 0 || index >= currentGalleryImages.length) return;
+
+  currentImageIndex = index;
+  const imgElement = currentGalleryImages[index];
   const src = imgElement.src || imgElement.currentSrc;
   const highQualitySrc = getLightboxUrl(src);
 
   lightboxImage.src = highQualitySrc;
   lightboxImage.alt = imgElement.alt || '';
+
+  updateNavVisibility();
+}
+
+function navigatePrev() {
+  if (currentImageIndex > 0) {
+    showImage(currentImageIndex - 1);
+  }
+}
+
+function navigateNext() {
+  if (currentImageIndex < currentGalleryImages.length - 1) {
+    showImage(currentImageIndex + 1);
+  }
+}
+
+function openLightbox(imgElement: HTMLImageElement) {
+  if (!lightbox || !lightboxImage) return;
+
+  // Find the gallery container and get all images
+  const gallery = imgElement.closest('.project-page__gallery, .project-card__expanded-gallery');
+  if (gallery) {
+    currentGalleryImages = Array.from(gallery.querySelectorAll('img')) as HTMLImageElement[];
+    currentImageIndex = currentGalleryImages.indexOf(imgElement);
+  } else {
+    // Single image, no gallery
+    currentGalleryImages = [imgElement];
+    currentImageIndex = 0;
+  }
+
+  showImage(currentImageIndex);
 
   lightbox.classList.add('open');
   lightbox.setAttribute('aria-hidden', 'false');
@@ -193,11 +240,13 @@ function closeLightbox() {
   lightbox.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
 
-  // Clear image after transition
+  // Clear state after transition
   setTimeout(() => {
     if (lightboxImage) {
       lightboxImage.src = '';
     }
+    currentGalleryImages = [];
+    currentImageIndex = 0;
   }, 300);
 }
 
@@ -217,6 +266,17 @@ if (lightbox) {
     }
   });
 
+  // Navigation buttons
+  lightboxPrev?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    navigatePrev();
+  });
+
+  lightboxNext?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    navigateNext();
+  });
+
   // Close button
   lightboxClose?.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -230,10 +290,20 @@ if (lightbox) {
     }
   });
 
-  // Escape key
+  // Keyboard navigation
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && lightbox.classList.contains('open')) {
-      closeLightbox();
+    if (!lightbox.classList.contains('open')) return;
+
+    switch (e.key) {
+      case 'Escape':
+        closeLightbox();
+        break;
+      case 'ArrowLeft':
+        navigatePrev();
+        break;
+      case 'ArrowRight':
+        navigateNext();
+        break;
     }
   });
 }

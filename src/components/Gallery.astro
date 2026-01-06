@@ -145,7 +145,22 @@ const commercial = projects.filter(p => p.category === 'commercial');
 <!-- Lightbox for full-screen image viewing (outside main-gallery to avoid transform issues) -->
 <div class="lightbox" id="lightbox" aria-hidden="true">
   <button class="lightbox__close" aria-label="Close lightbox">&times;</button>
+
+  <!-- Previous nav indicator (vertical line with < chevron) -->
+  <button class="lightbox__nav lightbox__nav--prev" aria-label="Previous image">
+    <span class="lightbox__nav-line"></span>
+    <span class="lightbox__nav-chevron"></span>
+    <span class="lightbox__nav-line"></span>
+  </button>
+
   <div class="lightbox__content">
     <img class="lightbox__image" src="" alt="" />
   </div>
+
+  <!-- Next nav indicator (vertical line with > chevron) -->
+  <button class="lightbox__nav lightbox__nav--next" aria-label="Next image">
+    <span class="lightbox__nav-line"></span>
+    <span class="lightbox__nav-chevron"></span>
+    <span class="lightbox__nav-line"></span>
+  </button>
 </div>

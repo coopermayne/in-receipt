@@ -54,7 +54,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-xl);
+  /* Padding: top for close button, sides for nav indicators */
+  padding: 5rem 4rem var(--spacing-xl);
 }
 
 .lightbox__image {
@@ -71,6 +72,96 @@
 .lightbox.open .lightbox__image {
   opacity: 1;
   transform: scale(1);
+}
+
+/* Navigation indicators - vertical lines with chevrons */
+.lightbox__nav {
+  position: fixed;
+  top: 5rem;  /* Below close button */
+  bottom: var(--spacing-xl);
+  width: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  transition: opacity var(--transition-fast) ease;
+}
+
+.lightbox.open .lightbox__nav {
+  opacity: 0.3;
+}
+
+.lightbox__nav:hover {
+  opacity: 1 !important;
+}
+
+.lightbox__nav--prev {
+  left: var(--spacing-xl);
+}
+
+.lightbox__nav--next {
+  right: var(--spacing-xl);
+}
+
+/* Hide when at boundary */
+.lightbox__nav.hidden {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+/* Vertical lines above and below chevron */
+.lightbox__nav-line {
+  flex: 1;
+  width: 0;
+  border-left: 1px solid white;
+}
+
+/* Chevron in the center */
+.lightbox__nav-chevron {
+  position: relative;
+  width: 8px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.lightbox__nav-chevron::before,
+.lightbox__nav-chevron::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 9px;
+  border-left: 1px solid white;
+  left: 50%;
+}
+
+/* Previous arrow: < points left */
+.lightbox__nav--prev .lightbox__nav-chevron::before {
+  top: 0;
+  transform-origin: center top;
+  transform: rotate(30deg);
+}
+
+.lightbox__nav--prev .lightbox__nav-chevron::after {
+  bottom: 0;
+  transform-origin: center bottom;
+  transform: rotate(-30deg);
+}
+
+/* Next arrow: > points right */
+.lightbox__nav--next .lightbox__nav-chevron::before {
+  top: 0;
+  transform-origin: center top;
+  transform: rotate(-30deg);
+}
+
+.lightbox__nav--next .lightbox__nav-chevron::after {
+  bottom: 0;
+  transform-origin: center bottom;
+  transform: rotate(30deg);
 }
 
 /* Make gallery images clickable */
