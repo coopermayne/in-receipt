@@ -8,7 +8,6 @@ function isMobile(): boolean {
 
 let activeCard: HTMLElement | null = null;
 let savedScrollPositions: number[] = [];
-let savedPageScrollY: number = 0;
 
 function setupMobileTransition() {
   const infoBtn = document.querySelector('.mobile-info-btn');
@@ -77,9 +76,6 @@ function setupMobileTransition() {
       savedScrollPositions.push(row.scrollLeft);
     });
 
-    // Save page vertical scroll position
-    savedPageScrollY = window.scrollY;
-
     // Prevent body scroll
     document.body.style.overflow = 'hidden';
 
@@ -108,9 +104,6 @@ function setupMobileTransition() {
 
     // Restore body scroll
     document.body.style.overflow = '';
-
-    // Restore page vertical scroll position
-    window.scrollTo(0, savedPageScrollY);
   }
 
   // Close on escape
