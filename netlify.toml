@@ -3,6 +3,3 @@
   publish = "dist"
   ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ':!admin'"
 
-# Ignore admin folder in builds
-[build.ignore]
-  paths = ["admin/**"]
