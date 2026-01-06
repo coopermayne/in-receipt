@@ -139,4 +139,13 @@ const commercial = projects.filter(p => p.category === 'commercial');
       </div>
     </div>
   </div>
+
 </main>
+
+<!-- Lightbox for full-screen image viewing (outside main-gallery to avoid transform issues) -->
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <button class="lightbox__close" aria-label="Close lightbox">&times;</button>
+  <div class="lightbox__content">
+    <img class="lightbox__image" src="" alt="" />
+  </div>
+</div>

@@ -75,6 +75,14 @@ export const IMAGE_CONTEXTS = {
     widths: [200, 300, 400, 600],
     sizes: '18.2vw',
   },
+
+  // Lightbox: full-screen high quality
+  // Max viewport ~2560px, need up to 2x for retina = 5120px
+  // Using sizes for progressive loading
+  lightbox: {
+    widths: [800, 1200, 1600, 2000, 2560],
+    sizes: '100vw',
+  },
 } as const;
 
 // Crop presets for enforced aspect ratios
@@ -309,6 +317,24 @@ export function getRightPanelFeaturedImage(id: string): ResponsiveImage {
   return {
     src: getDefaultSrc(id, ctx.widths, null),
     srcset: buildSrcset(id, ctx.widths, null),
+    sizes: ctx.sizes,
+    focalPoint: getFocalPointStyle(id),
+    alt: image.alt,
+  };
+}
+
+// Lightbox full-screen image (high quality)
+export function getLightboxImage(id: string): ResponsiveImage {
+  const image = getImage(id);
+  if (!image) {
+    return { src: '', srcset: '', sizes: '', focalPoint: '50% 50%', alt: '' };
+  }
+
+  const ctx = IMAGE_CONTEXTS.lightbox;
+
+  return {
+    src: getDefaultSrc(id, ctx.widths, null, 90), // Higher quality for lightbox
+    srcset: buildSrcset(id, ctx.widths, null, 90),
     sizes: ctx.sizes,
     focalPoint: getFocalPointStyle(id),
     alt: image.alt,

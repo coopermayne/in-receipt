@@ -152,3 +152,88 @@ function setupScrollIndicators() {
 }
 
 setupScrollIndicators();
+
+// ===========================================
+// LIGHTBOX FUNCTIONALITY
+// ===========================================
+
+const lightbox = document.getElementById('lightbox') as HTMLDivElement;
+const lightboxImage = lightbox?.querySelector('.lightbox__image') as HTMLImageElement;
+const lightboxClose = lightbox?.querySelector('.lightbox__close') as HTMLButtonElement;
+
+// Extract Cloudflare image ID from URL and create high-quality version
+function getLightboxUrl(originalSrc: string): string {
+  // URL format: https://imagedelivery.net/{accountHash}/{cloudflareId}/{variant}
+  const match = originalSrc.match(/imagedelivery\.net\/([^/]+)\/([^/]+)\//);
+  if (!match) return originalSrc;
+
+  const [, accountHash, cloudflareId] = match;
+  // Create high-quality full-size version
+  return `https://imagedelivery.net/${accountHash}/${cloudflareId}/w=2560,q=90,f=auto`;
+}
+
+function openLightbox(imgElement: HTMLImageElement) {
+  if (!lightbox || !lightboxImage) return;
+
+  const src = imgElement.src || imgElement.currentSrc;
+  const highQualitySrc = getLightboxUrl(src);
+
+  lightboxImage.src = highQualitySrc;
+  lightboxImage.alt = imgElement.alt || '';
+
+  lightbox.classList.add('open');
+  lightbox.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  if (!lightbox) return;
+
+  lightbox.classList.remove('open');
+  lightbox.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+
+  // Clear image after transition
+  setTimeout(() => {
+    if (lightboxImage) {
+      lightboxImage.src = '';
+    }
+  }, 300);
+}
+
+// Event listeners for lightbox
+if (lightbox) {
+  // Click on gallery images (desktop left panel and mobile expanded)
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+
+    // Check if clicked on a gallery image
+    const galleryImage = target.closest('.project-page__gallery img, .project-card__expanded-gallery img');
+    if (galleryImage && galleryImage instanceof HTMLImageElement) {
+      e.preventDefault();
+      e.stopPropagation();
+      openLightbox(galleryImage);
+      return;
+    }
+  });
+
+  // Close button
+  lightboxClose?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeLightbox();
+  });
+
+  // Click on backdrop (outside image)
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox || (e.target as HTMLElement).classList.contains('lightbox__content')) {
+      closeLightbox();
+    }
+  });
+
+  // Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox.classList.contains('open')) {
+      closeLightbox();
+    }
+  });
+}
