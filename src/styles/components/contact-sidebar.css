@@ -1,0 +1,44 @@
+/* Contact Sidebar */
+
+/* Hidden on mobile */
+.contact-sidebar {
+  display: none;
+}
+
+/* Site Title - hidden on mobile */
+.site-title {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .contact-sidebar {
+    display: flex;
+    flex: 0 0 var(--col-contact-width);
+    width: var(--col-contact-width);
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 100vh;
+    background: var(--color-bg);
+    overflow: hidden;
+    container-type: size;
+    z-index: 5;
+    transition: transform var(--transition-slide) var(--easing-smooth);
+  }
+
+  /* Site title - vertical text scaled to container height */
+  .site-title {
+    display: block;
+    font-size: 11cqh;  /* ~11% of container height = ~90% for 9 chars */
+    font-weight: 700;
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+    color: var(--color-text);
+    margin: 0;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    cursor: default;
+    animation: fade-in 800ms ease forwards;
+  }
+}

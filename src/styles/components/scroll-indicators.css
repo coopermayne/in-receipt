@@ -1,0 +1,120 @@
+/* Scroll Indicators */
+
+/* Mobile: dot indicators - hidden by default */
+.scroll-indicators {
+  display: none;
+}
+
+.scroll-indicators__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 0;
+  background: rgba(248, 244, 233, 0.5);
+  transition: background var(--transition-fast) ease;
+}
+
+.scroll-indicators__dot.active {
+  background: var(--color-text);
+}
+
+/* Desktop: line indicators with V chevron */
+@media (min-width: 768px) {
+  .scroll-indicators {
+    display: none;
+  }
+
+  .scroll-indicator {
+    position: absolute;
+    height: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 800ms ease;
+    z-index: 15;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Col1: from left edge to contact left with fixed padding */
+  .gallery-column-container--col1 .scroll-indicator {
+    left: 1.5rem;
+    width: calc(var(--contact-left) - 3rem);
+  }
+
+  /* Col4: from contact right to right edge with fixed padding */
+  .gallery-column-container--col4 .scroll-indicator {
+    right: 1.5rem;
+    width: calc(100vw - var(--contact-right) - 3rem);
+  }
+
+  .scroll-indicator--up {
+    top: 1.5rem;
+  }
+
+  .scroll-indicator--down {
+    bottom: 1.5rem;
+  }
+
+  .scroll-indicator:hover {
+    opacity: 1 !important;
+  }
+
+  /* Flexible lines on either side */
+  .scroll-indicator__line {
+    flex: 1;
+    height: 0;
+    border-top: 1px solid var(--color-text);
+    animation: pulse-subtle 2.5s ease-in-out infinite;
+  }
+
+  /* Fixed-size V in the center */
+  .scroll-indicator__v {
+    position: relative;
+    width: 16px;
+    height: 8px;
+    flex-shrink: 0;
+    animation: pulse-subtle 2.5s ease-in-out infinite;
+  }
+
+  .scroll-indicator:hover .scroll-indicator__line,
+  .scroll-indicator:hover .scroll-indicator__v {
+    animation: pulse-hover 2.5s ease-in-out infinite;
+  }
+
+  .scroll-indicator__v::before,
+  .scroll-indicator__v::after {
+    content: '';
+    position: absolute;
+    width: 9px;
+    height: 0;
+    border-top: 1px solid var(--color-text);
+    top: 50%;
+  }
+
+  /* Down arrow: V points down */
+  .scroll-indicator--down .scroll-indicator__v::before {
+    left: 0;
+    transform-origin: left center;
+    transform: rotate(30deg);
+  }
+
+  .scroll-indicator--down .scroll-indicator__v::after {
+    right: 0;
+    transform-origin: right center;
+    transform: rotate(-30deg);
+  }
+
+  /* Up arrow: V points up */
+  .scroll-indicator--up .scroll-indicator__v::before {
+    left: 0;
+    transform-origin: left center;
+    transform: rotate(-30deg);
+  }
+
+  .scroll-indicator--up .scroll-indicator__v::after {
+    right: 0;
+    transform-origin: right center;
+    transform: rotate(30deg);
+  }
+}

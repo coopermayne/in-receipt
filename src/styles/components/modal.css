@@ -1,0 +1,120 @@
+/* Modal - Mobile Project Detail View */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg);
+  z-index: 100;
+  visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-backdrop.open {
+  visibility: visible;
+}
+
+.modal-close {
+  position: fixed;
+  top: var(--spacing-xl);
+  right: var(--spacing-xl);
+  width: auto;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 110;
+  background: transparent;
+  font-family: var(--font-stack);
+  font-size: clamp(6rem, 15vw, 12rem);
+  font-weight: 100;
+  line-height: 0.6;
+  letter-spacing: -0.05em;
+  color: var(--color-text);
+  opacity: 0.85;
+  transform: rotate(0deg) scale(1);
+  transition: opacity var(--transition-fast) ease, transform var(--transition-fast) ease;
+}
+
+.modal-close:hover {
+  opacity: 1;
+  transform: rotate(5deg) scale(1.05);
+}
+
+.modal-content {
+  padding: var(--spacing-lg);
+  padding-top: calc(var(--spacing-lg) + 80px);
+}
+
+/* Metadata */
+.modal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--color-text-muted);
+}
+
+.modal-meta__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.modal-meta__label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+}
+
+.modal-meta__value {
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.modal-description {
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-xl);
+  white-space: pre-line;
+  line-height: 1.7;
+}
+
+.modal-gallery {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-md);
+}
+
+.modal-gallery__image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+/* FLIP Animation Image */
+.flip-image {
+  position: fixed;
+  will-change: transform;
+  z-index: 200;
+  pointer-events: none;
+}
+
+/* Mobile elements - hidden by default */
+.mobile-info-btn,
+.mobile-contact-popup,
+.mobile-project-overlay,
+.mobile-floating-title {
+  display: none;
+}
+
+/* Hidden on desktop */
+@media (min-width: 768px) {
+  .modal-backdrop {
+    display: none;
+  }
+}

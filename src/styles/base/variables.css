@@ -1,0 +1,43 @@
+/* CSS Custom Properties */
+:root {
+  /* Colors */
+  --color-bg: #aa4925;
+  --color-text: #f8f4e9;
+  --color-text-muted: rgba(248, 244, 233, 0.7);
+  --color-overlay: rgba(34, 34, 34, 0.4);
+  --color-backdrop: rgba(170, 73, 37, 0.97);
+  --color-project-page-bg: #f8f4e9;
+  --color-project-page-text: #222;
+
+  /* Spacing */
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  /* Transitions */
+  --transition-fast: 200ms;
+  --transition-modal: 350ms;
+  --transition-slide: 700ms;
+  --easing-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Typography */
+  --font-stack: 'Akkurat', Arial, sans-serif;
+
+  /* Layout - Desktop Column Widths */
+  --col1-width: 30vw;           /* Left project column */
+  --col-empty-width: 31.8vw;    /* Empty spacer */
+  --col-contact-width: 12.5vw;  /* Contact sidebar */
+  --col4-width: 20vw;           /* Right project column */
+  --col4-gap: 5.7vw;            /* Gap between contact and col4 */
+
+  /* Layout - Derived Positions */
+  --contact-left: 61.8vw;       /* col1 + col-empty = 30 + 31.8 */
+  --contact-right: 74.3vw;      /* contact-left + col-contact = 61.8 + 12.5 */
+
+  /* Layout - Project Page Dimensions */
+  --project-left-width: 44.3vw; /* Left project panel (slides in from left) */
+  --project-right-width: 18.2vw;/* Right project panel */
+  --slide-offset: 44.3vw;       /* How far left panel slides */
+  --slide-right-offset: 18.2vw; /* How far right panel slides */
+}

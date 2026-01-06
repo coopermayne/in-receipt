@@ -1,0 +1,201 @@
+/* Main Gallery Layout */
+
+/* Mobile First */
+.main-gallery {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* Gallery Row (Mobile) */
+.gallery-row {
+  flex: 1;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.gallery-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* Gallery Row Container (for positioning indicators) */
+.gallery-row-container {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Column container hidden on mobile */
+.gallery-column-container {
+  display: none;
+}
+
+/* Desktop Layout */
+@media (min-width: 768px) {
+  .main-gallery {
+    flex-direction: row;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transition: transform var(--transition-slide) var(--easing-smooth);
+    /* Default: offset to hide left project page */
+    transform: translateX(calc(var(--project-left-width) * -1));
+  }
+
+  /* Ensure all children participate in the transform */
+  .main-gallery > * {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .gallery-row-container {
+    display: none;
+  }
+
+  /* Column 1: Projects Left - right-aligned content */
+  .gallery-column-container--col1 {
+    display: flex;
+    flex: 0 0 var(--col1-width);
+    width: var(--col1-width);
+    min-width: 0;
+    outline: none;
+  }
+
+  /* Column 2: Empty Space - stays at bottom of layer stack */
+  .gallery-column-container--empty {
+    display: block;
+    flex: 0 0 var(--col-empty-width);
+    width: var(--col-empty-width);
+    background: var(--color-bg);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Column 4: Projects Right - right-aligned content, gap from contact */
+  .gallery-column-container--col4 {
+    display: flex;
+    flex: 0 0 var(--col4-width);
+    width: var(--col4-width);
+    min-width: 0;
+    margin-left: var(--col4-gap);
+    outline: none;
+  }
+
+  .gallery-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior-y: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    outline: none;
+  }
+
+  .gallery-column:focus {
+    outline: none;
+  }
+
+  .gallery-column::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Sliding elements need z-index to layer properly */
+  .gallery-column-container--col1,
+  .gallery-column-container--col4 {
+    position: relative;
+    z-index: 10;
+    background: var(--color-bg);
+  }
+
+  /* Transitions for sliding elements */
+  .gallery-column-container {
+    transition: transform var(--transition-slide) var(--easing-smooth);
+  }
+
+  /* Contact left border - visible by default, hidden when left project opens */
+  .contact-border-left {
+    position: fixed;
+    top: 0;
+    left: var(--contact-left);
+    width: 0;
+    height: 100%;
+    border-left: 1px dotted var(--color-text);
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  /* Contact right border - visible by default, hidden when right project opens */
+  .contact-border-right {
+    position: fixed;
+    top: 0;
+    left: var(--contact-right);
+    width: 0;
+    height: 100%;
+    border-right: 1px dotted var(--color-text);
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  /* Hide appropriate border when projects open */
+  body:has(.main-gallery.project-open-left) .contact-border-left {
+    opacity: 0;
+  }
+
+  body:has(.main-gallery.project-open-right) .contact-border-right {
+    opacity: 0;
+  }
+
+  /* Left click: left-page + Col1 slide right */
+  .main-gallery.project-open-left .gallery-column-container--col1 {
+    transform: translateX(var(--slide-offset));
+  }
+
+  /* When left project open: Col1 not scrollable */
+  .main-gallery.project-open-left .gallery-column--left {
+    overflow: hidden;
+  }
+
+  /* When left project open: blur Col4 */
+  .gallery-column-container--col4 .gallery-column {
+    transition: filter var(--transition-slide) var(--easing-smooth);
+  }
+
+  .main-gallery.project-open-left .gallery-column-container--col4 .gallery-column {
+    filter: blur(4px);
+  }
+
+  .main-gallery.project-open-left .gallery-column-container--col4 {
+    cursor: pointer;
+  }
+
+  /* Right click: Col4 + right-page slide left */
+  .main-gallery.project-open-right .gallery-column-container--col4 {
+    transform: translateX(calc(var(--slide-right-offset) * -1));
+  }
+
+  /* When right project open: Col4 not scrollable */
+  .main-gallery.project-open-right .gallery-column--right {
+    overflow: hidden;
+  }
+
+  /* When right project open: blur Col1 */
+  .gallery-column-container--col1 .gallery-column {
+    transition: filter var(--transition-slide) var(--easing-smooth);
+  }
+
+  .main-gallery.project-open-right .gallery-column-container--col1 .gallery-column {
+    filter: blur(4px);
+  }
+
+  .main-gallery.project-open-right .gallery-column-container--col1 {
+    cursor: pointer;
+  }
+}
