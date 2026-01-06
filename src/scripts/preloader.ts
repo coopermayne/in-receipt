@@ -1,8 +1,18 @@
 // Prioritized image loading with Intersection Observer
 // Load order: visible thumbnails → next thumbnails → gallery images as user scrolls
 
+interface ResponsiveImage {
+  id: string;
+  src: string;
+  srcset: string;
+  sizes: string;
+  focalPoint: string;
+  alt: string;
+}
+
 interface ProjectData {
-  images?: string[];
+  leftPanelImages?: ResponsiveImage[];
+  rightPanelFeatured?: ResponsiveImage | null;
   year?: string;
   location?: string;
   type?: string;
@@ -72,7 +82,9 @@ function getProjectData(card: HTMLElement): { thumbnail: string; images: string[
   const thumbnail = card.querySelector('.project-card__image')?.getAttribute('src') || '';
   try {
     const projectData: ProjectData = JSON.parse(card.dataset.projectData || '{}');
-    return { thumbnail, images: projectData.images || [] };
+    // Extract src URLs from leftPanelImages (these are the largest desktop versions)
+    const imageSrcs = (projectData.leftPanelImages || []).map(img => img.src);
+    return { thumbnail, images: imageSrcs };
   } catch {
     return { thumbnail, images: [] };
   }

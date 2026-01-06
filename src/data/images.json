@@ -1,1 +1,522 @@
-{}
+{
+  "landscape-1": {
+    "cloudflareId": "85713d76-b43e-4015-2fcd-abda51da5600",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.51,
+      "y": 0.39
+    },
+    "alt": "Placeholder image landscape-1 (1920x1080)",
+    "filename": "landscape-1.jpg",
+    "width": 1920,
+    "height": 1080,
+    "uploadedAt": "2026-01-05T23:43:10.228Z"
+  },
+  "portrait-1": {
+    "cloudflareId": "ca30df52-ff15-488d-868c-3234752a5b00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.4,
+      "y": 0.68
+    },
+    "alt": "Placeholder image portrait-1 (1200x1600)",
+    "filename": "portrait-1.jpg",
+    "width": 1200,
+    "height": 1600,
+    "uploadedAt": "2026-01-05T23:43:12.856Z"
+  },
+  "square-1": {
+    "cloudflareId": "80fcf02d-2940-4490-fb4e-3c13e3ab6d00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.6,
+      "y": 0.58
+    },
+    "alt": "Placeholder image square-1 (1200x1200)",
+    "filename": "square-1.jpg",
+    "width": 1200,
+    "height": 1200,
+    "uploadedAt": "2026-01-05T23:43:15.359Z"
+  },
+  "landscape-2": {
+    "cloudflareId": "9be8b7be-c041-4fda-a58a-4cc728816900",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.56,
+      "y": 0.57
+    },
+    "alt": "Placeholder image landscape-2 (1920x1080)",
+    "filename": "landscape-2.jpg",
+    "width": 1920,
+    "height": 1080,
+    "uploadedAt": "2026-01-05T23:44:25.350Z"
+  },
+  "landscape-3": {
+    "cloudflareId": "396de7a4-0a82-4be0-c3b6-09f2acec5100",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.46,
+      "y": 0.59
+    },
+    "alt": "Placeholder image landscape-3 (1600x900)",
+    "filename": "landscape-3.jpg",
+    "width": 1600,
+    "height": 900,
+    "uploadedAt": "2026-01-05T23:44:26.717Z"
+  },
+  "landscape-4": {
+    "cloudflareId": "05da471f-a6df-4722-a39e-5b85bc652200",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.28,
+      "y": 0.5
+    },
+    "alt": "Placeholder image landscape-4 (1600x900)",
+    "filename": "landscape-4.jpg",
+    "width": 1600,
+    "height": 900,
+    "uploadedAt": "2026-01-05T23:44:28.213Z"
+  },
+  "landscape-5": {
+    "cloudflareId": "9a49d49e-3bc5-4d0a-2ac5-28708272bc00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.5037537100622709,
+      "y": 0.4811799190434095
+    },
+    "alt": "Placeholder image landscape-5 (1920x1200)",
+    "filename": "landscape-5.jpg",
+    "width": 1920,
+    "height": 1200,
+    "uploadedAt": "2026-01-05T23:44:30.692Z"
+  },
+  "landscape-6": {
+    "cloudflareId": "94bf96e4-4f05-4acb-811b-efa423c74c00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.52,
+      "y": 0.55
+    },
+    "alt": "Placeholder image landscape-6 (1920x1200)",
+    "filename": "landscape-6.jpg",
+    "width": 1920,
+    "height": 1200,
+    "uploadedAt": "2026-01-05T23:44:32.156Z"
+  },
+  "landscape-7": {
+    "cloudflareId": "0402093d-5c6e-45a4-bd80-871e8d508e00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.58,
+      "y": 0.54
+    },
+    "alt": "Placeholder image landscape-7 (1800x1000)",
+    "filename": "landscape-7.jpg",
+    "width": 1800,
+    "height": 1000,
+    "uploadedAt": "2026-01-05T23:44:35.024Z"
+  },
+  "landscape-8": {
+    "cloudflareId": "55d579c2-9c08-4fdf-a061-207d88824000",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.47,
+      "y": 0.47
+    },
+    "alt": "Placeholder image landscape-8 (1800x1000)",
+    "filename": "landscape-8.jpg",
+    "width": 1800,
+    "height": 1000,
+    "uploadedAt": "2026-01-05T23:44:37.498Z"
+  },
+  "landscape-9": {
+    "cloudflareId": "c3808854-54dd-4e41-9e4d-54bbbeb1af00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.04935110283419659,
+      "y": 0.5139670223084384
+    },
+    "alt": "Placeholder image landscape-9 (2000x1200)",
+    "filename": "landscape-9.jpg",
+    "width": 2000,
+    "height": 1200,
+    "uploadedAt": "2026-01-05T23:44:39.548Z"
+  },
+  "landscape-10": {
+    "cloudflareId": "73613a1d-c99c-406d-01b4-994f6eca1b00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.967467846126986,
+      "y": 0.5387972841901066
+    },
+    "alt": "Placeholder image landscape-10 (2000x1200)",
+    "filename": "landscape-10.jpg",
+    "width": 2000,
+    "height": 1200,
+    "uploadedAt": "2026-01-05T23:44:40.688Z"
+  },
+  "landscape-11": {
+    "cloudflareId": "4db0b179-cbb1-40d0-8def-cf4ae97c6d00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.54,
+      "y": 0.39
+    },
+    "alt": "Placeholder image landscape-11 (1920x1080)",
+    "filename": "landscape-11.jpg",
+    "width": 1920,
+    "height": 1080,
+    "uploadedAt": "2026-01-05T23:44:41.863Z"
+  },
+  "landscape-12": {
+    "cloudflareId": "2bdfa269-22fb-4082-b4bc-339555726700",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.53,
+      "y": 0.31
+    },
+    "alt": "Placeholder image landscape-12 (1920x1080)",
+    "filename": "landscape-12.jpg",
+    "width": 1920,
+    "height": 1080,
+    "uploadedAt": "2026-01-05T23:44:43.161Z"
+  },
+  "portrait-2": {
+    "cloudflareId": "579fa6bd-581a-4b9b-ad38-94fb2ddab000",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.51,
+      "y": 0.46
+    },
+    "alt": "Placeholder image portrait-2 (1200x1600)",
+    "filename": "portrait-2.jpg",
+    "width": 1200,
+    "height": 1600,
+    "uploadedAt": "2026-01-05T23:44:46.309Z"
+  },
+  "portrait-3": {
+    "cloudflareId": "96eae926-fa1f-4e69-3baa-2d2f7480fb00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.63,
+      "y": 0.48
+    },
+    "alt": "Placeholder image portrait-3 (1200x1800)",
+    "filename": "portrait-3.jpg",
+    "width": 1200,
+    "height": 1800,
+    "uploadedAt": "2026-01-05T23:44:48.930Z"
+  },
+  "portrait-4": {
+    "cloudflareId": "63a7368e-21f9-4b50-1867-2be93324eb00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.36,
+      "y": 0.52
+    },
+    "alt": "Placeholder image portrait-4 (1200x1800)",
+    "filename": "portrait-4.jpg",
+    "width": 1200,
+    "height": 1800,
+    "uploadedAt": "2026-01-05T23:44:50.028Z"
+  },
+  "portrait-5": {
+    "cloudflareId": "c0ecfae9-6e50-425c-dff1-dccbfc1e1a00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.43,
+      "y": 0.45
+    },
+    "alt": "Placeholder image portrait-5 (1000x1500)",
+    "filename": "portrait-5.jpg",
+    "width": 1000,
+    "height": 1500,
+    "uploadedAt": "2026-01-05T23:44:52.726Z"
+  },
+  "portrait-6": {
+    "cloudflareId": "9c482a8f-cd3e-4df9-61d3-0e1f49bdaf00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.49,
+      "y": 0.62
+    },
+    "alt": "Placeholder image portrait-6 (1000x1500)",
+    "filename": "portrait-6.jpg",
+    "width": 1000,
+    "height": 1500,
+    "uploadedAt": "2026-01-05T23:44:55.093Z"
+  },
+  "portrait-7": {
+    "cloudflareId": "4ec5f028-8ad0-48ba-be67-18bb212c4b00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.6,
+      "y": 0.4
+    },
+    "alt": "Placeholder image portrait-7 (1200x1600)",
+    "filename": "portrait-7.jpg",
+    "width": 1200,
+    "height": 1600,
+    "uploadedAt": "2026-01-05T23:44:57.541Z"
+  },
+  "portrait-8": {
+    "cloudflareId": "103e9de6-3946-4deb-c4ab-5d9832821a00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.56,
+      "y": 0.56
+    },
+    "alt": "Placeholder image portrait-8 (1200x1600)",
+    "filename": "portrait-8.jpg",
+    "width": 1200,
+    "height": 1600,
+    "uploadedAt": "2026-01-05T23:45:00.052Z"
+  },
+  "portrait-9": {
+    "cloudflareId": "b7e201e9-e047-4a5f-eb85-d8f182822c00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.4,
+      "y": 0.37
+    },
+    "alt": "Placeholder image portrait-9 (1200x1800)",
+    "filename": "portrait-9.jpg",
+    "width": 1200,
+    "height": 1800,
+    "uploadedAt": "2026-01-05T23:45:05.144Z"
+  },
+  "portrait-10": {
+    "cloudflareId": "ecc4fbed-65e4-4fbc-1952-51240572e500",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.36,
+      "y": 0.41
+    },
+    "alt": "Placeholder image portrait-10 (1200x1800)",
+    "filename": "portrait-10.jpg",
+    "width": 1200,
+    "height": 1800,
+    "uploadedAt": "2026-01-05T23:45:08.714Z"
+  },
+  "portrait-11": {
+    "cloudflareId": "fb2af384-a82d-48d9-c66b-45e8fd238d00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.58,
+      "y": 0.57
+    },
+    "alt": "Placeholder image portrait-11 (1000x1400)",
+    "filename": "portrait-11.jpg",
+    "width": 1000,
+    "height": 1400,
+    "uploadedAt": "2026-01-05T23:45:11.788Z"
+  },
+  "portrait-12": {
+    "cloudflareId": "e7ceb745-ffc6-419d-ea42-b063c19d0f00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.67,
+      "y": 0.48
+    },
+    "alt": "Placeholder image portrait-12 (1000x1400)",
+    "filename": "portrait-12.jpg",
+    "width": 1000,
+    "height": 1400,
+    "uploadedAt": "2026-01-05T23:45:14.213Z"
+  },
+  "portrait-13": {
+    "cloudflareId": "91e70625-deb1-476f-157b-4d907ef44500",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.56,
+      "y": 0.62
+    },
+    "alt": "Placeholder image portrait-13 (1200x1600)",
+    "filename": "portrait-13.jpg",
+    "width": 1200,
+    "height": 1600,
+    "uploadedAt": "2026-01-05T23:45:15.426Z"
+  },
+  "portrait-14": {
+    "cloudflareId": "1aa9034c-eece-44be-6876-2408bd036a00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.51,
+      "y": 0.31
+    },
+    "alt": "Placeholder image portrait-14 (1200x1600)",
+    "filename": "portrait-14.jpg",
+    "width": 1200,
+    "height": 1600,
+    "uploadedAt": "2026-01-05T23:45:17.984Z"
+  },
+  "square-2": {
+    "cloudflareId": "698323ea-3500-4814-e839-c772814fa100",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.27,
+      "y": 0.56
+    },
+    "alt": "Placeholder image square-2 (1200x1200)",
+    "filename": "square-2.jpg",
+    "width": 1200,
+    "height": 1200,
+    "uploadedAt": "2026-01-05T23:45:20.298Z"
+  },
+  "square-3": {
+    "cloudflareId": "e8bb12fd-84d4-4a6c-fbfd-9f6f8ba16400",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.5,
+      "y": 0.58
+    },
+    "alt": "Placeholder image square-3 (1400x1400)",
+    "filename": "square-3.jpg",
+    "width": 1400,
+    "height": 1400,
+    "uploadedAt": "2026-01-05T23:45:23.184Z"
+  },
+  "square-4": {
+    "cloudflareId": "50591d5e-1eb2-4764-9894-d9a3e6804000",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.48,
+      "y": 0.39
+    },
+    "alt": "Placeholder image square-4 (1400x1400)",
+    "filename": "square-4.jpg",
+    "width": 1400,
+    "height": 1400,
+    "uploadedAt": "2026-01-05T23:45:26.148Z"
+  },
+  "square-5": {
+    "cloudflareId": "9211718f-33a1-4719-5bf1-f657d6a90a00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.39625,
+      "y": 0.676484375
+    },
+    "alt": "Placeholder image square-5 (1200x1200)",
+    "filename": "square-5.jpg",
+    "width": 1200,
+    "height": 1200,
+    "uploadedAt": "2026-01-05T23:45:28.990Z"
+  },
+  "square-6": {
+    "cloudflareId": "85ecc4fc-3099-48c8-8988-7f65ee6afc00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.4,
+      "y": 0.38
+    },
+    "alt": "Placeholder image square-6 (1200x1200)",
+    "filename": "square-6.jpg",
+    "width": 1200,
+    "height": 1200,
+    "uploadedAt": "2026-01-05T23:45:31.249Z"
+  },
+  "square-7": {
+    "cloudflareId": "ab959043-6828-4538-c0de-707161ebf900",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.5,
+      "y": 0.38
+    },
+    "alt": "Placeholder image square-7 (1500x1500)",
+    "filename": "square-7.jpg",
+    "width": 1500,
+    "height": 1500,
+    "uploadedAt": "2026-01-05T23:45:33.668Z"
+  },
+  "square-8": {
+    "cloudflareId": "9b34f2af-31c2-4ef7-da11-accbe3578e00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.7,
+      "y": 0.57
+    },
+    "alt": "Placeholder image square-8 (1500x1500)",
+    "filename": "square-8.jpg",
+    "width": 1500,
+    "height": 1500,
+    "uploadedAt": "2026-01-05T23:45:36.167Z"
+  },
+  "wide-1": {
+    "cloudflareId": "fe12c6c9-c0c8-4fd0-0cae-108903d09000",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.49,
+      "y": 0.63
+    },
+    "alt": "Placeholder image wide-1 (2100x900)",
+    "filename": "wide-1.jpg",
+    "width": 2100,
+    "height": 900,
+    "uploadedAt": "2026-01-05T23:45:38.335Z"
+  },
+  "wide-2": {
+    "cloudflareId": "914a1970-3b7b-4c07-3fe4-ec73dc8abc00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.004529241918133952,
+      "y": 0.9923987044748497
+    },
+    "alt": "Placeholder image wide-2 (2100x900)",
+    "filename": "wide-2.jpg",
+    "width": 2100,
+    "height": 900,
+    "uploadedAt": "2026-01-05T23:45:40.873Z"
+  },
+  "wide-3": {
+    "cloudflareId": "ecb833da-7f2c-4a25-923e-dac3bb3bb000",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.52,
+      "y": 0.55
+    },
+    "alt": "Placeholder image wide-3 (2400x1000)",
+    "filename": "wide-3.jpg",
+    "width": 2400,
+    "height": 1000,
+    "uploadedAt": "2026-01-05T23:45:43.669Z"
+  },
+  "wide-4": {
+    "cloudflareId": "0fd1ccc4-932c-4dde-3927-fd29ef985a00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.4936873690766008,
+      "y": 0.6452599388379205
+    },
+    "alt": "Placeholder image wide-4 (2400x1000)",
+    "filename": "wide-4.jpg",
+    "width": 2400,
+    "height": 1000,
+    "uploadedAt": "2026-01-05T23:45:46.264Z"
+  },
+  "tall-1": {
+    "cloudflareId": "06b150b3-c2bb-4ef7-831b-dbcc92746400",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.46,
+      "y": 0.49
+    },
+    "alt": "Placeholder image tall-1 (1080x1920)",
+    "filename": "tall-1.jpg",
+    "width": 1080,
+    "height": 1920,
+    "uploadedAt": "2026-01-05T23:45:47.263Z"
+  },
+  "tall-2": {
+    "cloudflareId": "381a6921-48cd-481c-285c-82f129fc1400",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.56,
+      "y": 0.52
+    },
+    "alt": "Placeholder image tall-2 (1080x1920)",
+    "filename": "tall-2.jpg",
+    "width": 1080,
+    "height": 1920,
+    "uploadedAt": "2026-01-05T23:45:49.508Z"
+  }
+}

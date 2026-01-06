@@ -3,8 +3,18 @@ const mainGallery = document.querySelector('.main-gallery') as HTMLElement;
 const leftPanel = document.getElementById('project-page-left') as HTMLDivElement;
 const rightPanel = document.getElementById('project-page-right') as HTMLDivElement;
 
+interface ResponsiveImage {
+  id: string;
+  src: string;
+  srcset: string;
+  sizes: string;
+  focalPoint: string;
+  alt: string;
+}
+
 interface ProjectData {
-  images: string[];
+  leftPanelImages: ResponsiveImage[];
+  rightPanelFeatured: ResponsiveImage | null;
   year?: string;
   location?: string;
   type?: string;
@@ -23,17 +33,32 @@ function populatePanel(panel: HTMLDivElement, description: string, projectData: 
   typeEl.textContent = projectData.type || '—';
   descEl.textContent = description;
 
-  // Left panel uses gallery, right panel uses single featured image
+  // Left panel uses gallery (2-col grid, ~21vw each image)
   if (galleryEl) {
-    galleryEl.innerHTML = (projectData.images || [])
-      .map(src => `<img src="${src}" alt="Project image" loading="lazy" />`)
+    galleryEl.innerHTML = (projectData.leftPanelImages || [])
+      .map(img => `<img
+        src="${img.src}"
+        srcset="${img.srcset}"
+        sizes="${img.sizes}"
+        alt="${img.alt}"
+        loading="lazy"
+        style="object-position: ${img.focalPoint};"
+      />`)
       .join('');
   }
 
+  // Right panel uses single featured image (18.2vw × 15vh)
   if (featuredImageEl) {
-    const firstImage = projectData.images?.[0];
-    featuredImageEl.innerHTML = firstImage
-      ? `<img src="${firstImage}" alt="Project image" loading="lazy" />`
+    const featured = projectData.rightPanelFeatured;
+    featuredImageEl.innerHTML = featured
+      ? `<img
+          src="${featured.src}"
+          srcset="${featured.srcset}"
+          sizes="${featured.sizes}"
+          alt="${featured.alt}"
+          loading="lazy"
+          style="object-position: ${featured.focalPoint};"
+        />`
       : '';
   }
 }

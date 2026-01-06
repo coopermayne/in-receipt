@@ -261,10 +261,9 @@ function updateFocalPointDisplay(focalEl, displayEl) {
 // Update crop preview thumbnails
 function updateCropPreviews(imageSrc, prefix = '') {
   const cropImages = [
-    document.getElementById(prefix + 'crop-square'),
-    document.getElementById(prefix + 'crop-wide'),
-    document.getElementById(prefix + 'crop-portrait'),
-    document.getElementById(prefix + 'crop-landscape')
+    document.getElementById(prefix + 'crop-portrait'),  // Mobile Residential (3:4)
+    document.getElementById(prefix + 'crop-wide'),      // Mobile Commercial (16:9)
+    document.getElementById(prefix + 'crop-square'),    // Desktop Commercial (1:1)
   ];
 
   cropImages.forEach(img => {

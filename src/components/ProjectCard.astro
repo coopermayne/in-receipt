@@ -1,7 +1,17 @@
 ---
+import {
+  getImage,
+  getMobileThumbnail,
+  getDesktopThumbnail,
+  getMobileGalleryImage,
+  getLeftPanelGalleryImage,
+  getRightPanelFeaturedImage,
+} from '../lib/images';
+
 interface Props {
   id: string;
   title: string;
+  category: 'residential' | 'commercial';
   thumbnail: string;
   shortDescription: string;
   fullDescription: string;
@@ -12,9 +22,35 @@ interface Props {
   isFirst?: boolean;
 }
 
-const { id, title, thumbnail, shortDescription, fullDescription, images, year, location, type, isFirst = false } = Astro.props;
+const { id, title, category, thumbnail, shortDescription, fullDescription, images, year, location, type, isFirst = false } = Astro.props;
 
-const projectData = JSON.stringify({ images, year, location, type });
+// Get thumbnail data for mobile and desktop contexts
+const mobileThumb = getMobileThumbnail(thumbnail, category);
+const desktopThumb = getDesktopThumbnail(thumbnail, category);
+
+// Prepare gallery images for both mobile (expanded) and desktop (panels)
+const mobileGalleryImages = images.map(imgId => ({
+  id: imgId,
+  ...getMobileGalleryImage(imgId),
+}));
+
+const leftPanelImages = images.map(imgId => ({
+  id: imgId,
+  ...getLeftPanelGalleryImage(imgId),
+}));
+
+const rightPanelFeatured = images.length > 0
+  ? { id: images[0], ...getRightPanelFeaturedImage(images[0]) }
+  : null;
+
+// Data for JS (desktop panels use different image configs)
+const projectData = JSON.stringify({
+  leftPanelImages,
+  rightPanelFeatured,
+  year,
+  location,
+  type
+});
 ---
 
 <article
@@ -26,14 +62,29 @@ const projectData = JSON.stringify({ images, year, location, type });
 >
   <div class="project-card__inner">
     <div class="project-card__image-container">
-      <img
-        class="project-card__image"
-        src={thumbnail}
-        alt={title}
-        loading={isFirst ? "eager" : "lazy"}
-        fetchpriority={isFirst ? "high" : "auto"}
-        data-thumbnail={thumbnail}
-      />
+      <picture>
+        {/* Mobile: cropped based on category (3:4 residential, 16:9 commercial) */}
+        <source
+          media="(max-width: 767px)"
+          srcset={mobileThumb.srcset}
+          sizes={mobileThumb.sizes}
+        />
+        {/* Desktop: context-aware sizing (24vw residential, 12vw commercial) */}
+        <source
+          media="(min-width: 768px)"
+          srcset={desktopThumb.srcset}
+          sizes={desktopThumb.sizes}
+        />
+        <img
+          class="project-card__image"
+          src={desktopThumb.src}
+          alt={desktopThumb.alt || title}
+          loading={isFirst ? "eager" : "lazy"}
+          fetchpriority={isFirst ? "high" : "auto"}
+          style={`object-position: ${desktopThumb.focalPoint};`}
+          data-thumbnail-id={thumbnail}
+        />
+      </picture>
     </div>
     <div class="project-card__content">
       <h2 class="project-card__title">{title}</h2>
@@ -61,8 +112,15 @@ const projectData = JSON.stringify({ images, year, location, type });
       </div>
       <p class="project-card__expanded-description">{fullDescription}</p>
       <div class="project-card__expanded-gallery">
-        {images.map((src) => (
-          <img src={src} alt="Project image" loading="lazy" />
+        {mobileGalleryImages.map((img) => (
+          <img
+            src={img.src}
+            srcset={img.srcset}
+            sizes={img.sizes}
+            alt={img.alt}
+            loading="lazy"
+            style={`object-position: ${img.focalPoint};`}
+          />
         ))}
       </div>
     </div>
