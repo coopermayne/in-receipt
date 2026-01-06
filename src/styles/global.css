@@ -500,7 +500,7 @@ button {
     flex: 1;
     height: 0;
     border-top: 1px solid var(--color-text);
-    animation: pulse-subtle 4s ease-in-out infinite;
+    animation: pulse-subtle 2.5s ease-in-out infinite;
   }
 
   /* Fixed-size V in the center */
@@ -509,21 +509,21 @@ button {
     width: 16px;
     height: 8px;
     flex-shrink: 0;
-    animation: pulse-subtle 4s ease-in-out infinite;
+    animation: pulse-subtle 2.5s ease-in-out infinite;
   }
 
   .scroll-indicator:hover .scroll-indicator__line,
   .scroll-indicator:hover .scroll-indicator__v {
-    animation: pulse-hover 4s ease-in-out infinite;
+    animation: pulse-hover 2.5s ease-in-out infinite;
   }
 
   @keyframes pulse-subtle {
-    0%, 100% { opacity: 0.05; }
-    50% { opacity: 0.15; }
+    0%, 100% { opacity: 0.12; }
+    50% { opacity: 0.3; }
   }
 
   @keyframes pulse-hover {
-    0%, 100% { opacity: 0.2; }
+    0%, 100% { opacity: 0.3; }
     50% { opacity: 1; }
   }
 
