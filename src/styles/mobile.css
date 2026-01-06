@@ -180,7 +180,7 @@
 
   .mobile-contact-popup__close {
     position: absolute;
-    top: var(--spacing-xl);
+    top: var(--spacing-md);
     right: var(--spacing-xl);
     background: none;
     border: none;
@@ -293,7 +293,7 @@
   /* Close button - aligned with title position */
   .project-card__close {
     position: fixed;
-    top: var(--spacing-lg);
+    top: var(--spacing-md);
     right: var(--spacing-xl);
     background: none;
     border: none;
