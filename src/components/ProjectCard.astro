@@ -5,7 +5,7 @@ import {
   getDesktopThumbnail,
   getMobileGalleryImage,
   getLeftPanelGalleryImage,
-  getRightPanelFeaturedImage,
+  getRightPanelGalleryImage,
 } from '../lib/images';
 
 interface Props {
@@ -39,14 +39,15 @@ const leftPanelImages = images.map(imgId => ({
   ...getLeftPanelGalleryImage(imgId),
 }));
 
-const rightPanelFeatured = images.length > 0
-  ? { id: images[0], ...getRightPanelFeaturedImage(images[0]) }
-  : null;
+const rightPanelImages = images.map(imgId => ({
+  id: imgId,
+  ...getRightPanelGalleryImage(imgId),
+}));
 
 // Data for JS (desktop panels use different image configs)
 const projectData = JSON.stringify({
   leftPanelImages,
-  rightPanelFeatured,
+  rightPanelImages,
   year,
   location,
   type

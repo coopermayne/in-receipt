@@ -56,8 +56,31 @@
   justify-content: center;
   /* Padding: top for close button, sides for nav indicators */
   padding: 5rem 4rem var(--spacing-xl);
+  position: relative;
 }
 
+/* Loading spinner */
+.lightbox__loader {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: lightbox-spin 0.8s linear infinite;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.lightbox__loader.visible {
+  opacity: 1;
+}
+
+@keyframes lightbox-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* High-quality image - fades in when loaded */
 .lightbox__image {
   max-width: 100%;
   max-height: 100%;
@@ -65,13 +88,11 @@
   height: auto;
   object-fit: contain;
   opacity: 0;
-  transform: scale(0.95);
-  transition: opacity 300ms ease, transform 300ms ease;
+  transition: opacity 300ms ease;
 }
 
-.lightbox.open .lightbox__image {
+.lightbox__image.loaded {
   opacity: 1;
-  transform: scale(1);
 }
 
 /* Navigation indicators - vertical lines with chevrons */

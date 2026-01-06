@@ -102,29 +102,19 @@
     opacity: 0.85;
   }
 
-  /* Right project page: simplified layout with fixed-height image */
+  /* Right project page: same layout as left but narrower */
   .project-page--right .project-page__content {
     padding: var(--spacing-lg);
   }
 
-  .project-page--right .project-page__featured-image {
-    width: 100%;
-    height: 15vh;
-    margin-bottom: var(--spacing-md);
-    overflow: hidden;
-  }
-
-  .project-page--right .project-page__featured-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-  }
-
   .project-page--right .project-page__description {
-    max-height: 8em;
-    overflow: hidden;
+    font-size: 0.875rem;
     line-height: 1.6;
+  }
+
+  /* Right panel gallery: single column since panel is narrower */
+  .project-page--right .project-page__gallery {
+    grid-template-columns: 1fr;
   }
 
   /* Slide animations */

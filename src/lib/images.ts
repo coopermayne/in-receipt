@@ -68,10 +68,10 @@ export const IMAGE_CONTEXTS = {
     sizes: '21vw',
   },
 
-  // Desktop right panel featured image
-  // CSS: 18.2vw width, 15vh height, object-fit: cover
+  // Desktop right panel gallery images (scrollable, tall)
+  // CSS: 18.2vw width, variable height
   // @1440: 262px, @1920: 350px → 2x = 700px
-  rightPanelFeatured: {
+  rightPanelGallery: {
     widths: [200, 300, 400, 600],
     sizes: '18.2vw',
   },
@@ -305,14 +305,14 @@ export function getLeftPanelGalleryImage(id: string): ResponsiveImage {
   };
 }
 
-// Desktop right panel featured image
-export function getRightPanelFeaturedImage(id: string): ResponsiveImage {
+// Desktop right panel gallery images
+export function getRightPanelGalleryImage(id: string): ResponsiveImage {
   const image = getImage(id);
   if (!image) {
     return { src: '', srcset: '', sizes: '', focalPoint: '50% 50%', alt: '' };
   }
 
-  const ctx = IMAGE_CONTEXTS.rightPanelFeatured;
+  const ctx = IMAGE_CONTEXTS.rightPanelGallery;
 
   return {
     src: getDefaultSrc(id, ctx.widths, null),

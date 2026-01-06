@@ -14,28 +14,28 @@ interface ResponsiveImage {
 
 interface ProjectData {
   leftPanelImages: ResponsiveImage[];
-  rightPanelFeatured: ResponsiveImage | null;
+  rightPanelImages: ResponsiveImage[];
   year?: string;
   location?: string;
   type?: string;
 }
 
-function populatePanel(panel: HTMLDivElement, description: string, projectData: ProjectData) {
+function populatePanel(panel: HTMLDivElement, description: string, projectData: ProjectData, isRightPanel: boolean = false) {
   const yearEl = panel.querySelector('[data-field="year"]') as HTMLSpanElement;
   const locationEl = panel.querySelector('[data-field="location"]') as HTMLSpanElement;
   const typeEl = panel.querySelector('[data-field="type"]') as HTMLSpanElement;
   const descEl = panel.querySelector('[data-field="description"]') as HTMLParagraphElement;
   const galleryEl = panel.querySelector('[data-field="gallery"]') as HTMLDivElement | null;
-  const featuredImageEl = panel.querySelector('[data-field="featured-image"]') as HTMLDivElement | null;
 
   yearEl.textContent = projectData.year || '—';
   locationEl.textContent = projectData.location || '—';
   typeEl.textContent = projectData.type || '—';
   descEl.textContent = description;
 
-  // Left panel uses gallery (2-col grid, ~21vw each image)
+  const images = isRightPanel ? projectData.rightPanelImages : projectData.leftPanelImages;
+
   if (galleryEl) {
-    galleryEl.innerHTML = (projectData.leftPanelImages || [])
+    galleryEl.innerHTML = (images || [])
       .map(img => `<img
         src="${img.src}"
         srcset="${img.srcset}"
@@ -45,21 +45,6 @@ function populatePanel(panel: HTMLDivElement, description: string, projectData: 
         style="object-position: ${img.focalPoint};"
       />`)
       .join('');
-  }
-
-  // Right panel uses single featured image (18.2vw × 15vh)
-  if (featuredImageEl) {
-    const featured = projectData.rightPanelFeatured;
-    featuredImageEl.innerHTML = featured
-      ? `<img
-          src="${featured.src}"
-          srcset="${featured.srcset}"
-          sizes="${featured.sizes}"
-          alt="${featured.alt}"
-          loading="lazy"
-          style="object-position: ${featured.focalPoint};"
-        />`
-      : '';
   }
 }
 
@@ -75,10 +60,10 @@ function openProject(card: HTMLElement) {
   const projectData: ProjectData = JSON.parse(card.dataset.projectData || '{}');
 
   if (isLeftColumn) {
-    populatePanel(leftPanel, description, projectData);
+    populatePanel(leftPanel, description, projectData, false);
     mainGallery.classList.add('project-open-left');
   } else if (isRightColumn) {
-    populatePanel(rightPanel, description, projectData);
+    populatePanel(rightPanel, description, projectData, true);
     mainGallery.classList.add('project-open-right');
   }
 }
@@ -160,6 +145,7 @@ setupScrollIndicators();
 
 const lightbox = document.getElementById('lightbox') as HTMLDivElement;
 const lightboxImage = lightbox?.querySelector('.lightbox__image') as HTMLImageElement;
+const lightboxLoader = lightbox?.querySelector('.lightbox__loader') as HTMLDivElement;
 const lightboxClose = lightbox?.querySelector('.lightbox__close') as HTMLButtonElement;
 const lightboxPrev = lightbox?.querySelector('.lightbox__nav--prev') as HTMLButtonElement;
 const lightboxNext = lightbox?.querySelector('.lightbox__nav--next') as HTMLButtonElement;
@@ -192,11 +178,21 @@ function showImage(index: number) {
 
   currentImageIndex = index;
   const imgElement = currentGalleryImages[index];
-  const src = imgElement.src || imgElement.currentSrc;
-  const highQualitySrc = getLightboxUrl(src);
+  const thumbnailSrc = imgElement.src || imgElement.currentSrc;
+  const highQualitySrc = getLightboxUrl(thumbnailSrc);
+  const alt = imgElement.alt || '';
 
+  // Reset state and show loader
+  lightboxImage.classList.remove('loaded');
+  lightboxLoader?.classList.add('visible');
+
+  // Load high-quality version
+  lightboxImage.alt = alt;
+  lightboxImage.onload = () => {
+    lightboxLoader?.classList.remove('visible');
+    lightboxImage.classList.add('loaded');
+  };
   lightboxImage.src = highQualitySrc;
-  lightboxImage.alt = imgElement.alt || '';
 
   updateNavVisibility();
 }
@@ -245,7 +241,9 @@ function closeLightbox() {
   setTimeout(() => {
     if (lightboxImage) {
       lightboxImage.src = '';
+      lightboxImage.classList.remove('loaded');
     }
+    lightboxLoader?.classList.remove('visible');
     currentGalleryImages = [];
     currentImageIndex = 0;
   }, 300);

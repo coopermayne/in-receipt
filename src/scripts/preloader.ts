@@ -12,7 +12,7 @@ interface ResponsiveImage {
 
 interface ProjectData {
   leftPanelImages?: ResponsiveImage[];
-  rightPanelFeatured?: ResponsiveImage | null;
+  rightPanelImages?: ResponsiveImage[];
   year?: string;
   location?: string;
   type?: string;
