@@ -281,8 +281,7 @@
     height: 100%;
     background: var(--color-text);
     z-index: 100;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: hidden;
   }
 
   /* Show when card is expanded */
@@ -310,8 +309,11 @@
     justify-content: center;
   }
 
-  /* Content container */
+  /* Content container - scrollable inner container */
   .project-card__expanded-content {
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: var(--spacing-lg);
     padding-top: 80px;
   }
