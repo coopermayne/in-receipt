@@ -340,3 +340,346 @@ h2 {
   opacity: 0.5;
   pointer-events: none;
 }
+
+/* ============ TABS ============ */
+header {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  background: #e0e0e0;
+  padding: 0.25rem;
+  border-radius: 6px;
+}
+
+.tab {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  color: #666;
+}
+
+.tab:hover {
+  color: #333;
+}
+
+.tab.active {
+  background: white;
+  color: #333;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* ============ TAB CONTENT ============ */
+.tab-content {
+  display: block;
+}
+
+.tab-content.hidden {
+  display: none;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+/* ============ PROJECTS LIST ============ */
+.projects-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.projects-column h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 100px;
+}
+
+.project-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.project-card:hover {
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.project-card.sortable-ghost {
+  opacity: 0.4;
+}
+
+.project-card.sortable-chosen {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.project-drag-handle {
+  cursor: grab;
+  color: #999;
+  padding: 0.25rem;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.project-drag-handle:active {
+  cursor: grabbing;
+}
+
+.project-thumbnail {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #f0f0f0;
+}
+
+.project-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.project-title {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  margin-bottom: 0.125rem;
+}
+
+.project-meta {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.project-category {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  background: #f0f0f0;
+  border-radius: 3px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #666;
+}
+
+/* ============ LARGE MODAL ============ */
+.modal-large {
+  max-width: 900px;
+}
+
+.project-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding: 1.5rem;
+}
+
+.project-form-left,
+.project-form-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 1rem;
+}
+
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-family: inherit;
+}
+
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #aa4925;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* ============ IMAGE PICKER ============ */
+.selected-images {
+  min-height: 100px;
+  border: 2px dashed #ddd;
+  border-radius: 6px;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-content: flex-start;
+}
+
+.selected-images:empty::after {
+  content: "No images selected. Click images below to add.";
+  color: #999;
+  font-size: 0.75rem;
+  padding: 1rem;
+  text-align: center;
+  width: 100%;
+}
+
+.available-images {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 0.5rem;
+  background: #f9f9f9;
+  border-radius: 6px;
+}
+
+.image-picker-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s, opacity 0.2s;
+}
+
+.image-picker-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-picker-item:hover {
+  border-color: #aa4925;
+}
+
+.image-picker-item.selected {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.selected-image-item {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.selected-image-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.selected-image-item.sortable-ghost {
+  opacity: 0.4;
+}
+
+.selected-image-item.sortable-chosen {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.selected-image-item .remove-image {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.selected-image-item:hover .remove-image {
+  opacity: 1;
+}
+
+.selected-image-item .set-thumbnail {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 10px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.selected-image-item:hover .set-thumbnail {
+  opacity: 1;
+}
+
+.selected-image-item.is-thumbnail {
+  border: 2px solid #aa4925;
+}
+
+.selected-image-item.is-thumbnail .set-thumbnail {
+  opacity: 1;
+  background: #aa4925;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+  .project-form {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-large {
+    max-width: 95%;
+  }
+}

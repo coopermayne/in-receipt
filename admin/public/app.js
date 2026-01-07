@@ -407,5 +407,457 @@ async function handleDelete() {
   }
 }
 
+// ============ PROJECTS ============
+
+// Projects State
+let projects = [];
+let editingProject = null;
+let selectedProjectImages = [];
+let projectThumbnail = null;
+let projectsSortableResidential = null;
+let projectsSortableCommercial = null;
+let selectedImagesSortable = null;
+
+// Projects Elements
+const projectsListResidential = document.getElementById('projects-list-residential');
+const projectsListCommercial = document.getElementById('projects-list-commercial');
+const newProjectBtn = document.getElementById('new-project-btn');
+const projectModal = document.getElementById('project-modal');
+const projectModalTitle = document.getElementById('project-modal-title');
+const projectIdInput = document.getElementById('project-id');
+const projectCategorySelect = document.getElementById('project-category');
+const projectTitleInput = document.getElementById('project-title');
+const projectYearInput = document.getElementById('project-year');
+const projectLocationInput = document.getElementById('project-location');
+const projectTypeInput = document.getElementById('project-type');
+const projectShortDescInput = document.getElementById('project-short-desc');
+const projectFullDescInput = document.getElementById('project-full-desc');
+const selectedImagesEl = document.getElementById('selected-images');
+const availableImagesEl = document.getElementById('available-images');
+const projectSaveBtn = document.getElementById('project-save-btn');
+const projectCancelBtn = document.getElementById('project-cancel-btn');
+const deleteProjectBtn = document.getElementById('delete-project-btn');
+
+// Tab Elements
+const tabs = document.querySelectorAll('.tab');
+const imagesSection = document.getElementById('images-section');
+const projectsSection = document.getElementById('projects-section');
+
+// Tab Switching
+function setupTabs() {
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const targetTab = tab.dataset.tab;
+
+      // Update tab buttons
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      // Update sections
+      if (targetTab === 'images') {
+        imagesSection.classList.remove('hidden');
+        projectsSection.classList.add('hidden');
+      } else {
+        imagesSection.classList.add('hidden');
+        projectsSection.classList.remove('hidden');
+        loadProjects();
+      }
+    });
+  });
+}
+
+// Load projects from server
+async function loadProjects() {
+  try {
+    const res = await fetch('/api/projects');
+    const data = await res.json();
+    projects = data.projects || [];
+    renderProjectsList();
+  } catch (error) {
+    console.error('Failed to load projects:', error);
+    projects = [];
+    renderProjectsList();
+  }
+}
+
+// Render projects list
+function renderProjectsList() {
+  const residential = projects
+    .filter(p => p.category === 'residential')
+    .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0));
+  const commercial = projects
+    .filter(p => p.category === 'commercial')
+    .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0));
+
+  // Render residential column
+  if (residential.length === 0) {
+    projectsListResidential.innerHTML = `
+      <div class="empty-state">
+        <p>No residential projects yet.</p>
+      </div>
+    `;
+  } else {
+    projectsListResidential.innerHTML = residential.map(project => renderProjectCard(project)).join('');
+  }
+
+  // Render commercial column
+  if (commercial.length === 0) {
+    projectsListCommercial.innerHTML = `
+      <div class="empty-state">
+        <p>No commercial projects yet.</p>
+      </div>
+    `;
+  } else {
+    projectsListCommercial.innerHTML = commercial.map(project => renderProjectCard(project)).join('');
+  }
+
+  // Add click handlers for editing
+  document.querySelectorAll('.project-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      // Don't open modal if clicking drag handle
+      if (e.target.closest('.project-drag-handle')) return;
+      openProjectModal(card.dataset.id);
+    });
+  });
+
+  // Initialize drag-and-drop for project reordering
+  initProjectsSortable();
+}
+
+// Render a single project card
+function renderProjectCard(project) {
+  const thumbnailImg = images[project.thumbnail];
+  const thumbnailUrl = thumbnailImg
+    ? getImageUrl(thumbnailImg.accountHash, thumbnailImg.cloudflareId, 'public')
+    : '';
+
+  return `
+    <div class="project-card" data-id="${project.id}">
+      <div class="project-drag-handle">⋮⋮</div>
+      ${thumbnailUrl
+        ? `<img class="project-thumbnail" src="${thumbnailUrl}" alt="${project.title}">`
+        : `<div class="project-thumbnail"></div>`
+      }
+      <div class="project-info">
+        <div class="project-title">${project.title}</div>
+        <div class="project-meta">${project.location} · ${project.year}</div>
+      </div>
+    </div>
+  `;
+}
+
+// Initialize Sortable for projects list
+function initProjectsSortable() {
+  if (projectsSortableResidential) {
+    projectsSortableResidential.destroy();
+  }
+  if (projectsSortableCommercial) {
+    projectsSortableCommercial.destroy();
+  }
+
+  // Only init if there are cards (not empty state)
+  if (projectsListResidential.querySelector('.project-card')) {
+    projectsSortableResidential = new Sortable(projectsListResidential, {
+      animation: 150,
+      handle: '.project-drag-handle',
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      onEnd: () => handleProjectReorder('residential', projectsListResidential)
+    });
+  }
+  if (projectsListCommercial.querySelector('.project-card')) {
+    projectsSortableCommercial = new Sortable(projectsListCommercial, {
+      animation: 150,
+      handle: '.project-drag-handle',
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      onEnd: () => handleProjectReorder('commercial', projectsListCommercial)
+    });
+  }
+}
+
+// Handle project reorder for a specific category
+async function handleProjectReorder(category, listElement) {
+  const cards = listElement.querySelectorAll('.project-card');
+  const projectIds = Array.from(cards).map(card => card.dataset.id);
+
+  // Save new order to server
+  try {
+    await fetch('/api/projects/reorder', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ category, projectIds })
+    });
+
+    // Update local state ranks
+    projectIds.forEach((id, index) => {
+      const project = projects.find(p => p.id === id);
+      if (project) {
+        project.rank = index;
+      }
+    });
+  } catch (error) {
+    console.error('Failed to reorder projects:', error);
+    renderProjectsList(); // Revert on error
+  }
+}
+
+// Open project modal
+function openProjectModal(projectId = null) {
+  editingProject = projectId ? projects.find(p => p.id === projectId) : null;
+
+  if (editingProject) {
+    projectModalTitle.textContent = 'Edit Project';
+    projectIdInput.value = editingProject.id;
+    projectIdInput.readOnly = true;
+    projectCategorySelect.value = editingProject.category;
+    projectTitleInput.value = editingProject.title;
+    projectYearInput.value = editingProject.year || '';
+    projectLocationInput.value = editingProject.location || '';
+    projectTypeInput.value = editingProject.type || '';
+    projectShortDescInput.value = editingProject.shortDescription || '';
+    projectFullDescInput.value = editingProject.fullDescription || '';
+    selectedProjectImages = [...(editingProject.images || [])];
+    projectThumbnail = editingProject.thumbnail;
+    deleteProjectBtn.style.display = 'block';
+  } else {
+    projectModalTitle.textContent = 'New Project';
+    projectIdInput.value = '';
+    projectIdInput.readOnly = false;
+    projectCategorySelect.value = 'residential';
+    projectTitleInput.value = '';
+    projectYearInput.value = new Date().getFullYear().toString();
+    projectLocationInput.value = '';
+    projectTypeInput.value = '';
+    projectShortDescInput.value = '';
+    projectFullDescInput.value = '';
+    selectedProjectImages = [];
+    projectThumbnail = null;
+    deleteProjectBtn.style.display = 'none';
+  }
+
+  renderImagePicker();
+  projectModal.classList.remove('hidden');
+}
+
+// Close project modal
+function closeProjectModal() {
+  projectModal.classList.add('hidden');
+  editingProject = null;
+  if (selectedImagesSortable) {
+    selectedImagesSortable.destroy();
+    selectedImagesSortable = null;
+  }
+}
+
+// Render image picker
+function renderImagePicker() {
+  // Render selected images
+  renderSelectedImages();
+
+  // Render available images
+  availableImagesEl.innerHTML = Object.entries(images).map(([id, img]) => {
+    const isSelected = selectedProjectImages.includes(id);
+    return `
+      <div class="image-picker-item ${isSelected ? 'selected' : ''}" data-id="${id}">
+        <img src="${getImageUrl(img.accountHash, img.cloudflareId, 'public')}" alt="${img.alt || id}">
+      </div>
+    `;
+  }).join('');
+
+  // Add click handlers for available images
+  availableImagesEl.querySelectorAll('.image-picker-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const imageId = item.dataset.id;
+      if (!selectedProjectImages.includes(imageId)) {
+        selectedProjectImages.push(imageId);
+        if (!projectThumbnail) {
+          projectThumbnail = imageId;
+        }
+        renderImagePicker();
+      }
+    });
+  });
+}
+
+// Render selected images
+function renderSelectedImages() {
+  selectedImagesEl.innerHTML = selectedProjectImages.map(id => {
+    const img = images[id];
+    if (!img) return '';
+    const isThumbnail = projectThumbnail === id;
+    return `
+      <div class="selected-image-item ${isThumbnail ? 'is-thumbnail' : ''}" data-id="${id}">
+        <img src="${getImageUrl(img.accountHash, img.cloudflareId, 'public')}" alt="${img.alt || id}">
+        <button class="remove-image" title="Remove">&times;</button>
+        <button class="set-thumbnail" title="Set as thumbnail">★</button>
+      </div>
+    `;
+  }).join('');
+
+  // Add handlers for remove and thumbnail buttons
+  selectedImagesEl.querySelectorAll('.selected-image-item').forEach(item => {
+    const imageId = item.dataset.id;
+
+    item.querySelector('.remove-image').addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectedProjectImages = selectedProjectImages.filter(id => id !== imageId);
+      if (projectThumbnail === imageId) {
+        projectThumbnail = selectedProjectImages[0] || null;
+      }
+      renderImagePicker();
+    });
+
+    item.querySelector('.set-thumbnail').addEventListener('click', (e) => {
+      e.stopPropagation();
+      projectThumbnail = imageId;
+      renderSelectedImages();
+    });
+  });
+
+  // Initialize drag-and-drop for selected images
+  initSelectedImagesSortable();
+}
+
+// Initialize Sortable for selected images
+function initSelectedImagesSortable() {
+  if (selectedImagesSortable) {
+    selectedImagesSortable.destroy();
+  }
+
+  if (selectedImagesEl.children.length === 0) return;
+
+  selectedImagesSortable = new Sortable(selectedImagesEl, {
+    animation: 150,
+    ghostClass: 'sortable-ghost',
+    chosenClass: 'sortable-chosen',
+    onEnd: () => {
+      // Update selectedProjectImages order
+      const items = selectedImagesEl.querySelectorAll('.selected-image-item');
+      selectedProjectImages = Array.from(items).map(item => item.dataset.id);
+    }
+  });
+}
+
+// Save project
+async function handleProjectSave() {
+  const id = projectIdInput.value.trim();
+
+  if (!id) {
+    alert('Project ID is required');
+    return;
+  }
+
+  // Check for duplicate ID when creating
+  if (!editingProject && projects.some(p => p.id === id)) {
+    alert('A project with this ID already exists');
+    return;
+  }
+
+  const category = projectCategorySelect.value;
+
+  // Calculate rank for new projects (add to end of category list)
+  let rank = editingProject?.rank ?? 0;
+  if (!editingProject) {
+    const categoryProjects = projects.filter(p => p.category === category);
+    rank = categoryProjects.length > 0
+      ? Math.max(...categoryProjects.map(p => p.rank ?? 0)) + 1
+      : 0;
+  }
+
+  const projectData = {
+    id,
+    title: projectTitleInput.value.trim(),
+    category,
+    rank,
+    thumbnail: projectThumbnail,
+    shortDescription: projectShortDescInput.value.trim(),
+    fullDescription: projectFullDescInput.value.trim(),
+    year: projectYearInput.value.trim(),
+    location: projectLocationInput.value.trim(),
+    type: projectTypeInput.value.trim(),
+    images: selectedProjectImages
+  };
+
+  projectSaveBtn.disabled = true;
+  projectSaveBtn.textContent = 'Saving...';
+
+  try {
+    const url = editingProject
+      ? `/api/projects/${id}`
+      : '/api/projects';
+    const method = editingProject ? 'PUT' : 'POST';
+
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(projectData)
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Failed to save project');
+    }
+
+    await loadProjects();
+    closeProjectModal();
+  } catch (error) {
+    console.error('Save project error:', error);
+    alert(error.message || 'Failed to save project');
+  } finally {
+    projectSaveBtn.disabled = false;
+    projectSaveBtn.textContent = 'Save Project';
+  }
+}
+
+// Delete project
+async function handleProjectDelete() {
+  if (!editingProject) return;
+
+  if (!confirm(`Are you sure you want to delete "${editingProject.title}"?`)) {
+    return;
+  }
+
+  deleteProjectBtn.disabled = true;
+  deleteProjectBtn.textContent = 'Deleting...';
+
+  try {
+    const res = await fetch(`/api/projects/${editingProject.id}`, {
+      method: 'DELETE'
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to delete project');
+    }
+
+    await loadProjects();
+    closeProjectModal();
+  } catch (error) {
+    console.error('Delete project error:', error);
+    alert('Failed to delete project');
+  } finally {
+    deleteProjectBtn.disabled = false;
+    deleteProjectBtn.textContent = 'Delete Project';
+  }
+}
+
+// Setup project event listeners
+function setupProjectListeners() {
+  newProjectBtn.addEventListener('click', () => openProjectModal());
+  projectSaveBtn.addEventListener('click', handleProjectSave);
+  projectCancelBtn.addEventListener('click', closeProjectModal);
+  deleteProjectBtn.addEventListener('click', handleProjectDelete);
+
+  // Close modal on backdrop click
+  projectModal.addEventListener('click', (e) => {
+    if (e.target === projectModal) closeProjectModal();
+  });
+
+  // Close button in modal header
+  projectModal.querySelector('.modal-close').addEventListener('click', closeProjectModal);
+}
+
 // Start
+setupTabs();
+setupProjectListeners();
 init();

@@ -17,25 +17,25 @@
         "landscape-2",
         "square-2",
         "landscape-3"
-      ]
+      ],
+      "rank": 2
     },
     {
       "id": "glass-pavilion",
-      "title": "Glass Pavilion",
+      "title": "Test",
       "category": "residential",
-      "thumbnail": "portrait-3",
+      "thumbnail": "square-3",
       "shortDescription": "Minimalist weekend retreat with panoramic views.",
       "fullDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Cras mattis consectetur purus sit amet fermentum. Donec ullamcorper nulla non metus auctor fringilla.\n\nNullam quis risus eget urna mollis ornare vel eu leo. Vestibulum id ligula porta felis euismod semper. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Maecenas sed diam eget risus varius blandit sit amet non magna.\n\nAenean lacinia bibendum nulla sed consectetur. Cras mattis consectetur purus sit amet fermentum.",
       "year": "2022",
       "location": "Big Sur, CA",
       "type": "Guest House",
       "images": [
+        "wide-1",
         "landscape-4",
-        "portrait-4",
-        "landscape-5",
-        "square-3",
-        "wide-1"
-      ]
+        "square-3"
+      ],
+      "rank": 3
     },
     {
       "id": "urban-infill",
@@ -55,7 +55,8 @@
         "portrait-6",
         "square-5",
         "landscape-8"
-      ]
+      ],
+      "rank": 4
     },
     {
       "id": "coastal-retreat",
@@ -74,7 +75,8 @@
         "square-6",
         "landscape-9",
         "portrait-9"
-      ]
+      ],
+      "rank": 5
     },
     {
       "id": "mountain-modern",
@@ -93,26 +95,28 @@
         "landscape-11",
         "wide-3",
         "square-8"
-      ]
+      ],
+      "rank": 6
     },
     {
       "id": "courtyard-house",
-      "title": "Courtyard House",
+      "title": "tttt",
       "category": "residential",
-      "thumbnail": "square-2",
-      "shortDescription": "Inward-focused living organized around light and garden.",
-      "fullDescription": "In a dense urban neighborhood where privacy is precious, this home turns inward to create a serene world unto itself. The street-facing facade is deliberately restrained—a simple stucco wall punctuated only by a pivoting entry door. But beyond this minimal exterior lies a sequence of gardens, water features, and light-filled rooms that unfold like a private sanctuary.\n\nThree distinct courtyards organize the program: an entry court with a reflecting pool and mature olive tree, a kitchen garden filled with herbs and citrus, and a contemplative rear garden of raked gravel and sculptural boulders. Every room opens onto at least one of these outdoor spaces, blurring the distinction between inside and outside.\n\nThe architecture draws on Mediterranean and Japanese precedents, synthesizing thick adobe walls for thermal mass with the sliding screens and careful framing of traditional Japanese design. Natural ventilation through the courtyards eliminates the need for air conditioning, while a solar array on the roof generates more power than the home consumes.",
-      "year": "2022",
-      "location": "Santa Barbara, CA",
-      "type": "Single Family Home",
+      "rank": 0,
+      "thumbnail": "square-3",
+      "shortDescription": "test short desc",
+      "fullDescription": "test desc",
+      "year": "tttt",
+      "location": "ssss",
+      "type": "aaaa",
       "images": [
+        "square-3",
         "landscape-12",
         "portrait-11",
         "square-1",
         "wide-4",
         "landscape-1",
-        "portrait-12",
-        "square-3"
+        "portrait-12"
       ]
     },
     {
@@ -133,7 +137,8 @@
         "landscape-3",
         "portrait-14",
         "wide-1"
-      ]
+      ],
+      "rank": 1
     },
     {
       "id": "studio-campus",
@@ -149,7 +154,8 @@
         "landscape-11",
         "wide-3",
         "square-7"
-      ]
+      ],
+      "rank": 0
     },
     {
       "id": "civic-library",
@@ -164,7 +170,8 @@
       "images": [
         "landscape-12",
         "wide-4"
-      ]
+      ],
+      "rank": 1
     },
     {
       "id": "waterfront-hotel",
@@ -185,7 +192,8 @@
         "portrait-6",
         "landscape-6",
         "square-6"
-      ]
+      ],
+      "rank": 2
     },
     {
       "id": "tech-headquarters",
@@ -206,7 +214,8 @@
         "portrait-10",
         "square-1",
         "landscape-9"
-      ]
+      ],
+      "rank": 3
     },
     {
       "id": "art-museum",
@@ -227,7 +236,8 @@
         "portrait-12",
         "square-2",
         "landscape-12"
-      ]
+      ],
+      "rank": 4
     },
     {
       "id": "wellness-center",
@@ -248,7 +258,8 @@
         "square-5",
         "landscape-2",
         "wide-4"
-      ]
+      ],
+      "rank": 5
     },
     {
       "id": "transit-hub",
@@ -269,7 +280,8 @@
         "portrait-3",
         "landscape-6",
         "square-8"
-      ]
+      ],
+      "rank": 6
     },
     {
       "id": "boutique-winery",
@@ -290,7 +302,8 @@
         "portrait-8",
         "square-1",
         "landscape-10"
-      ]
+      ],
+      "rank": 7
     }
   ]
 }

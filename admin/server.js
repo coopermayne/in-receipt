@@ -13,6 +13,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
 const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
 const IMAGES_JSON_PATH = join(__dirname, '../src/data/images.json');
+const PROJECTS_JSON_PATH = join(__dirname, '../src/data/projects.json');
 
 // Check env vars
 if (!CLOUDFLARE_ACCOUNT_ID || !CLOUDFLARE_API_TOKEN) {
@@ -158,6 +159,138 @@ app.get('/api/config', (req, res) => {
   res.json({
     accountId: CLOUDFLARE_ACCOUNT_ID,
   });
+});
+
+// ============ PROJECTS API ============
+
+// Get all projects
+app.get('/api/projects', async (req, res) => {
+  try {
+    const data = await readFile(PROJECTS_JSON_PATH, 'utf-8');
+    res.json(JSON.parse(data));
+  } catch (error) {
+    res.json({ projects: [] });
+  }
+});
+
+// Reorder projects (updates ranks for a specific category)
+// NOTE: Must be defined before /api/projects/:id to avoid route conflict
+app.put('/api/projects/reorder', async (req, res) => {
+  try {
+    const { category, projectIds } = req.body;
+
+    if (!category || !Array.isArray(projectIds)) {
+      return res.status(400).json({ error: 'category and projectIds are required' });
+    }
+
+    // Read current projects
+    const fileData = await readFile(PROJECTS_JSON_PATH, 'utf-8');
+    const data = JSON.parse(fileData);
+
+    // Update ranks for projects in this category
+    projectIds.forEach((id, index) => {
+      const project = data.projects.find(p => p.id === id);
+      if (project && project.category === category) {
+        project.rank = index;
+      }
+    });
+
+    // Write back
+    await writeFile(PROJECTS_JSON_PATH, JSON.stringify(data, null, 2));
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Reorder projects error:', error);
+    res.status(500).json({ error: 'Failed to reorder projects' });
+  }
+});
+
+// Create new project
+app.post('/api/projects', async (req, res) => {
+  try {
+    const newProject = req.body;
+
+    // Read current projects
+    let data = { projects: [] };
+    try {
+      const fileData = await readFile(PROJECTS_JSON_PATH, 'utf-8');
+      data = JSON.parse(fileData);
+    } catch {
+      // File doesn't exist or is empty
+    }
+
+    // Check if ID already exists
+    if (data.projects.some(p => p.id === newProject.id)) {
+      return res.status(400).json({ error: 'Project ID already exists' });
+    }
+
+    // Add new project
+    data.projects.push(newProject);
+
+    // Write back
+    await writeFile(PROJECTS_JSON_PATH, JSON.stringify(data, null, 2));
+
+    res.json({ success: true, project: newProject });
+  } catch (error) {
+    console.error('Create project error:', error);
+    res.status(500).json({ error: 'Failed to create project' });
+  }
+});
+
+// Update project
+app.put('/api/projects/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedProject = req.body;
+
+    // Read current projects
+    const fileData = await readFile(PROJECTS_JSON_PATH, 'utf-8');
+    const data = JSON.parse(fileData);
+
+    // Find and update project
+    const index = data.projects.findIndex(p => p.id === id);
+    if (index === -1) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    data.projects[index] = { ...updatedProject, id }; // Preserve original ID
+
+    // Write back
+    await writeFile(PROJECTS_JSON_PATH, JSON.stringify(data, null, 2));
+
+    res.json({ success: true, project: data.projects[index] });
+  } catch (error) {
+    console.error('Update project error:', error);
+    res.status(500).json({ error: 'Failed to update project' });
+  }
+});
+
+// Delete project
+app.delete('/api/projects/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Read current projects
+    const fileData = await readFile(PROJECTS_JSON_PATH, 'utf-8');
+    const data = JSON.parse(fileData);
+
+    // Find project
+    const index = data.projects.findIndex(p => p.id === id);
+    if (index === -1) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    // Remove project
+    data.projects.splice(index, 1);
+
+    // Write back
+    await writeFile(PROJECTS_JSON_PATH, JSON.stringify(data, null, 2));
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Delete project error:', error);
+    res.status(500).json({ error: 'Failed to delete project' });
+  }
 });
 
 const PORT = process.env.PORT || 3001;

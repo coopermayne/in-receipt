@@ -3,20 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IN RECEIPT - Image Admin</title>
+  <title>IN RECEIPT - Admin</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Image Library</h1>
-      <button id="upload-btn" class="btn btn-primary">+ Upload Image</button>
+      <h1>IN RECEIPT Admin</h1>
+      <nav class="tabs">
+        <button class="tab active" data-tab="images">Images</button>
+        <button class="tab" data-tab="projects">Projects</button>
+      </nav>
     </header>
 
-    <!-- Image Grid -->
-    <div id="image-grid" class="image-grid">
-      <!-- Images will be populated here -->
-    </div>
+    <!-- Images Section -->
+    <section id="images-section" class="tab-content">
+      <div class="section-header">
+        <h2>Image Library</h2>
+        <button id="upload-btn" class="btn btn-primary">+ Upload Image</button>
+      </div>
+      <div id="image-grid" class="image-grid">
+        <!-- Images will be populated here -->
+      </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects-section" class="tab-content hidden">
+      <div class="section-header">
+        <h2>Projects</h2>
+        <button id="new-project-btn" class="btn btn-primary">+ New Project</button>
+      </div>
+      <div class="projects-columns">
+        <div class="projects-column">
+          <h3>Residential</h3>
+          <div id="projects-list-residential" class="projects-list" data-category="residential">
+            <!-- Residential projects will be populated here -->
+          </div>
+        </div>
+        <div class="projects-column">
+          <h3>Commercial</h3>
+          <div id="projects-list-commercial" class="projects-list" data-category="commercial">
+            <!-- Commercial projects will be populated here -->
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Upload Modal -->
     <div id="upload-modal" class="modal hidden">
@@ -145,6 +177,88 @@
           <div class="spacer"></div>
           <button class="btn btn-secondary" id="edit-cancel-btn">Cancel</button>
           <button class="btn btn-primary" id="update-btn">Save Changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Project Modal -->
+    <div id="project-modal" class="modal hidden">
+      <div class="modal-content modal-large">
+        <div class="modal-header">
+          <h2 id="project-modal-title">New Project</h2>
+          <button class="modal-close">&times;</button>
+        </div>
+
+        <div class="project-form">
+          <div class="project-form-left">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="project-id">Project ID</label>
+                <input type="text" id="project-id" placeholder="e.g., cedar-house">
+              </div>
+              <div class="form-group">
+                <label for="project-category">Category</label>
+                <select id="project-category">
+                  <option value="residential">Residential</option>
+                  <option value="commercial">Commercial</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="project-title">Title</label>
+              <input type="text" id="project-title" placeholder="Project title">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="project-year">Year</label>
+                <input type="text" id="project-year" placeholder="2024">
+              </div>
+              <div class="form-group">
+                <label for="project-location">Location</label>
+                <input type="text" id="project-location" placeholder="City, State">
+              </div>
+              <div class="form-group">
+                <label for="project-type">Type</label>
+                <input type="text" id="project-type" placeholder="e.g., Single Family Home">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="project-short-desc">Short Description</label>
+              <input type="text" id="project-short-desc" placeholder="One-line summary">
+            </div>
+
+            <div class="form-group">
+              <label for="project-full-desc">Full Description</label>
+              <textarea id="project-full-desc" rows="6" placeholder="Detailed project description..."></textarea>
+            </div>
+          </div>
+
+          <div class="project-form-right">
+            <div class="form-group">
+              <label>Project Images</label>
+              <p class="help-text">Drag to reorder. Click star to set as thumbnail.</p>
+              <div id="selected-images" class="selected-images">
+                <!-- Selected images will be populated here -->
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Available Images</label>
+              <div id="available-images" class="available-images">
+                <!-- Available images will be populated here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-danger" id="delete-project-btn">Delete Project</button>
+          <div class="spacer"></div>
+          <button class="btn btn-secondary" id="project-cancel-btn">Cancel</button>
+          <button class="btn btn-primary" id="project-save-btn">Save Project</button>
         </div>
       </div>
     </div>
