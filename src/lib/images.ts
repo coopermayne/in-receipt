@@ -44,18 +44,18 @@ export const IMAGE_CONTEXTS = {
     sizes: 'calc(100vw - 32px)',
   },
 
-  // Desktop residential column thumbnail
+  // Desktop big projects column thumbnail
   // CSS: max-width 24vw, max-height 50vh, object-fit: contain
   // @1440: 346px, @1920: 461px, @2560: 614px → 2x = 1228px
-  desktopResidentialThumb: {
+  desktopBigThumb: {
     widths: [300, 400, 500, 700, 1000],
     sizes: '24vw',
   },
 
-  // Desktop commercial column thumbnail
+  // Desktop small projects column thumbnail
   // CSS: max-width 12vw, max-height 30vh, object-fit: contain
   // @1440: 173px, @1920: 230px, @2560: 307px → 2x = 614px
-  desktopCommercialThumb: {
+  desktopSmallThumb: {
     widths: [150, 200, 300, 450],
     sizes: '12vw',
   },
@@ -86,12 +86,12 @@ export const IMAGE_CONTEXTS = {
 
 // Crop presets for enforced aspect ratios
 export const CROP_PRESETS = {
-  // Mobile residential: 60% of viewport height, portrait feel
-  mobileResidential: { ratio: [3, 4], fit: 'cover' } as CropPreset,
-  // Mobile commercial: 40% of viewport height, landscape feel
-  mobileCommercial: { ratio: [16, 9], fit: 'cover' } as CropPreset,
-  // Desktop commercial square crop (when original is landscape)
-  desktopCommercialSquare: { ratio: [1, 1], fit: 'cover' } as CropPreset,
+  // Mobile big projects: 60% of viewport height, portrait feel
+  mobileBig: { ratio: [3, 4], fit: 'cover' } as CropPreset,
+  // Mobile small projects: 40% of viewport height, landscape feel
+  mobileSmall: { ratio: [16, 9], fit: 'cover' } as CropPreset,
+  // Desktop small projects square crop (when original is landscape)
+  desktopSmallSquare: { ratio: [1, 1], fit: 'cover' } as CropPreset,
 } as const;
 
 // ===========================================
@@ -223,16 +223,16 @@ export interface ResponsiveImage {
 // Mobile thumbnail (for index rows)
 export function getMobileThumbnail(
   id: string,
-  category: 'residential' | 'commercial'
+  category: 'big' | 'small'
 ): ResponsiveImage {
   const image = getImage(id);
   if (!image) {
     return { src: '', srcset: '', sizes: '', focalPoint: '50% 50%', alt: '' };
   }
 
-  const crop = category === 'residential'
-    ? CROP_PRESETS.mobileResidential
-    : CROP_PRESETS.mobileCommercial;
+  const crop = category === 'big'
+    ? CROP_PRESETS.mobileBig
+    : CROP_PRESETS.mobileSmall;
 
   const ctx = IMAGE_CONTEXTS.mobileThumb;
 
@@ -248,22 +248,22 @@ export function getMobileThumbnail(
 // Desktop thumbnail (for column cards)
 export function getDesktopThumbnail(
   id: string,
-  category: 'residential' | 'commercial'
+  category: 'big' | 'small'
 ): ResponsiveImage {
   const image = getImage(id);
   if (!image) {
     return { src: '', srcset: '', sizes: '', focalPoint: '50% 50%', alt: '' };
   }
 
-  // Commercial: crop to square if landscape
+  // Small projects: crop to square if landscape
   let crop: CropPreset | null = null;
-  if (category === 'commercial' && getOrientation(id) === 'landscape') {
-    crop = CROP_PRESETS.desktopCommercialSquare;
+  if (category === 'small' && getOrientation(id) === 'landscape') {
+    crop = CROP_PRESETS.desktopSmallSquare;
   }
 
-  const ctx = category === 'residential'
-    ? IMAGE_CONTEXTS.desktopResidentialThumb
-    : IMAGE_CONTEXTS.desktopCommercialThumb;
+  const ctx = category === 'big'
+    ? IMAGE_CONTEXTS.desktopBigThumb
+    : IMAGE_CONTEXTS.desktopSmallThumb;
 
   return {
     src: getDefaultSrc(id, ctx.widths, crop),

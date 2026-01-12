@@ -417,13 +417,13 @@ let projects = [];
 let editingProject = null;
 let selectedProjectImages = [];
 let projectThumbnail = null;
-let projectsSortableResidential = null;
-let projectsSortableCommercial = null;
+let projectsSortableBig = null;
+let projectsSortableSmall = null;
 let selectedImagesSortable = null;
 
 // Projects Elements
-const projectsListResidential = document.getElementById('projects-list-residential');
-const projectsListCommercial = document.getElementById('projects-list-commercial');
+const projectsListBig = document.getElementById('projects-list-big');
+const projectsListSmall = document.getElementById('projects-list-small');
 const newProjectBtn = document.getElementById('new-project-btn');
 const projectModal = document.getElementById('project-modal');
 const projectModalTitle = document.getElementById('project-modal-title');
@@ -485,33 +485,33 @@ async function loadProjects() {
 
 // Render projects list
 function renderProjectsList() {
-  const residential = projects
-    .filter(p => p.category === 'residential')
+  const bigProjects = projects
+    .filter(p => p.category === 'big')
     .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0));
-  const commercial = projects
-    .filter(p => p.category === 'commercial')
+  const smallProjects = projects
+    .filter(p => p.category === 'small')
     .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0));
 
-  // Render residential column
-  if (residential.length === 0) {
-    projectsListResidential.innerHTML = `
+  // Render big projects column
+  if (bigProjects.length === 0) {
+    projectsListBig.innerHTML = `
       <div class="empty-state">
-        <p>No residential projects yet.</p>
+        <p>No big projects yet.</p>
       </div>
     `;
   } else {
-    projectsListResidential.innerHTML = residential.map(project => renderProjectCard(project)).join('');
+    projectsListBig.innerHTML = bigProjects.map(project => renderProjectCard(project)).join('');
   }
 
-  // Render commercial column
-  if (commercial.length === 0) {
-    projectsListCommercial.innerHTML = `
+  // Render small projects column
+  if (smallProjects.length === 0) {
+    projectsListSmall.innerHTML = `
       <div class="empty-state">
-        <p>No commercial projects yet.</p>
+        <p>No little projects yet.</p>
       </div>
     `;
   } else {
-    projectsListCommercial.innerHTML = commercial.map(project => renderProjectCard(project)).join('');
+    projectsListSmall.innerHTML = smallProjects.map(project => renderProjectCard(project)).join('');
   }
 
   // Add click handlers for editing
@@ -551,30 +551,30 @@ function renderProjectCard(project) {
 
 // Initialize Sortable for projects list
 function initProjectsSortable() {
-  if (projectsSortableResidential) {
-    projectsSortableResidential.destroy();
+  if (projectsSortableBig) {
+    projectsSortableBig.destroy();
   }
-  if (projectsSortableCommercial) {
-    projectsSortableCommercial.destroy();
+  if (projectsSortableSmall) {
+    projectsSortableSmall.destroy();
   }
 
   // Only init if there are cards (not empty state)
-  if (projectsListResidential.querySelector('.project-card')) {
-    projectsSortableResidential = new Sortable(projectsListResidential, {
+  if (projectsListBig.querySelector('.project-card')) {
+    projectsSortableBig = new Sortable(projectsListBig, {
       animation: 150,
       handle: '.project-drag-handle',
       ghostClass: 'sortable-ghost',
       chosenClass: 'sortable-chosen',
-      onEnd: () => handleProjectReorder('residential', projectsListResidential)
+      onEnd: () => handleProjectReorder('big', projectsListBig)
     });
   }
-  if (projectsListCommercial.querySelector('.project-card')) {
-    projectsSortableCommercial = new Sortable(projectsListCommercial, {
+  if (projectsListSmall.querySelector('.project-card')) {
+    projectsSortableSmall = new Sortable(projectsListSmall, {
       animation: 150,
       handle: '.project-drag-handle',
       ghostClass: 'sortable-ghost',
       chosenClass: 'sortable-chosen',
-      onEnd: () => handleProjectReorder('commercial', projectsListCommercial)
+      onEnd: () => handleProjectReorder('small', projectsListSmall)
     });
   }
 }
@@ -628,7 +628,7 @@ function openProjectModal(projectId = null) {
     projectModalTitle.textContent = 'New Project';
     projectIdInput.value = '';
     projectIdInput.readOnly = false;
-    projectCategorySelect.value = 'residential';
+    projectCategorySelect.value = 'big';
     projectTitleInput.value = '';
     projectYearInput.value = new Date().getFullYear().toString();
     projectLocationInput.value = '';

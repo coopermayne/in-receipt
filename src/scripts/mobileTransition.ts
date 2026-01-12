@@ -39,9 +39,9 @@ function setupMobileTransition() {
       closeActiveCard();
     }
 
-    // Determine which row (residential = upper, commercial = lower)
+    // Determine which row (big = upper, small = lower)
     const rowContainer = card.closest('.gallery-row-container') as HTMLElement;
-    const isUpperRow = rowContainer?.getAttribute('data-category') === 'residential';
+    const isUpperRow = rowContainer?.getAttribute('data-category') === 'big';
 
     // Get title position and fix it in place
     const contentEl = card.querySelector('.project-card__content') as HTMLElement;

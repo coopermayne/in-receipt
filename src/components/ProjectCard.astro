@@ -11,7 +11,7 @@ import {
 interface Props {
   id: string;
   title: string;
-  category: 'residential' | 'commercial';
+  category: 'big' | 'small';
   thumbnail: string;
   shortDescription: string;
   fullDescription: string;
@@ -64,13 +64,13 @@ const projectData = JSON.stringify({
   <div class="project-card__inner">
     <div class="project-card__image-container">
       <picture>
-        {/* Mobile: cropped based on category (3:4 residential, 16:9 commercial) */}
+        {/* Mobile: cropped based on category (3:4 big, 16:9 small) */}
         <source
           media="(max-width: 767px)"
           srcset={mobileThumb.srcset}
           sizes={mobileThumb.sizes}
         />
-        {/* Desktop: context-aware sizing (24vw residential, 12vw commercial) */}
+        {/* Desktop: context-aware sizing (24vw big, 12vw small) */}
         <source
           media="(min-width: 768px)"
           srcset={desktopThumb.srcset}

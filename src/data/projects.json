@@ -3,7 +3,7 @@
     {
       "id": "cedar-house",
       "title": "Cedar House",
-      "category": "residential",
+      "category": "big",
       "thumbnail": "portrait-1",
       "shortDescription": "A hillside residence nestled among native oaks.",
       "fullDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n\nPellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante.",
@@ -23,7 +23,7 @@
     {
       "id": "glass-pavilion",
       "title": "Test",
-      "category": "residential",
+      "category": "big",
       "thumbnail": "square-3",
       "shortDescription": "Minimalist weekend retreat with panoramic views.",
       "fullDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Cras mattis consectetur purus sit amet fermentum. Donec ullamcorper nulla non metus auctor fringilla.\n\nNullam quis risus eget urna mollis ornare vel eu leo. Vestibulum id ligula porta felis euismod semper. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Maecenas sed diam eget risus varius blandit sit amet non magna.\n\nAenean lacinia bibendum nulla sed consectetur. Cras mattis consectetur purus sit amet fermentum.",
@@ -40,7 +40,7 @@
     {
       "id": "urban-infill",
       "title": "Urban Infill",
-      "category": "residential",
+      "category": "big",
       "thumbnail": "portrait-5",
       "shortDescription": "Three-story home on a narrow downtown lot.",
       "fullDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.\n\nMorbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Nullam id dolor id nibh ultricies vehicula ut id elit.\n\nFusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.",
@@ -61,7 +61,7 @@
     {
       "id": "coastal-retreat",
       "title": "Coastal Retreat",
-      "category": "residential",
+      "category": "big",
       "thumbnail": "portrait-7",
       "shortDescription": "Cliffside sanctuary where land meets the Pacific.",
       "fullDescription": "Perched on a dramatic bluff overlooking the Pacific Ocean, this residence was designed to dissolve the boundaries between interior living spaces and the natural drama of the California coastline. Floor-to-ceiling glass walls pivot open to merge indoor and outdoor zones, while deep overhangs protect against the intense afternoon sun.\n\nThe material palette draws from the surrounding landscape: weathered concrete echoes the rocky shoreline below, warm teak cladding references the native coastal sage, and blackened steel frames the views like carefully composed photographs. Each room was positioned to capture specific moments of the day—the morning light in the primary suite, the sunset in the living room, the moonrise from the study.\n\nBelow the main level, a series of terraced gardens cascade toward the cliff edge, planted with drought-tolerant natives that require no irrigation. A serpentine path winds down to a protected cove, providing private beach access. The pool, cantilevered beyond the cliff face, creates the illusion of swimming directly into the horizon.",
@@ -81,7 +81,7 @@
     {
       "id": "mountain-modern",
       "title": "Mountain Modern",
-      "category": "residential",
+      "category": "big",
       "thumbnail": "wide-1",
       "shortDescription": "Alpine living reimagined for year-round comfort.",
       "fullDescription": "This high-altitude residence challenges the conventions of mountain architecture. Rather than the heavy timber lodges typical of the region, the design employs a restrained palette of concrete, glass, and weathering steel that ages gracefully alongside the surrounding granite peaks.\n\nThe house is organized as a series of pavilions connected by glass corridors, each structure oriented to frame a specific view: the lake to the east, the ski slopes to the north, the forest to the west. In winter, these corridors become light-filled passages that bring the snow-covered landscape inside. In summer, they open completely, transforming the home into a collection of covered outdoor rooms.\n\nRadiant floors powered by a ground-source heat pump maintain comfort during the harsh winters, while operable clerestory windows flush hot air in summer. The roof is designed to hold snow for additional insulation, with heated gutters preventing ice dams. A sauna and cold plunge overlook a protected courtyard, offering a private winter refuge.",
@@ -101,7 +101,7 @@
     {
       "id": "courtyard-house",
       "title": "tttt",
-      "category": "residential",
+      "category": "big",
       "rank": 2,
       "thumbnail": "square-3",
       "shortDescription": "test short desc",
@@ -122,7 +122,7 @@
     {
       "id": "treehouse",
       "title": "Treehouse",
-      "category": "residential",
+      "category": "big",
       "rank": 0,
       "thumbnail": "screenshot-2026-01-11-at-10-59-01-am",
       "shortDescription": "Elevated dwelling woven through an ancient forest canopy.",
@@ -144,7 +144,7 @@
     {
       "id": "studio-campus",
       "title": "Studio Campus",
-      "category": "commercial",
+      "category": "small",
       "thumbnail": "landscape-10",
       "shortDescription": "Creative offices organized around courtyards.",
       "fullDescription": "A series of interconnected studios designed for collaboration and focused work.",
@@ -161,7 +161,7 @@
     {
       "id": "civic-library",
       "title": "Civic Library",
-      "category": "commercial",
+      "category": "small",
       "thumbnail": "square-8",
       "shortDescription": "Public reading rooms with filtered natural light.",
       "fullDescription": "Quiet reading spaces bathed in carefully modulated daylight from clerestory windows.",
@@ -177,7 +177,7 @@
     {
       "id": "waterfront-hotel",
       "title": "Waterfront Hotel",
-      "category": "commercial",
+      "category": "small",
       "thumbnail": "landscape-3",
       "shortDescription": "Luxury hospitality where the harbor meets downtown.",
       "fullDescription": "Rising from the edge of San Diego Bay, this two-hundred-room hotel was designed to capture the romance of ocean travel in a contemporary idiom. The building's massing evokes the great ocean liners of the past—horizontal bands of windows suggesting cabin decks, rounded corners recalling ship bows, and rooftop gardens reminiscent of promenade decks.\n\nThe ground floor opens generously to the waterfront with restaurants, bars, and a public promenade that extends the adjacent bayfront park. A dramatic lobby atrium rises through four floors, topped by a tensile fabric roof that filters the intense Southern California sun into a soft, diffuse glow. Suspended sculptures by local artists rotate slowly in the gentle updraft.\n\nGuest rooms feature floor-to-ceiling glass with operable balcony doors, allowing every room to benefit from the sea breezes. Suites on upper floors include private terraces with outdoor showers and hot tubs. The rooftop pool deck offers panoramic views of the bay, Coronado Island, and the distant mountains of Baja California. A full-service spa occupies a quiet wing at the building's base, with treatment rooms opening onto private garden courtyards.",
@@ -199,7 +199,7 @@
     {
       "id": "tech-headquarters",
       "title": "Tech Headquarters",
-      "category": "commercial",
+      "category": "small",
       "thumbnail": "portrait-8",
       "shortDescription": "Innovation campus fostering serendipitous collaboration.",
       "fullDescription": "Designed for a rapidly growing technology company, this campus challenges the conventional corporate headquarters with a village-like approach that encourages movement, chance encounters, and cross-pollination between teams. Rather than a single monolithic building, the program is distributed across a dozen structures of varying sizes connected by covered walkways, bridges, and shared gardens.\n\nEach building houses a different function—engineering, design, marketing, executive, dining—but no building is more than a three-minute walk from any other. The circulation system was deliberately designed to be inefficient by corporate standards: there are no direct routes, forcing employees to wind through gardens, past coffee bars, and across collaboration zones where they might encounter colleagues from other departments.\n\nThe campus is organized around a central quad inspired by traditional university greens, with a stage for all-hands meetings and outdoor movie screenings. Buildings step down in height from north to south to maximize solar access, and extensive green roofs reduce stormwater runoff while providing additional outdoor meeting spaces. The architecture is deliberately understated—simple volumes clad in warm wood and local stone—allowing the landscape to take precedence.",
@@ -221,7 +221,7 @@
     {
       "id": "art-museum",
       "title": "Contemporary Art Museum",
-      "category": "commercial",
+      "category": "small",
       "thumbnail": "wide-2",
       "shortDescription": "A journey through light, space, and artistic expression.",
       "fullDescription": "This museum was conceived not as a neutral container for art but as an active participant in the viewing experience. The building offers a carefully choreographed sequence of spatial conditions—compressed entries, soaring galleries, intimate viewing alcoves, unexpected outdoor terraces—that prepare visitors emotionally for the art they will encounter.\n\nThe permanent collection galleries occupy a massive concrete volume that appears to float above the entry plaza, supported on a forest of slender columns. Inside, the galleries are column-free spans of up to 200 feet, allowing curators complete flexibility in arranging exhibitions. Natural light enters through a sophisticated roof system that bounces daylight off adjustable louvers, providing the ideal viewing conditions for each artwork.\n\nTemporary exhibition spaces occupy a separate wing connected by a glass bridge overlooking a sculpture garden. Here, the galleries can be completely darkened for video installations or opened to direct sunlight for works that engage with natural light. A 500-seat auditorium, education center, and rooftop restaurant complete the program. The building's most dramatic moment comes at sunset, when the western facade transforms into a screen of reflected color.",
@@ -243,7 +243,7 @@
     {
       "id": "wellness-center",
       "title": "Wellness Center",
-      "category": "commercial",
+      "category": "small",
       "thumbnail": "square-4",
       "shortDescription": "Desert sanctuary for healing and renewal.",
       "fullDescription": "Nestled in the Sonoran Desert among saguaro cacti and granite outcroppings, this wellness center offers a comprehensive retreat from the stress of modern life. The architecture takes its cues from the ancient dwellings of the region's indigenous peoples, employing thick rammed-earth walls, small protected openings, and spaces that flow seamlessly between inside and outside.\n\nThe campus is organized along a spine that follows the natural contours of the site, minimizing disturbance to the fragile desert ecosystem. Treatment pavilions branch off this main path, each offering privacy and views to a different aspect of the landscape—the mountains to the north, the wash to the east, the sunset to the west. Between treatments, guests can wander meditation trails, soak in natural hot springs, or practice yoga in an open-air pavilion.\n\nAccommodations range from simple rooms to private casitas with their own plunge pools and outdoor living areas. The spa draws on both Western and Eastern healing traditions, offering everything from Swedish massage to Ayurvedic treatments to Native American sweat lodge ceremonies. Farm-to-table dining features produce grown in the center's own desert garden. No televisions, limited connectivity, and a strict no-phone policy in public areas complete the digital detox experience.",
@@ -265,7 +265,7 @@
     {
       "id": "transit-hub",
       "title": "Transit Hub",
-      "category": "commercial",
+      "category": "small",
       "thumbnail": "landscape-7",
       "shortDescription": "Multimodal gateway reconnecting a city to its future.",
       "fullDescription": "This transit hub brings together light rail, commuter rail, regional bus, and local transit under a single dramatic canopy, transforming what was once a fractured collection of stops and stations into a unified gateway to the city. The design prioritizes legibility and ease of transfer, with clear sightlines between all modes and intuitive wayfinding that requires no signage.\n\nThe signature element is a undulating roof structure that spans the entire complex, providing shelter from sun and snow while creating a distinctive landmark visible from miles away. The roof is supported by tree-like columns that branch as they rise, their form inspired by the cottonwood trees that once lined the nearby river. Clerestory glazing between roof panels floods the concourse with natural light while integrated photovoltaics generate a significant portion of the building's energy needs.\n\nBeyond its transportation functions, the hub serves as a civic gathering space and commercial center. Retail and dining line the main concourse, while a public plaza at the building's center hosts farmers markets, concerts, and community events. Underground, the building connects to the downtown pedestrian tunnel network, allowing commuters to reach their destinations without braving the winter weather. Bicycle facilities include secure parking for 500 bikes, a repair station, and showers for bike commuters.",
@@ -287,7 +287,7 @@
     {
       "id": "boutique-winery",
       "title": "Boutique Winery",
-      "category": "commercial",
+      "category": "small",
       "thumbnail": "portrait-10",
       "shortDescription": "Where terroir meets architectural craft.",
       "fullDescription": "Set among rolling vineyards in the heart of wine country, this boutique winery combines state-of-the-art winemaking facilities with a destination tasting room and events venue. The architecture is rooted in the agrarian tradition of the region—simple barn-like forms, natural materials, honest construction—while incorporating contemporary elements that speak to the precision and artistry of fine winemaking.\n\nThe production facility occupies a partially buried structure that takes advantage of the earth's constant temperature for barrel aging. Visitors can observe the winemaking process from elevated catwalks and glassed-in viewing galleries without disrupting the work below. A cave system tunneled into the hillside provides ideal conditions for long-term aging, with private alcoves available for members to store their personal collections.\n\nThe tasting room occupies a dramatic glass pavilion cantilevered over the valley, offering 270-degree views of the surrounding vineyards. A test kitchen allows the culinary team to develop pairings that showcase each vintage. For private events, a restored stone barn provides a rustic-luxe setting for weddings and corporate retreats, while a terraced amphitheater carved into the hillside hosts summer concerts and outdoor film screenings.",

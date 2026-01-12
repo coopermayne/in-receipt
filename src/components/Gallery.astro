@@ -22,32 +22,32 @@ interface Props {
 
 const { projects } = Astro.props;
 
-const residential = projects
-  .filter(p => p.category === 'residential')
+const bigProjects = projects
+  .filter(p => p.category === 'big')
   .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0));
-const commercial = projects
-  .filter(p => p.category === 'commercial')
+const smallProjects = projects
+  .filter(p => p.category === 'small')
   .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0));
 ---
 
 <main class="main-gallery">
   <!-- Mobile: Horizontal Rows (hidden on desktop) -->
-  <div class="gallery-row-container" data-category="residential">
-    <div class="gallery-row" data-gallery-id="residential">
-      {residential.map((project, index) => (
+  <div class="gallery-row-container" data-category="big">
+    <div class="gallery-row" data-gallery-id="big">
+      {bigProjects.map((project, index) => (
         <ProjectCard {...project} isFirst={index === 0} />
       ))}
     </div>
-    <ScrollIndicator count={residential.length} galleryId="residential" />
+    <ScrollIndicator count={bigProjects.length} galleryId="big" />
   </div>
 
-  <div class="gallery-row-container" data-category="commercial">
-    <div class="gallery-row" data-gallery-id="commercial">
-      {commercial.map((project, index) => (
+  <div class="gallery-row-container" data-category="small">
+    <div class="gallery-row" data-gallery-id="small">
+      {smallProjects.map((project, index) => (
         <ProjectCard {...project} isFirst={index === 0} />
       ))}
     </div>
-    <ScrollIndicator count={commercial.length} galleryId="commercial" />
+    <ScrollIndicator count={smallProjects.length} galleryId="small" />
   </div>
 
   <!-- Mobile: Info Button -->
@@ -95,10 +95,10 @@ const commercial = projects
     </div>
   </div>
 
-  <!-- Column 1: Residential Projects (25vw, dotted right border, right-aligned) -->
+  <!-- Column 1: Big Projects (25vw, dotted right border, right-aligned) -->
   <div class="gallery-column-container gallery-column-container--col1">
     <div class="gallery-column gallery-column--left" data-gallery-id="column-left">
-      {residential.map((project, index) => (
+      {bigProjects.map((project, index) => (
         <ProjectCard {...project} isFirst={index === 0} />
       ))}
     </div>
@@ -112,10 +112,10 @@ const commercial = projects
     <h1 class="site-title">IN RECEIPT</h1>
   </aside>
 
-  <!-- Column 4: Commercial Projects (25vw, left-aligned) -->
+  <!-- Column 4: Small Projects (25vw, left-aligned) -->
   <div class="gallery-column-container gallery-column-container--col4">
     <div class="gallery-column gallery-column--right" data-gallery-id="column-right">
-      {commercial.map((project, index) => (
+      {smallProjects.map((project, index) => (
         <ProjectCard {...project} isFirst={index === 0} />
       ))}
     </div>

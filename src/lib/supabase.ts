@@ -26,7 +26,7 @@ export interface ImageRow {
 export interface ProjectRow {
   id: string;
   title: string;
-  category: 'residential' | 'commercial';
+  category: 'big' | 'small';
   thumbnail: string | null;
   short_description: string | null;
   full_description: string | null;
@@ -52,7 +52,7 @@ export interface ImageData {
 export interface Project {
   id: string;
   title: string;
-  category: 'residential' | 'commercial';
+  category: 'big' | 'small';
   thumbnail: string;
   shortDescription: string;
   fullDescription: string;

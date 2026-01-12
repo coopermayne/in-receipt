@@ -7,17 +7,17 @@
   .project-card__close {
     -webkit-tap-highlight-color: transparent;
   }
-  /* Layout ratios: 60% residential, 40% commercial */
+  /* Layout ratios: 60% big projects, 40% small projects */
   .gallery-row-container {
     position: relative;
     min-height: 0;
   }
 
-  .gallery-row-container[data-category="residential"] {
+  .gallery-row-container[data-category="big"] {
     flex: 0 0 60%;
   }
 
-  .gallery-row-container[data-category="commercial"] {
+  .gallery-row-container[data-category="small"] {
     flex: 0 0 40%;
   }
 
@@ -37,7 +37,7 @@
     height: 100%;
   }
 
-  /* Title positioning - residential: top left */
+  /* Title positioning - big projects: top left */
   .project-card__content {
     position: absolute;
     top: var(--spacing-lg);
@@ -60,17 +60,17 @@
   }
 
   /* Upper row: padding on right */
-  .gallery-row-container[data-category="residential"] .project-card__title {
+  .gallery-row-container[data-category="big"] .project-card__title {
     padding-right: calc(var(--spacing-sm) / 2);
   }
 
   /* Lower row: padding on left */
-  .gallery-row-container[data-category="commercial"] .project-card__title {
+  .gallery-row-container[data-category="small"] .project-card__title {
     padding-left: calc(var(--spacing-sm) / 2);
   }
 
-  /* Extend black strip to left edge for residential */
-  .gallery-row-container[data-category="residential"] .project-card__title::before {
+  /* Extend black strip to left edge for big projects */
+  .gallery-row-container[data-category="big"] .project-card__title::before {
     content: '';
     position: absolute;
     top: 0;
@@ -80,8 +80,8 @@
     background: #222;
   }
 
-  /* Commercial row: title at bottom right */
-  .gallery-row-container[data-category="commercial"] .project-card__content {
+  /* Small projects row: title at bottom right */
+  .gallery-row-container[data-category="small"] .project-card__content {
     top: auto;
     bottom: var(--spacing-lg);
     left: auto;
@@ -89,8 +89,8 @@
     text-align: right;
   }
 
-  /* Extend black strip to right edge for commercial */
-  .gallery-row-container[data-category="commercial"] .project-card__title::after {
+  /* Extend black strip to right edge for small projects */
+  .gallery-row-container[data-category="small"] .project-card__title::after {
     content: '';
     position: absolute;
     top: 0;

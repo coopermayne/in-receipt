@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS images (
 CREATE TABLE IF NOT EXISTS projects (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
-  category TEXT NOT NULL CHECK (category IN ('residential', 'commercial')),
+  category TEXT NOT NULL CHECK (category IN ('big', 'small')),
   thumbnail TEXT REFERENCES images(id) ON DELETE SET NULL,
   short_description TEXT,
   full_description TEXT,
