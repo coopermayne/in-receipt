@@ -334,6 +334,7 @@ async function handleSave() {
 
     // Reload and close
     await loadImages();
+    markAsChanged();
     closeModals();
   } catch (error) {
     console.error('Error:', error);
@@ -367,6 +368,7 @@ async function handleUpdate() {
     }
 
     await loadImages();
+    markAsChanged();
     closeModals();
   } catch (error) {
     console.error('Error:', error);
@@ -397,6 +399,7 @@ async function handleDelete() {
     }
 
     await loadImages();
+    markAsChanged();
     closeModals();
   } catch (error) {
     console.error('Error:', error);
@@ -596,6 +599,7 @@ async function handleProjectReorder(category, listElement) {
         project.rank = index;
       }
     });
+    markAsChanged();
   } catch (error) {
     console.error('Failed to reorder projects:', error);
     renderProjectsList(); // Revert on error
@@ -800,6 +804,7 @@ async function handleProjectSave() {
     }
 
     await loadProjects();
+    markAsChanged();
     closeProjectModal();
   } catch (error) {
     console.error('Save project error:', error);
@@ -831,6 +836,7 @@ async function handleProjectDelete() {
     }
 
     await loadProjects();
+    markAsChanged();
     closeProjectModal();
   } catch (error) {
     console.error('Delete project error:', error);
@@ -860,14 +866,45 @@ function setupProjectListeners() {
 // ============ PUBLISH ============
 
 const publishBtn = document.getElementById('publish-btn');
+const unpublishedBadge = document.getElementById('unpublished-badge');
+
+// Track unpublished changes
+function markAsChanged() {
+  localStorage.setItem('hasUnpublishedChanges', 'true');
+  updatePublishBadge();
+}
+
+function markAsPublished() {
+  localStorage.removeItem('hasUnpublishedChanges');
+  updatePublishBadge();
+}
+
+function hasUnpublishedChanges() {
+  return localStorage.getItem('hasUnpublishedChanges') === 'true';
+}
+
+function updatePublishBadge() {
+  if (hasUnpublishedChanges()) {
+    unpublishedBadge.classList.remove('hidden');
+    publishBtn.title = 'You have unpublished changes';
+  } else {
+    unpublishedBadge.classList.add('hidden');
+    publishBtn.title = 'Publish changes to live site';
+  }
+}
 
 async function handlePublish() {
-  if (!confirm('Publish all changes to the live site?')) {
+  const hasChanges = hasUnpublishedChanges();
+  const message = hasChanges
+    ? 'Publish all changes to the live site?\n\nBuild typically takes 1-2 minutes.'
+    : 'No changes detected, but publish anyway?\n\nBuild typically takes 1-2 minutes.';
+
+  if (!confirm(message)) {
     return;
   }
 
   publishBtn.disabled = true;
-  publishBtn.innerHTML = '<span class="publish-icon">⏳</span> Publishing...';
+  publishBtn.innerHTML = '<span class="publish-icon">⏳</span> Building...';
 
   try {
     const res = await fetch('/api/publish', { method: 'POST' });
@@ -877,18 +914,26 @@ async function handlePublish() {
       throw new Error(data.error || 'Publish failed');
     }
 
-    publishBtn.innerHTML = '<span class="publish-icon">✓</span> Published!';
+    markAsPublished();
+    publishBtn.innerHTML = '<span class="publish-icon">✓</span> Build started!';
+
     setTimeout(() => {
-      publishBtn.innerHTML = '<span class="publish-icon">🚀</span> Publish';
+      publishBtn.innerHTML = '<span class="publish-icon">🚀</span> Publish <span id="unpublished-badge" class="unpublished-badge hidden">●</span>';
       publishBtn.disabled = false;
+      // Re-get the badge element since we replaced innerHTML
+      updatePublishBadge();
     }, 3000);
   } catch (error) {
     console.error('Publish error:', error);
     alert(error.message || 'Failed to publish. Is NETLIFY_BUILD_HOOK configured?');
-    publishBtn.innerHTML = '<span class="publish-icon">🚀</span> Publish';
+    publishBtn.innerHTML = '<span class="publish-icon">🚀</span> Publish <span id="unpublished-badge" class="unpublished-badge hidden">●</span>';
     publishBtn.disabled = false;
+    updatePublishBadge();
   }
 }
+
+// Initialize badge on page load
+updatePublishBadge();
 
 publishBtn.addEventListener('click', handlePublish);
 
