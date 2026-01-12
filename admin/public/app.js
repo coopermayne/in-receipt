@@ -948,8 +948,7 @@ async function checkDeployStatus() {
       case 'error':
         setPublishButtonState('✗', 'Failed', 'publish-error');
         stopPolling();
-        alert(`Build failed: ${data.message}`);
-        setTimeout(resetPublishButton, 3000);
+        setTimeout(resetPublishButton, 5000);
         break;
       default:
         // Unknown state, keep polling
@@ -976,15 +975,6 @@ function stopPolling() {
 }
 
 async function handlePublish() {
-  const hasChanges = hasUnpublishedChanges();
-  const message = hasChanges
-    ? 'Publish all changes to the live site?'
-    : 'No changes detected, but publish anyway?';
-
-  if (!confirm(message)) {
-    return;
-  }
-
   publishBtn.disabled = true;
   setPublishButtonState('⏳', 'Starting...', 'publishing');
 
@@ -1004,8 +994,8 @@ async function handlePublish() {
 
   } catch (error) {
     console.error('Publish error:', error);
-    alert(error.message || 'Failed to publish. Is NETLIFY_BUILD_HOOK configured?');
-    resetPublishButton();
+    setPublishButtonState('✗', 'Error', 'publish-error');
+    setTimeout(resetPublishButton, 3000);
   }
 }
 
