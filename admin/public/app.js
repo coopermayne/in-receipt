@@ -868,6 +868,9 @@ function setupProjectListeners() {
 const publishBtn = document.getElementById('publish-btn');
 const unpublishedBadge = document.getElementById('unpublished-badge');
 
+let deployPollInterval = null;
+let lastKnownDeployId = null;
+
 // Track unpublished changes
 function markAsChanged() {
   localStorage.setItem('hasUnpublishedChanges', 'true');
@@ -884,27 +887,106 @@ function hasUnpublishedChanges() {
 }
 
 function updatePublishBadge() {
+  const badge = document.getElementById('unpublished-badge');
+  if (!badge) return;
+
   if (hasUnpublishedChanges()) {
-    unpublishedBadge.classList.remove('hidden');
+    badge.classList.remove('hidden');
     publishBtn.title = 'You have unpublished changes';
   } else {
-    unpublishedBadge.classList.add('hidden');
+    badge.classList.add('hidden');
     publishBtn.title = 'Publish changes to live site';
+  }
+}
+
+function resetPublishButton() {
+  publishBtn.innerHTML = '<span class="publish-icon">🚀</span> Publish <span id="unpublished-badge" class="unpublished-badge hidden">●</span>';
+  publishBtn.disabled = false;
+  publishBtn.className = 'btn btn-publish';
+  updatePublishBadge();
+}
+
+function setPublishButtonState(icon, text, className) {
+  const badge = hasUnpublishedChanges() ? '<span id="unpublished-badge" class="unpublished-badge">●</span>' : '<span id="unpublished-badge" class="unpublished-badge hidden">●</span>';
+  publishBtn.innerHTML = `<span class="publish-icon">${icon}</span> ${text} ${badge}`;
+  publishBtn.className = `btn btn-publish ${className}`;
+}
+
+async function checkDeployStatus() {
+  try {
+    const res = await fetch('/api/deploy-status');
+
+    if (!res.ok) {
+      // API not configured, stop polling
+      stopPolling();
+      return;
+    }
+
+    const data = await res.json();
+
+    // If this is a new deploy (different ID), track it
+    if (data.deployId && data.deployId !== lastKnownDeployId) {
+      lastKnownDeployId = data.deployId;
+    }
+
+    switch (data.status) {
+      case 'queued':
+        setPublishButtonState('⏳', 'Queued...', 'publishing');
+        break;
+      case 'building':
+        setPublishButtonState('🔨', 'Building...', 'publishing');
+        break;
+      case 'deploying':
+        setPublishButtonState('📤', 'Deploying...', 'publishing');
+        break;
+      case 'ready':
+        setPublishButtonState('✓', 'Live!', 'published');
+        stopPolling();
+        // Reset button after a few seconds
+        setTimeout(resetPublishButton, 4000);
+        break;
+      case 'error':
+        setPublishButtonState('✗', 'Failed', 'publish-error');
+        stopPolling();
+        alert(`Build failed: ${data.message}`);
+        setTimeout(resetPublishButton, 3000);
+        break;
+      default:
+        // Unknown state, keep polling
+        break;
+    }
+  } catch (error) {
+    console.error('Failed to check deploy status:', error);
+  }
+}
+
+function startPolling() {
+  // Poll every 3 seconds
+  if (deployPollInterval) clearInterval(deployPollInterval);
+  deployPollInterval = setInterval(checkDeployStatus, 3000);
+  // Also check immediately
+  checkDeployStatus();
+}
+
+function stopPolling() {
+  if (deployPollInterval) {
+    clearInterval(deployPollInterval);
+    deployPollInterval = null;
   }
 }
 
 async function handlePublish() {
   const hasChanges = hasUnpublishedChanges();
   const message = hasChanges
-    ? 'Publish all changes to the live site?\n\nBuild typically takes 1-2 minutes.'
-    : 'No changes detected, but publish anyway?\n\nBuild typically takes 1-2 minutes.';
+    ? 'Publish all changes to the live site?'
+    : 'No changes detected, but publish anyway?';
 
   if (!confirm(message)) {
     return;
   }
 
   publishBtn.disabled = true;
-  publishBtn.innerHTML = '<span class="publish-icon">⏳</span> Building...';
+  setPublishButtonState('⏳', 'Starting...', 'publishing');
 
   try {
     const res = await fetch('/api/publish', { method: 'POST' });
@@ -915,20 +997,15 @@ async function handlePublish() {
     }
 
     markAsPublished();
-    publishBtn.innerHTML = '<span class="publish-icon">✓</span> Build started!';
 
-    setTimeout(() => {
-      publishBtn.innerHTML = '<span class="publish-icon">🚀</span> Publish <span id="unpublished-badge" class="unpublished-badge hidden">●</span>';
-      publishBtn.disabled = false;
-      // Re-get the badge element since we replaced innerHTML
-      updatePublishBadge();
-    }, 3000);
+    // Start polling for deploy status
+    lastKnownDeployId = null; // Reset so we catch the new deploy
+    startPolling();
+
   } catch (error) {
     console.error('Publish error:', error);
     alert(error.message || 'Failed to publish. Is NETLIFY_BUILD_HOOK configured?');
-    publishBtn.innerHTML = '<span class="publish-icon">🚀</span> Publish <span id="unpublished-badge" class="unpublished-badge hidden">●</span>';
-    publishBtn.disabled = false;
-    updatePublishBadge();
+    resetPublishButton();
   }
 }
 

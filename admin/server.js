@@ -427,6 +427,87 @@ app.post('/api/publish', async (req, res) => {
   }
 });
 
+// Get latest Netlify deploy status
+app.get('/api/deploy-status', async (req, res) => {
+  const accessToken = process.env.NETLIFY_ACCESS_TOKEN;
+  const siteId = process.env.NETLIFY_SITE_ID;
+
+  if (!accessToken || !siteId) {
+    return res.status(500).json({ error: 'Netlify API not configured' });
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.netlify.com/api/v1/sites/${siteId}/deploys?per_page=1`,
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Netlify API responded with ${response.status}`);
+    }
+
+    const deploys = await response.json();
+
+    if (deploys.length === 0) {
+      return res.json({ status: 'unknown', message: 'No deploys found' });
+    }
+
+    const latest = deploys[0];
+
+    // Map Netlify states to simpler status
+    // Netlify states: new, pending_review, enqueued, building, uploading, uploaded, preparing, ready, error, retrying
+    let status = 'unknown';
+    let message = latest.state;
+
+    switch (latest.state) {
+      case 'new':
+      case 'enqueued':
+      case 'pending_review':
+        status = 'queued';
+        message = 'Build queued...';
+        break;
+      case 'building':
+        status = 'building';
+        message = 'Building site...';
+        break;
+      case 'uploading':
+      case 'uploaded':
+      case 'preparing':
+        status = 'deploying';
+        message = 'Deploying...';
+        break;
+      case 'ready':
+        status = 'ready';
+        message = 'Live!';
+        break;
+      case 'error':
+        status = 'error';
+        message = latest.error_message || 'Build failed';
+        break;
+      case 'retrying':
+        status = 'building';
+        message = 'Retrying build...';
+        break;
+    }
+
+    res.json({
+      status,
+      message,
+      deployId: latest.id,
+      createdAt: latest.created_at,
+      publishedAt: latest.published_at,
+      deployUrl: latest.deploy_ssl_url,
+    });
+  } catch (error) {
+    console.error('Deploy status error:', error);
+    res.status(500).json({ error: 'Failed to get deploy status' });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Admin server running at http://localhost:${PORT}`);

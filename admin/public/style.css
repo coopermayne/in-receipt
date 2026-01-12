@@ -94,6 +94,37 @@ h2 {
   cursor: not-allowed;
 }
 
+.btn-publish.publishing {
+  background: #ffc107;
+  color: #212529;
+  cursor: wait;
+}
+
+.btn-publish.published {
+  background: #28a745;
+}
+
+.btn-publish.publish-error {
+  background: #dc3545;
+}
+
+.publish-area {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.site-link {
+  color: #666;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.site-link:hover {
+  color: #aa4925;
+  text-decoration: underline;
+}
+
 .publish-icon {
   font-size: 1rem;
 }
