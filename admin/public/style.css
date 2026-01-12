@@ -77,6 +77,27 @@ h2 {
   background: #c82333;
 }
 
+.btn-publish {
+  background: #28a745;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-publish:hover {
+  background: #218838;
+}
+
+.btn-publish:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.publish-icon {
+  font-size: 1rem;
+}
+
 .link-btn {
   background: none;
   border: none;

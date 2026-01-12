@@ -403,6 +403,30 @@ app.delete('/api/projects/:id', async (req, res) => {
   }
 });
 
+// ============ PUBLISH API ============
+
+// Trigger Netlify rebuild
+app.post('/api/publish', async (req, res) => {
+  const buildHook = process.env.NETLIFY_BUILD_HOOK;
+
+  if (!buildHook) {
+    return res.status(500).json({ error: 'NETLIFY_BUILD_HOOK not configured' });
+  }
+
+  try {
+    const response = await fetch(buildHook, { method: 'POST' });
+
+    if (!response.ok) {
+      throw new Error(`Netlify responded with ${response.status}`);
+    }
+
+    res.json({ success: true, message: 'Build triggered' });
+  } catch (error) {
+    console.error('Publish error:', error);
+    res.status(500).json({ error: 'Failed to trigger build' });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Admin server running at http://localhost:${PORT}`);

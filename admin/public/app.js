@@ -857,6 +857,41 @@ function setupProjectListeners() {
   projectModal.querySelector('.modal-close').addEventListener('click', closeProjectModal);
 }
 
+// ============ PUBLISH ============
+
+const publishBtn = document.getElementById('publish-btn');
+
+async function handlePublish() {
+  if (!confirm('Publish all changes to the live site?')) {
+    return;
+  }
+
+  publishBtn.disabled = true;
+  publishBtn.innerHTML = '<span class="publish-icon">⏳</span> Publishing...';
+
+  try {
+    const res = await fetch('/api/publish', { method: 'POST' });
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || 'Publish failed');
+    }
+
+    publishBtn.innerHTML = '<span class="publish-icon">✓</span> Published!';
+    setTimeout(() => {
+      publishBtn.innerHTML = '<span class="publish-icon">🚀</span> Publish';
+      publishBtn.disabled = false;
+    }, 3000);
+  } catch (error) {
+    console.error('Publish error:', error);
+    alert(error.message || 'Failed to publish. Is NETLIFY_BUILD_HOOK configured?');
+    publishBtn.innerHTML = '<span class="publish-icon">🚀</span> Publish';
+    publishBtn.disabled = false;
+  }
+}
+
+publishBtn.addEventListener('click', handlePublish);
+
 // Start
 setupTabs();
 setupProjectListeners();
