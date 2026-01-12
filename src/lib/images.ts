@@ -1,17 +1,16 @@
-import imagesData from '../data/images.json';
+import { fetchImages, type ImageData } from './supabase';
 
-// Type definitions
-interface ImageData {
-  cloudflareId: string;
-  accountHash: string;
-  focalPoint: { x: number; y: number };
-  alt: string;
-  filename: string;
-  width: number;
-  height: number;
-  uploadedAt: string;
+// Module-level cache for images data
+let imagesData: Record<string, ImageData> | null = null;
+
+// Initialize images from Supabase (call once at page level)
+export async function initImages(): Promise<void> {
+  if (imagesData === null) {
+    imagesData = await fetchImages();
+  }
 }
 
+// Type definitions
 interface ImageOptions {
   width?: number;
   height?: number;
@@ -101,11 +100,17 @@ export const CROP_PRESETS = {
 
 // Get image data by ID
 export function getImage(id: string): ImageData | null {
-  return (imagesData as Record<string, ImageData>)[id] || null;
+  if (!imagesData) {
+    throw new Error('Images not initialized. Call initImages() first.');
+  }
+  return imagesData[id] || null;
 }
 
 // Check if image exists
 export function hasImage(id: string): boolean {
+  if (!imagesData) {
+    throw new Error('Images not initialized. Call initImages() first.');
+  }
   return id in imagesData;
 }
 
@@ -343,5 +348,8 @@ export function getLightboxImage(id: string): ResponsiveImage {
 
 // Export all image IDs for reference
 export function getAllImageIds(): string[] {
+  if (!imagesData) {
+    throw new Error('Images not initialized. Call initImages() first.');
+  }
   return Object.keys(imagesData);
 }

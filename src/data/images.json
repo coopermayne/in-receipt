@@ -518,5 +518,16 @@
     "width": 1080,
     "height": 1920,
     "uploadedAt": "2026-01-05T23:45:49.508Z"
+  },
+  "screenshot-2026-01-11-at-10-59-01-am": {
+    "cloudflareId": "d61b7e87-a415-42aa-f1fe-22bb0d879b00",
+    "accountHash": "3oZsG34qPq3SIXQhl47vqA",
+    "focalPoint": {
+      "x": 0.6796875,
+      "y": 0.41176014072847683
+    },
+    "alt": "Kitty",
+    "filename": "Screenshot 2026-01-11 at 10.59.01 AM.png",
+    "uploadedAt": "2026-01-11T19:03:51.696Z"
   }
 }

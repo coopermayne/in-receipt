@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
-import { readFile, writeFile } from 'fs/promises';
+import basicAuth from 'express-basic-auth';
+import { createClient } from '@supabase/supabase-js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -10,27 +11,134 @@ const __dirname = dirname(__filename);
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
+// Environment variables
 const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
 const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
-const IMAGES_JSON_PATH = join(__dirname, '../src/data/images.json');
-const PROJECTS_JSON_PATH = join(__dirname, '../src/data/projects.json');
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+const ADMIN_USER = process.env.ADMIN_USER;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
-// Check env vars
-if (!CLOUDFLARE_ACCOUNT_ID || !CLOUDFLARE_API_TOKEN) {
-  console.error('Missing CLOUDFLARE_ACCOUNT_ID or CLOUDFLARE_API_TOKEN environment variables');
+// Check required env vars
+const requiredEnvVars = {
+  CLOUDFLARE_ACCOUNT_ID,
+  CLOUDFLARE_API_TOKEN,
+  SUPABASE_URL,
+  SUPABASE_SERVICE_KEY,
+  ADMIN_USER,
+  ADMIN_PASSWORD,
+};
+
+const missingVars = Object.entries(requiredEnvVars)
+  .filter(([, value]) => !value)
+  .map(([key]) => key);
+
+if (missingVars.length > 0) {
+  console.error(`Missing environment variables: ${missingVars.join(', ')}`);
   process.exit(1);
 }
+
+// Initialize Supabase client with service role key (bypasses RLS)
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+
+// Basic authentication middleware
+app.use(basicAuth({
+  users: { [ADMIN_USER]: ADMIN_PASSWORD },
+  challenge: true,
+  realm: 'Admin Panel',
+}));
 
 app.use(express.json());
 app.use(express.static(join(__dirname, 'public')));
 
+// Helper: Convert Supabase row to frontend format (for images)
+function rowToImageData(row) {
+  return {
+    cloudflareId: row.cloudflare_id,
+    accountHash: row.account_hash,
+    focalPoint: {
+      x: parseFloat(row.focal_point_x),
+      y: parseFloat(row.focal_point_y),
+    },
+    alt: row.alt,
+    filename: row.filename,
+    width: row.width,
+    height: row.height,
+    uploadedAt: row.uploaded_at,
+  };
+}
+
+// Helper: Convert frontend format to Supabase row (for images)
+function imageDataToRow(id, data) {
+  return {
+    id,
+    cloudflare_id: data.cloudflareId,
+    account_hash: data.accountHash,
+    focal_point_x: data.focalPoint?.x ?? 0.5,
+    focal_point_y: data.focalPoint?.y ?? 0.5,
+    alt: data.alt || null,
+    filename: data.filename || null,
+    width: data.width || null,
+    height: data.height || null,
+    uploaded_at: data.uploadedAt || new Date().toISOString(),
+  };
+}
+
+// Helper: Convert Supabase row to frontend format (for projects)
+function rowToProjectData(row) {
+  return {
+    id: row.id,
+    title: row.title,
+    category: row.category,
+    thumbnail: row.thumbnail,
+    shortDescription: row.short_description,
+    fullDescription: row.full_description,
+    year: row.year,
+    location: row.location,
+    type: row.type,
+    images: row.images || [],
+    rank: row.rank,
+  };
+}
+
+// Helper: Convert frontend format to Supabase row (for projects)
+function projectDataToRow(data) {
+  return {
+    id: data.id,
+    title: data.title,
+    category: data.category,
+    thumbnail: data.thumbnail || null,
+    short_description: data.shortDescription || null,
+    full_description: data.fullDescription || null,
+    year: data.year || null,
+    location: data.location || null,
+    type: data.type || null,
+    images: data.images || [],
+    rank: data.rank ?? 0,
+  };
+}
+
+// ============ IMAGES API ============
+
 // Get all images
 app.get('/api/images', async (req, res) => {
   try {
-    const data = await readFile(IMAGES_JSON_PATH, 'utf-8');
-    res.json(JSON.parse(data));
+    const { data, error } = await supabase
+      .from('images')
+      .select('*');
+
+    if (error) throw error;
+
+    // Convert to object keyed by ID (matching original format)
+    const images = {};
+    for (const row of data) {
+      images[row.id] = rowToImageData(row);
+    }
+
+    res.json(images);
   } catch (error) {
-    res.json({});
+    console.error('Get images error:', error);
+    res.status(500).json({ error: 'Failed to get images' });
   }
 });
 
@@ -86,20 +194,13 @@ app.post('/api/images/:id', async (req, res) => {
     const { id } = req.params;
     const imageData = req.body;
 
-    // Read current images
-    let images = {};
-    try {
-      const data = await readFile(IMAGES_JSON_PATH, 'utf-8');
-      images = JSON.parse(data);
-    } catch {
-      // File doesn't exist or is empty
-    }
+    const row = imageDataToRow(id, imageData);
 
-    // Add/update image
-    images[id] = imageData;
+    const { error } = await supabase
+      .from('images')
+      .upsert(row, { onConflict: 'id' });
 
-    // Write back
-    await writeFile(IMAGES_JSON_PATH, JSON.stringify(images, null, 2));
+    if (error) throw error;
 
     res.json({ success: true, id });
   } catch (error) {
@@ -113,17 +214,20 @@ app.delete('/api/images/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Read current images
-    const data = await readFile(IMAGES_JSON_PATH, 'utf-8');
-    const images = JSON.parse(data);
+    // Get image from Supabase first
+    const { data: image, error: fetchError } = await supabase
+      .from('images')
+      .select('cloudflare_id')
+      .eq('id', id)
+      .single();
 
-    if (!images[id]) {
+    if (fetchError || !image) {
       return res.status(404).json({ error: 'Image not found' });
     }
 
     // Delete from Cloudflare first
     const cfResponse = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1/${images[id].cloudflareId}`,
+      `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1/${image.cloudflare_id}`,
       {
         method: 'DELETE',
         headers: {
@@ -134,7 +238,7 @@ app.delete('/api/images/:id', async (req, res) => {
 
     const cfData = await cfResponse.json();
 
-    // Only remove from JSON if Cloudflare deletion succeeded
+    // Only remove from Supabase if Cloudflare deletion succeeded
     if (!cfData.success) {
       console.error('Cloudflare delete error:', cfData.errors);
       return res.status(500).json({
@@ -143,9 +247,13 @@ app.delete('/api/images/:id', async (req, res) => {
       });
     }
 
-    // Remove from JSON only after confirmed deletion from Cloudflare
-    delete images[id];
-    await writeFile(IMAGES_JSON_PATH, JSON.stringify(images, null, 2));
+    // Remove from Supabase
+    const { error: deleteError } = await supabase
+      .from('images')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) throw deleteError;
 
     res.json({ success: true });
   } catch (error) {
@@ -166,10 +274,19 @@ app.get('/api/config', (req, res) => {
 // Get all projects
 app.get('/api/projects', async (req, res) => {
   try {
-    const data = await readFile(PROJECTS_JSON_PATH, 'utf-8');
-    res.json(JSON.parse(data));
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .order('rank', { ascending: true });
+
+    if (error) throw error;
+
+    const projects = data.map(rowToProjectData);
+
+    res.json({ projects });
   } catch (error) {
-    res.json({ projects: [] });
+    console.error('Get projects error:', error);
+    res.status(500).json({ error: 'Failed to get projects' });
   }
 });
 
@@ -183,20 +300,16 @@ app.put('/api/projects/reorder', async (req, res) => {
       return res.status(400).json({ error: 'category and projectIds are required' });
     }
 
-    // Read current projects
-    const fileData = await readFile(PROJECTS_JSON_PATH, 'utf-8');
-    const data = JSON.parse(fileData);
+    // Update ranks for each project
+    const updates = projectIds.map((id, index) =>
+      supabase
+        .from('projects')
+        .update({ rank: index })
+        .eq('id', id)
+        .eq('category', category)
+    );
 
-    // Update ranks for projects in this category
-    projectIds.forEach((id, index) => {
-      const project = data.projects.find(p => p.id === id);
-      if (project && project.category === category) {
-        project.rank = index;
-      }
-    });
-
-    // Write back
-    await writeFile(PROJECTS_JSON_PATH, JSON.stringify(data, null, 2));
+    await Promise.all(updates);
 
     res.json({ success: true });
   } catch (error) {
@@ -210,25 +323,24 @@ app.post('/api/projects', async (req, res) => {
   try {
     const newProject = req.body;
 
-    // Read current projects
-    let data = { projects: [] };
-    try {
-      const fileData = await readFile(PROJECTS_JSON_PATH, 'utf-8');
-      data = JSON.parse(fileData);
-    } catch {
-      // File doesn't exist or is empty
-    }
-
     // Check if ID already exists
-    if (data.projects.some(p => p.id === newProject.id)) {
+    const { data: existing } = await supabase
+      .from('projects')
+      .select('id')
+      .eq('id', newProject.id)
+      .single();
+
+    if (existing) {
       return res.status(400).json({ error: 'Project ID already exists' });
     }
 
-    // Add new project
-    data.projects.push(newProject);
+    const row = projectDataToRow(newProject);
 
-    // Write back
-    await writeFile(PROJECTS_JSON_PATH, JSON.stringify(data, null, 2));
+    const { error } = await supabase
+      .from('projects')
+      .insert(row);
+
+    if (error) throw error;
 
     res.json({ success: true, project: newProject });
   } catch (error) {
@@ -243,22 +355,24 @@ app.put('/api/projects/:id', async (req, res) => {
     const { id } = req.params;
     const updatedProject = req.body;
 
-    // Read current projects
-    const fileData = await readFile(PROJECTS_JSON_PATH, 'utf-8');
-    const data = JSON.parse(fileData);
+    // Ensure ID matches
+    const row = projectDataToRow({ ...updatedProject, id });
 
-    // Find and update project
-    const index = data.projects.findIndex(p => p.id === id);
-    if (index === -1) {
-      return res.status(404).json({ error: 'Project not found' });
+    const { data, error } = await supabase
+      .from('projects')
+      .update(row)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ error: 'Project not found' });
+      }
+      throw error;
     }
 
-    data.projects[index] = { ...updatedProject, id }; // Preserve original ID
-
-    // Write back
-    await writeFile(PROJECTS_JSON_PATH, JSON.stringify(data, null, 2));
-
-    res.json({ success: true, project: data.projects[index] });
+    res.json({ success: true, project: rowToProjectData(data) });
   } catch (error) {
     console.error('Update project error:', error);
     res.status(500).json({ error: 'Failed to update project' });
@@ -270,21 +384,17 @@ app.delete('/api/projects/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Read current projects
-    const fileData = await readFile(PROJECTS_JSON_PATH, 'utf-8');
-    const data = JSON.parse(fileData);
+    const { error, count } = await supabase
+      .from('projects')
+      .delete()
+      .eq('id', id);
 
-    // Find project
-    const index = data.projects.findIndex(p => p.id === id);
-    if (index === -1) {
+    if (error) throw error;
+
+    // Check if anything was deleted
+    if (count === 0) {
       return res.status(404).json({ error: 'Project not found' });
     }
-
-    // Remove project
-    data.projects.splice(index, 1);
-
-    // Write back
-    await writeFile(PROJECTS_JSON_PATH, JSON.stringify(data, null, 2));
 
     res.json({ success: true });
   } catch (error) {

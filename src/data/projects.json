@@ -18,7 +18,7 @@
         "square-2",
         "landscape-3"
       ],
-      "rank": 2
+      "rank": 1
     },
     {
       "id": "glass-pavilion",
@@ -102,7 +102,7 @@
       "id": "courtyard-house",
       "title": "tttt",
       "category": "residential",
-      "rank": 0,
+      "rank": 2,
       "thumbnail": "square-3",
       "shortDescription": "test short desc",
       "fullDescription": "test desc",
@@ -123,7 +123,8 @@
       "id": "treehouse",
       "title": "Treehouse",
       "category": "residential",
-      "thumbnail": "tall-2",
+      "rank": 0,
+      "thumbnail": "screenshot-2026-01-11-at-10-59-01-am",
       "shortDescription": "Elevated dwelling woven through an ancient forest canopy.",
       "fullDescription": "Rising through the branches of century-old Douglas firs, this residence required an entirely new approach to construction. Rather than clearing trees for a building site, the design team mapped the existing grove and threaded the structure between and around the massive trunks, sometimes allowing branches to pass through notches in the roof.\n\nThe main living level sits forty feet above the forest floor, accessible by a gently sloping elevated walkway that winds through the understory. From this vantage point, residents live among the birds and squirrels, watching fog roll through the canopy and storms approach from miles away. A spiral stair continues up to a rooftop observation deck that emerges above the tree line.\n\nStructurally, the house rests on a system of steel cables and compression posts designed to allow the trees to continue growing and swaying in the wind. The building moves slightly with its hosts—a sensation that takes some getting used to but eventually becomes deeply calming. Rainwater is collected from the roof and filtered through a living machine before use. Solar panels and a small wind turbine provide all necessary power.",
       "year": "2025",
@@ -131,14 +132,14 @@
       "type": "Elevated Residence",
       "images": [
         "tall-1",
+        "screenshot-2026-01-11-at-10-59-01-am",
         "landscape-2",
         "portrait-13",
         "square-4",
         "landscape-3",
         "portrait-14",
         "wide-1"
-      ],
-      "rank": 1
+      ]
     },
     {
       "id": "studio-campus",
