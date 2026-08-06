@@ -57,7 +57,7 @@ function renderGrid() {
 
   imageGrid.innerHTML = Object.entries(images).map(([id, img]) => `
     <div class="image-card" data-id="${id}">
-      <img src="${getImageUrl(img.accountHash, img.cloudflareId, 'public')}" alt="${img.alt || ''}"
+      <img src="${getImageUrl(id)}" alt="${img.alt || ''}"
            style="object-position: ${img.focalPoint.x * 100}% ${img.focalPoint.y * 100}%">
       <div class="image-card-info">
         <div class="image-card-id">${id}</div>
@@ -72,9 +72,13 @@ function renderGrid() {
   });
 }
 
-// Get Cloudflare image URL
-function getImageUrl(accountHash, cloudflareId, variant = 'public') {
-  return `https://imagedelivery.net/${accountHash}/${cloudflareId}/${variant}`;
+// Build a media URL for an image id. The admin serves /img itself, so these
+// are same-origin relative paths. The ?v= token busts the year-long cache
+// when an image is replaced under an existing id.
+function getImageUrl(id, width = 800) {
+  const img = images[id];
+  const version = img?.uploadedAt ? Date.parse(img.uploadedAt).toString(36) : '0';
+  return `/img/${id}/${width}-orig-scale-down-q80.webp?v=${version}`;
 }
 
 // Setup event listeners
@@ -161,7 +165,7 @@ function openEditModal(id) {
   editImageAltInput.value = img.alt || '';
   focalPoint = { ...img.focalPoint };
 
-  const imageUrl = getImageUrl(img.accountHash, img.cloudflareId, 'public');
+  const imageUrl = getImageUrl(id, 1200);
   editPreviewImage.src = imageUrl;
   updateFocalPointDisplay(editFocalPointEl, editFocalDisplay);
   updateCropPreviews(imageUrl, 'edit-');
@@ -296,40 +300,26 @@ async function handleSave() {
   saveBtn.textContent = 'Uploading...';
 
   try {
-    // Upload to Cloudflare
+    // File and metadata go up together, so a failure can't leave a stored
+    // file with no record of it (or the reverse).
+    const id = imageIdInput.value.trim();
+
     const formData = new FormData();
     formData.append('image', currentFile);
+    formData.append('data', JSON.stringify({
+      focalPoint: { ...focalPoint },
+      alt: imageAltInput.value.trim(),
+      uploadedAt: new Date().toISOString()
+    }));
 
-    const uploadRes = await fetch('/api/upload', {
+    const saveRes = await fetch(`/api/images/${id}`, {
       method: 'POST',
       body: formData
     });
 
-    if (!uploadRes.ok) {
-      throw new Error('Upload failed');
-    }
-
-    const uploadData = await uploadRes.json();
-
-    // Save metadata
-    const id = imageIdInput.value.trim();
-    const imageData = {
-      cloudflareId: uploadData.cloudflareId,
-      accountHash: uploadData.accountHash,
-      focalPoint: { ...focalPoint },
-      alt: imageAltInput.value.trim(),
-      filename: uploadData.filename,
-      uploadedAt: new Date().toISOString()
-    };
-
-    const saveRes = await fetch(`/api/images/${id}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(imageData)
-    });
-
     if (!saveRes.ok) {
-      throw new Error('Save failed');
+      const body = await saveRes.json().catch(() => ({}));
+      throw new Error(body.error || 'Save failed');
     }
 
     // Reload and close
@@ -338,7 +328,7 @@ async function handleSave() {
     closeModals();
   } catch (error) {
     console.error('Error:', error);
-    alert('Failed to upload image. Please try again.');
+    alert(`Failed to upload image: ${error.message}`);
   } finally {
     saveBtn.disabled = false;
     saveBtn.textContent = 'Upload & Save';
@@ -529,9 +519,8 @@ function renderProjectsList() {
 
 // Render a single project card
 function renderProjectCard(project) {
-  const thumbnailImg = images[project.thumbnail];
-  const thumbnailUrl = thumbnailImg
-    ? getImageUrl(thumbnailImg.accountHash, thumbnailImg.cloudflareId, 'public')
+  const thumbnailUrl = images[project.thumbnail]
+    ? getImageUrl(project.thumbnail, 400)
     : '';
 
   return `
@@ -664,7 +653,7 @@ function renderImagePicker() {
     const isSelected = selectedProjectImages.includes(id);
     return `
       <div class="image-picker-item ${isSelected ? 'selected' : ''}" data-id="${id}">
-        <img src="${getImageUrl(img.accountHash, img.cloudflareId, 'public')}" alt="${img.alt || id}">
+        <img src="${getImageUrl(id, 400)}" alt="${img.alt || id}">
       </div>
     `;
   }).join('');
@@ -692,7 +681,7 @@ function renderSelectedImages() {
     const isThumbnail = projectThumbnail === id;
     return `
       <div class="selected-image-item ${isThumbnail ? 'is-thumbnail' : ''}" data-id="${id}">
-        <img src="${getImageUrl(img.accountHash, img.cloudflareId, 'public')}" alt="${img.alt || id}">
+        <img src="${getImageUrl(id, 400)}" alt="${img.alt || id}">
         <button class="remove-image" title="Remove">&times;</button>
         <button class="set-thumbnail" title="Set as thumbnail">★</button>
       </div>

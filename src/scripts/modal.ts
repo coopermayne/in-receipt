@@ -154,15 +154,14 @@ const lightboxNext = lightbox?.querySelector('.lightbox__nav--next') as HTMLButt
 let currentGalleryImages: HTMLImageElement[] = [];
 let currentImageIndex = 0;
 
-// Extract Cloudflare image ID from URL and create high-quality version
+// Swap a rendered image URL for its full-size, high-quality version.
+// URL format: <media base>/img/{id}/{width}-{ratio}-{fit}-q{quality}.webp
 function getLightboxUrl(originalSrc: string): string {
-  // URL format: https://imagedelivery.net/{accountHash}/{cloudflareId}/{variant}
-  const match = originalSrc.match(/imagedelivery\.net\/([^/]+)\/([^/]+)\//);
+  // Keep the ?v= cache-busting token, which identifies the stored original.
+  const match = originalSrc.match(/^(.*\/img\/[^/]+)\/[^/?]+(\?.*)?$/);
   if (!match) return originalSrc;
 
-  const [, accountHash, cloudflareId] = match;
-  // Create high-quality full-size version
-  return `https://imagedelivery.net/${accountHash}/${cloudflareId}/w=2560,q=90,f=auto`;
+  return `${match[1]}/2560-orig-scale-down-q90.webp${match[2] || ''}`;
 }
 
 function updateNavVisibility() {

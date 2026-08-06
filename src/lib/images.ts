@@ -1,4 +1,4 @@
-import { fetchImages, type ImageData } from './supabase';
+import { fetchImages, MEDIA_BASE_URL, type ImageData } from './content';
 
 // Module-level cache for images data
 let imagesData: Record<string, ImageData> | null = null;
@@ -12,16 +12,16 @@ export async function initImages(): Promise<void> {
 
 // Type definitions
 interface ImageOptions {
-  width?: number;
-  height?: number;
-  fit?: 'scale-down' | 'contain' | 'cover' | 'crop';
+  width: number;
+  // Aspect ratio key, e.g. '3x4'. Omitted or 'orig' keeps the source ratio.
+  ratio?: string;
+  fit?: 'scale-down' | 'cover';
   quality?: number;
-  format?: 'auto' | 'webp' | 'avif' | 'jpeg';
 }
 
 interface CropPreset {
   ratio: [number, number]; // [width, height]
-  fit: 'cover' | 'crop';
+  fit: 'cover';
 }
 
 // ===========================================
@@ -134,25 +134,44 @@ export function getOrientation(id: string): 'landscape' | 'portrait' | 'square' 
   return 'square';
 }
 
-// Build Cloudflare image URL with transformations
-export function getImageUrl(id: string, options: ImageOptions = {}): string {
+// Build a media URL. The path is the transform, so every derivative is an
+// immutable, independently cacheable URL. The server whitelists these — see
+// ALLOWED_WIDTHS / ALLOWED_RATIOS in admin/images.js. Keep them in sync.
+export function getImageUrl(id: string, options: ImageOptions): string {
   const image = getImage(id);
   if (!image) {
     console.warn(`Image not found: ${id}`);
     return '';
   }
 
-  const params: string[] = [];
+  const ratio = options.ratio || 'orig';
+  const fit = options.fit || 'scale-down';
+  const quality = options.quality || 80;
 
-  if (options.width) params.push(`w=${options.width}`);
-  if (options.height) params.push(`h=${options.height}`);
-  if (options.fit) params.push(`fit=${options.fit}`);
-  if (options.quality) params.push(`q=${options.quality}`);
-  if (options.format) params.push(`f=${options.format}`);
+  // Responses are cached for a year, so replacing an image under the same id
+  // has to change its URL or browsers would keep the old bytes. The upload
+  // timestamp does that; the server ignores the parameter.
+  const timestamp = Date.parse(image.uploadedAt);
+  const version = Number.isNaN(timestamp) ? '0' : timestamp.toString(36);
 
-  const variant = params.length > 0 ? params.join(',') : 'public';
+  return `${MEDIA_BASE_URL}/img/${id}/${options.width}-${ratio}-${fit}-q${quality}.webp?v=${version}`;
+}
 
-  return `https://imagedelivery.net/${image.accountHash}/${image.cloudflareId}/${variant}`;
+// Turn a crop preset's ratio into its URL key, e.g. [3, 4] -> '3x4'.
+function ratioKey(crop: CropPreset): string {
+  return `${crop.ratio[0]}x${crop.ratio[1]}`;
+}
+
+// The server derives the pixel height from the ratio key, so only the width
+// and the crop shape need to travel in the URL.
+function buildOptions(
+  width: number,
+  crop: CropPreset | null,
+  quality: number
+): ImageOptions {
+  return crop
+    ? { width, ratio: ratioKey(crop), fit: crop.fit, quality }
+    : { width, fit: 'scale-down', quality };
 }
 
 // Build srcset for a specific context
@@ -163,22 +182,7 @@ function buildSrcset(
   quality = 80
 ): string {
   return widths
-    .map(w => {
-      const options: ImageOptions = {
-        width: w,
-        quality,
-        format: 'auto',
-      };
-
-      if (crop) {
-        options.height = Math.round(w * (crop.ratio[1] / crop.ratio[0]));
-        options.fit = crop.fit;
-      } else {
-        options.fit = 'scale-down';
-      }
-
-      return `${getImageUrl(id, options)} ${w}w`;
-    })
+    .map(w => `${getImageUrl(id, buildOptions(w, crop, quality))} ${w}w`)
     .join(', ');
 }
 
@@ -192,20 +196,7 @@ function getDefaultSrc(
   const middleIndex = Math.floor(widths.length / 2);
   const width = widths[middleIndex];
 
-  const options: ImageOptions = {
-    width,
-    quality,
-    format: 'auto',
-  };
-
-  if (crop) {
-    options.height = Math.round(width * (crop.ratio[1] / crop.ratio[0]));
-    options.fit = crop.fit;
-  } else {
-    options.fit = 'scale-down';
-  }
-
-  return getImageUrl(id, options);
+  return getImageUrl(id, buildOptions(width, crop, quality));
 }
 
 // ===========================================

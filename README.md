@@ -5,12 +5,15 @@ A profile page for Hallie built with Astro.
 ## Description
 
 This is a modern web portfolio/profile page developed using the Astro framework.
+Content and images come from the self-hosted admin app in `admin/`, which the
+site reads at build time.
 
 ## Tech Stack
 
 - [Astro](https://astro.build/) v5.0.0
 - CSS
 - TypeScript
+- SQLite + sharp (admin backend)
 
 ## Getting Started
 
@@ -18,14 +21,14 @@ This is a modern web portfolio/profile page developed using the Astro framework.
 
 - Node.js installed on your machine
 
-### Environment Variables (for Image Admin)
+### Environment Variables
 
-The image admin tool requires Cloudflare credentials:
+Building the site requires one variable:
 
-- `CLOUDFLARE_ACCOUNT_ID` - Your Cloudflare account ID
-- `CLOUDFLARE_API_TOKEN` - API token with Cloudflare Images permissions
+- `CONTENT_API_URL` - Origin of the admin app, no trailing slash. The build
+  fetches `<CONTENT_API_URL>/api/content` for all projects and images.
 
-In GitHub Codespaces, add these as repository secrets.
+The admin app (`admin/`) has its own set — see `.env.example` for both.
 
 ### Installation
 
@@ -63,7 +66,7 @@ npm run preview
 
 ## Image Admin Tool
 
-The `/admin` folder contains a simple tool for uploading images to Cloudflare Images and setting focal points.
+The `/admin` folder contains the content backend: a small Express app that stores projects and images on the host and serves them to the site. See `admin/README.md`.
 
 ```bash
 cd admin

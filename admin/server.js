@@ -1,30 +1,52 @@
 import express from 'express';
 import multer from 'multer';
 import basicAuth from 'express-basic-auth';
-import { createClient } from '@supabase/supabase-js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import {
+  listImages,
+  getImage,
+  upsertImage,
+  updateImageMeta,
+  deleteImage,
+  listProjects,
+  projectExists,
+  insertProject,
+  updateProject,
+  deleteProject,
+  reorderProjects,
+  getContent,
+  DB_PATH,
+} from './db.js';
+import {
+  isValidImageId,
+  parseTransform,
+  getDerivative,
+  storeOriginal,
+  deleteStored,
+  clearCache,
+  unlinkOriginal,
+  warmCache,
+} from './images.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-const upload = multer({ storage: multer.memoryStorage() });
+
+// 50MB ceiling on uploads; originals are kept untouched, but a stray huge file
+// shouldn't be buffered into memory.
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 },
+});
 
 // Environment variables
-const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
-const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const ADMIN_USER = process.env.ADMIN_USER;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 // Check required env vars
 const requiredEnvVars = {
-  CLOUDFLARE_ACCOUNT_ID,
-  CLOUDFLARE_API_TOKEN,
-  SUPABASE_URL,
-  SUPABASE_SERVICE_KEY,
   ADMIN_USER,
   ADMIN_PASSWORD,
 };
@@ -38,174 +60,138 @@ if (missingVars.length > 0) {
   process.exit(1);
 }
 
-// Initialize Supabase client with service role key (bypasses RLS)
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+app.use(express.json());
 
-// Basic authentication middleware
+// ============ PUBLIC API ============
+// Registered before the auth middleware. The Astro build has no credentials,
+// and this is the same data the site publishes anyway.
+
+// Everything the site needs to build, in one request.
+app.get('/api/content', (req, res) => {
+  try {
+    res.json(getContent());
+  } catch (error) {
+    console.error('Get content error:', error);
+    res.status(500).json({ error: 'Failed to get content' });
+  }
+});
+
+// Liveness check, useful for Coolify and for debugging failed builds.
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true });
+});
+
+// Image delivery. Derivatives are generated on first request from the stored
+// original, then served from the cache directory. The transform is whitelisted
+// (see images.js) so the cache can't be inflated by arbitrary requests.
+app.get('/img/:id/:transform', async (req, res) => {
+  const { id, transform: transformName } = req.params;
+
+  if (!isValidImageId(id)) {
+    return res.status(400).json({ error: 'Invalid image id' });
+  }
+
+  const transform = parseTransform(transformName);
+  if (!transform) {
+    return res.status(400).json({ error: 'Unsupported transform' });
+  }
+
+  const image = getImage(id);
+  if (!image) {
+    return res.status(404).json({ error: 'Image not found' });
+  }
+
+  try {
+    const path = await getDerivative(id, image.ext, transform);
+
+    // Paths are immutable: a given transform of a given id never changes,
+    // and replacing an image clears its cache directory.
+    res.set('Cache-Control', 'public, max-age=31536000, immutable');
+    res.type('image/webp');
+    res.sendFile(path);
+  } catch (error) {
+    console.error(`Derivative failed for ${id}/${transformName}:`, error);
+    res.status(500).json({ error: 'Failed to render image' });
+  }
+});
+
+// ============ AUTHENTICATED ROUTES ============
+
 app.use(basicAuth({
   users: { [ADMIN_USER]: ADMIN_PASSWORD },
   challenge: true,
   realm: 'Admin Panel',
 }));
 
-app.use(express.json());
 app.use(express.static(join(__dirname, 'public')));
-
-// Helper: Convert Supabase row to frontend format (for images)
-function rowToImageData(row) {
-  return {
-    cloudflareId: row.cloudflare_id,
-    accountHash: row.account_hash,
-    focalPoint: {
-      x: parseFloat(row.focal_point_x),
-      y: parseFloat(row.focal_point_y),
-    },
-    alt: row.alt,
-    filename: row.filename,
-    width: row.width,
-    height: row.height,
-    uploadedAt: row.uploaded_at,
-  };
-}
-
-// Helper: Convert frontend format to Supabase row (for images)
-function imageDataToRow(id, data) {
-  return {
-    id,
-    cloudflare_id: data.cloudflareId,
-    account_hash: data.accountHash,
-    focal_point_x: data.focalPoint?.x ?? 0.5,
-    focal_point_y: data.focalPoint?.y ?? 0.5,
-    alt: data.alt || null,
-    filename: data.filename || null,
-    width: data.width || null,
-    height: data.height || null,
-    uploaded_at: data.uploadedAt || new Date().toISOString(),
-  };
-}
-
-// Helper: Convert Supabase row to frontend format (for projects)
-function rowToProjectData(row) {
-  return {
-    id: row.id,
-    title: row.title,
-    category: row.category,
-    thumbnail: row.thumbnail,
-    shortDescription: row.short_description,
-    fullDescription: row.full_description,
-    year: row.year,
-    location: row.location,
-    type: row.type,
-    images: row.images || [],
-    rank: row.rank,
-  };
-}
-
-// Helper: Convert frontend format to Supabase row (for projects)
-function projectDataToRow(data) {
-  return {
-    id: data.id,
-    title: data.title,
-    category: data.category,
-    thumbnail: data.thumbnail || null,
-    short_description: data.shortDescription || null,
-    full_description: data.fullDescription || null,
-    year: data.year || null,
-    location: data.location || null,
-    type: data.type || null,
-    images: data.images || [],
-    rank: data.rank ?? 0,
-  };
-}
 
 // ============ IMAGES API ============
 
 // Get all images
-app.get('/api/images', async (req, res) => {
+app.get('/api/images', (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from('images')
-      .select('*');
-
-    if (error) throw error;
-
-    // Convert to object keyed by ID (matching original format)
-    const images = {};
-    for (const row of data) {
-      images[row.id] = rowToImageData(row);
-    }
-
-    res.json(images);
+    res.json(listImages());
   } catch (error) {
     console.error('Get images error:', error);
     res.status(500).json({ error: 'Failed to get images' });
   }
 });
 
-// Upload image to Cloudflare
-app.post('/api/upload', upload.single('image'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
+// Create or replace an image. Accepts multipart (a file plus a JSON `data`
+// field) when uploading, or a plain JSON body to edit metadata of an image
+// that already exists. Storing the file and its row in one request means a
+// failure can't leave an orphaned file or a row pointing at nothing.
+app.post('/api/images/:id', upload.single('image'), async (req, res) => {
+  const { id } = req.params;
 
-    const formData = new FormData();
-    formData.append('file', new Blob([req.file.buffer]), req.file.originalname);
-
-    // Upload to Cloudflare Images
-    const cfResponse = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${CLOUDFLARE_API_TOKEN}`,
-        },
-        body: formData,
-      }
-    );
-
-    const cfData = await cfResponse.json();
-
-    if (!cfData.success) {
-      console.error('Cloudflare error:', cfData.errors);
-      return res.status(500).json({ error: 'Cloudflare upload failed', details: cfData.errors });
-    }
-
-    // Extract account hash from variant URL
-    // Format: https://imagedelivery.net/<account_hash>/<image_id>/<variant>
-    const variantUrl = cfData.result.variants[0];
-    const accountHash = variantUrl.split('/')[3];
-
-    res.json({
-      cloudflareId: cfData.result.id,
-      accountHash: accountHash,
-      variants: cfData.result.variants,
-      filename: req.file.originalname,
+  if (!isValidImageId(id)) {
+    return res.status(400).json({
+      error: 'Image id must be letters, numbers, dashes or underscores',
     });
-  } catch (error) {
-    console.error('Upload error:', error);
-    res.status(500).json({ error: 'Upload failed' });
   }
-});
 
-// Save image metadata
-app.post('/api/images/:id', async (req, res) => {
+  let data;
   try {
-    const { id } = req.params;
-    const imageData = req.body;
+    data = req.file ? JSON.parse(req.body.data || '{}') : req.body;
+  } catch {
+    return res.status(400).json({ error: 'Invalid data field' });
+  }
 
-    const row = imageDataToRow(id, imageData);
+  // Metadata-only edit
+  if (!req.file) {
+    if (!updateImageMeta(id, data)) {
+      return res.status(404).json({ error: 'Image not found' });
+    }
+    return res.json({ success: true, id });
+  }
 
-    const { error } = await supabase
-      .from('images')
-      .upsert(row, { onConflict: 'id' });
+  try {
+    const existing = getImage(id);
 
-    if (error) throw error;
+    const stored = await storeOriginal(id, req.file.buffer, req.file.originalname);
 
-    res.json({ success: true, id });
+    // Replacing an image invalidates every derivative of the old one, and
+    // leaves the previous original orphaned if the format changed.
+    if (existing) {
+      await clearCache(id);
+      if (existing.ext !== stored.ext) {
+        await unlinkOriginal(id, existing.ext);
+      }
+    }
+
+    upsertImage(id, {
+      ...stored,
+      focalPoint: data.focalPoint,
+      alt: data.alt,
+      uploadedAt: data.uploadedAt,
+    });
+
+    warmCache(id, stored.ext);
+
+    res.json({ success: true, id, width: stored.width, height: stored.height });
   } catch (error) {
     console.error('Save error:', error);
-    res.status(500).json({ error: 'Save failed' });
+    res.status(400).json({ error: error.message || 'Save failed' });
   }
 });
 
@@ -214,46 +200,15 @@ app.delete('/api/images/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Get image from Supabase first
-    const { data: image, error: fetchError } = await supabase
-      .from('images')
-      .select('cloudflare_id')
-      .eq('id', id)
-      .single();
-
-    if (fetchError || !image) {
+    const image = getImage(id);
+    if (!image) {
       return res.status(404).json({ error: 'Image not found' });
     }
 
-    // Delete from Cloudflare first
-    const cfResponse = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1/${image.cloudflare_id}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${CLOUDFLARE_API_TOKEN}`,
-        },
-      }
-    );
-
-    const cfData = await cfResponse.json();
-
-    // Only remove from Supabase if Cloudflare deletion succeeded
-    if (!cfData.success) {
-      console.error('Cloudflare delete error:', cfData.errors);
-      return res.status(500).json({
-        error: 'Failed to delete from Cloudflare',
-        details: cfData.errors
-      });
-    }
-
-    // Remove from Supabase
-    const { error: deleteError } = await supabase
-      .from('images')
-      .delete()
-      .eq('id', id);
-
-    if (deleteError) throw deleteError;
+    // Remove the row first: a stray file on disk is harmless, but a row
+    // pointing at a missing file breaks the site's build.
+    deleteImage(id);
+    await deleteStored(id, image.ext);
 
     res.json({ success: true });
   } catch (error) {
@@ -262,28 +217,12 @@ app.delete('/api/images/:id', async (req, res) => {
   }
 });
 
-// Get Cloudflare delivery URL base
-app.get('/api/config', (req, res) => {
-  res.json({
-    accountId: CLOUDFLARE_ACCOUNT_ID,
-  });
-});
-
 // ============ PROJECTS API ============
 
 // Get all projects
-app.get('/api/projects', async (req, res) => {
+app.get('/api/projects', (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from('projects')
-      .select('*')
-      .order('rank', { ascending: true });
-
-    if (error) throw error;
-
-    const projects = data.map(rowToProjectData);
-
-    res.json({ projects });
+    res.json({ projects: listProjects() });
   } catch (error) {
     console.error('Get projects error:', error);
     res.status(500).json({ error: 'Failed to get projects' });
@@ -292,7 +231,7 @@ app.get('/api/projects', async (req, res) => {
 
 // Reorder projects (updates ranks for a specific category)
 // NOTE: Must be defined before /api/projects/:id to avoid route conflict
-app.put('/api/projects/reorder', async (req, res) => {
+app.put('/api/projects/reorder', (req, res) => {
   try {
     const { category, projectIds } = req.body;
 
@@ -300,16 +239,7 @@ app.put('/api/projects/reorder', async (req, res) => {
       return res.status(400).json({ error: 'category and projectIds are required' });
     }
 
-    // Update ranks for each project
-    const updates = projectIds.map((id, index) =>
-      supabase
-        .from('projects')
-        .update({ rank: index })
-        .eq('id', id)
-        .eq('category', category)
-    );
-
-    await Promise.all(updates);
+    reorderProjects(category, projectIds);
 
     res.json({ success: true });
   } catch (error) {
@@ -319,28 +249,23 @@ app.put('/api/projects/reorder', async (req, res) => {
 });
 
 // Create new project
-app.post('/api/projects', async (req, res) => {
+app.post('/api/projects', (req, res) => {
   try {
     const newProject = req.body;
 
-    // Check if ID already exists
-    const { data: existing } = await supabase
-      .from('projects')
-      .select('id')
-      .eq('id', newProject.id)
-      .single();
+    if (!newProject.id || !newProject.title || !newProject.category) {
+      return res.status(400).json({ error: 'id, title and category are required' });
+    }
 
-    if (existing) {
+    if (newProject.category !== 'big' && newProject.category !== 'small') {
+      return res.status(400).json({ error: "category must be 'big' or 'small'" });
+    }
+
+    if (projectExists(newProject.id)) {
       return res.status(400).json({ error: 'Project ID already exists' });
     }
 
-    const row = projectDataToRow(newProject);
-
-    const { error } = await supabase
-      .from('projects')
-      .insert(row);
-
-    if (error) throw error;
+    insertProject(newProject);
 
     res.json({ success: true, project: newProject });
   } catch (error) {
@@ -350,29 +275,15 @@ app.post('/api/projects', async (req, res) => {
 });
 
 // Update project
-app.put('/api/projects/:id', async (req, res) => {
+app.put('/api/projects/:id', (req, res) => {
   try {
-    const { id } = req.params;
-    const updatedProject = req.body;
+    const project = updateProject(req.params.id, req.body);
 
-    // Ensure ID matches
-    const row = projectDataToRow({ ...updatedProject, id });
-
-    const { data, error } = await supabase
-      .from('projects')
-      .update(row)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') {
-        return res.status(404).json({ error: 'Project not found' });
-      }
-      throw error;
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
     }
 
-    res.json({ success: true, project: rowToProjectData(data) });
+    res.json({ success: true, project });
   } catch (error) {
     console.error('Update project error:', error);
     res.status(500).json({ error: 'Failed to update project' });
@@ -380,19 +291,9 @@ app.put('/api/projects/:id', async (req, res) => {
 });
 
 // Delete project
-app.delete('/api/projects/:id', async (req, res) => {
+app.delete('/api/projects/:id', (req, res) => {
   try {
-    const { id } = req.params;
-
-    const { error, count } = await supabase
-      .from('projects')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
-
-    // Check if anything was deleted
-    if (count === 0) {
+    if (!deleteProject(req.params.id)) {
       return res.status(404).json({ error: 'Project not found' });
     }
 
@@ -511,4 +412,5 @@ app.get('/api/deploy-status', async (req, res) => {
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Admin server running at http://localhost:${PORT}`);
+  console.log(`Database: ${DB_PATH}`);
 });

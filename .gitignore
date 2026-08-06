@@ -13,6 +13,10 @@ dist/
 .env.*
 !.env.example
 
+# Local admin data (SQLite database, image originals + cache)
+data/
+admin/data/
+
 # IDE
 .vscode/
 .idea/
