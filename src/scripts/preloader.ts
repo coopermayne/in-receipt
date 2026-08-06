@@ -1,22 +1,6 @@
 // Prioritized image loading with Intersection Observer
 // Load order: visible thumbnails → next thumbnails → gallery images as user scrolls
-
-interface ResponsiveImage {
-  id: string;
-  src: string;
-  srcset: string;
-  sizes: string;
-  focalPoint: string;
-  alt: string;
-}
-
-interface ProjectData {
-  leftPanelImages?: ResponsiveImage[];
-  rightPanelImages?: ResponsiveImage[];
-  year?: string;
-  location?: string;
-  type?: string;
-}
+import { getProjectData as getPanelData } from './projectData';
 
 // Track which images have been queued to avoid duplicates
 const queuedImages = new Set<string>();
@@ -80,14 +64,10 @@ const imageQueue = new ImageLoadQueue();
 
 function getProjectData(card: HTMLElement): { thumbnail: string; images: string[] } {
   const thumbnail = card.querySelector('.project-card__image')?.getAttribute('src') || '';
-  try {
-    const projectData: ProjectData = JSON.parse(card.dataset.projectData || '{}');
-    // Extract src URLs from leftPanelImages (these are the largest desktop versions)
-    const imageSrcs = (projectData.leftPanelImages || []).map(img => img.src);
-    return { thumbnail, images: imageSrcs };
-  } catch {
-    return { thumbnail, images: [] };
-  }
+  const projectData = getPanelData(card.dataset.projectId || '');
+  // Preload the leftPanelImages srcs (these are the largest desktop versions)
+  const imageSrcs = (projectData?.leftPanelImages || []).map(img => img.src);
+  return { thumbnail, images: imageSrcs };
 }
 
 function setupCardFadeIn() {

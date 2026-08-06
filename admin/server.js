@@ -102,7 +102,7 @@ app.get('/img/:id/:transform', async (req, res) => {
   }
 
   try {
-    const path = await getDerivative(id, image.ext, transform);
+    const path = await getDerivative({ id, ...image }, transform);
 
     // Paths are immutable: a given transform of a given id never changes,
     // and replacing an image clears its cache directory.
@@ -159,9 +159,20 @@ app.post('/api/images/:id', upload.single('image'), async (req, res) => {
 
   // Metadata-only edit
   if (!req.file) {
-    if (!updateImageMeta(id, data)) {
+    const existing = getImage(id);
+    if (!existing || !updateImageMeta(id, data)) {
       return res.status(404).json({ error: 'Image not found' });
     }
+
+    // Cover derivatives are cropped around the focal point, so moving it
+    // invalidates them. Alt-only edits keep the cache.
+    const newX = data.focalPoint?.x ?? 0.5;
+    const newY = data.focalPoint?.y ?? 0.5;
+    if (existing.focalPoint.x !== newX || existing.focalPoint.y !== newY) {
+      await clearCache(id);
+      warmCache({ id, ...getImage(id) });
+    }
+
     return res.json({ success: true, id });
   }
 
@@ -186,7 +197,7 @@ app.post('/api/images/:id', upload.single('image'), async (req, res) => {
       uploadedAt: data.uploadedAt,
     });
 
-    warmCache(id, stored.ext);
+    warmCache({ id, ...getImage(id) });
 
     res.json({ success: true, id, width: stored.width, height: stored.height });
   } catch (error) {

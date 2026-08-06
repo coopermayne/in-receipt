@@ -1,6 +1,7 @@
 ---
 import ProjectCard from './ProjectCard.astro';
 import ScrollIndicator from './ScrollIndicator.astro';
+import { getLeftPanelGalleryImage, getRightPanelGalleryImage } from '../lib/images';
 
 interface Project {
   id: string;
@@ -28,6 +29,22 @@ const bigProjects = projects
 const smallProjects = projects
   .filter(p => p.category === 'small')
   .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0));
+
+// Everything the desktop slide-in panels need, emitted once per project as a
+// JSON script (looked up by scripts/projectData.ts) instead of being repeated
+// on every rendered copy of the card.
+function serializePanelData(project: Project): string {
+  const data = {
+    description: project.fullDescription,
+    year: project.year,
+    location: project.location,
+    type: project.type,
+    leftPanelImages: project.images.map(id => ({ id, ...getLeftPanelGalleryImage(id) })),
+    rightPanelImages: project.images.map(id => ({ id, ...getRightPanelGalleryImage(id) })),
+  };
+  // '<' must not appear raw inside a <script> element
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}
 ---
 
 <main class="main-gallery">
@@ -35,7 +52,7 @@ const smallProjects = projects
   <div class="gallery-row-container" data-category="big">
     <div class="gallery-row" data-gallery-id="big">
       {bigProjects.map((project, index) => (
-        <ProjectCard {...project} isFirst={index === 0} />
+        <ProjectCard {...project} isFirst={index === 0} variant="mobile" />
       ))}
     </div>
     <ScrollIndicator count={bigProjects.length} galleryId="big" />
@@ -44,7 +61,7 @@ const smallProjects = projects
   <div class="gallery-row-container" data-category="small">
     <div class="gallery-row" data-gallery-id="small">
       {smallProjects.map((project, index) => (
-        <ProjectCard {...project} isFirst={index === 0} />
+        <ProjectCard {...project} isFirst={index === 0} variant="mobile" />
       ))}
     </div>
     <ScrollIndicator count={smallProjects.length} galleryId="small" />
@@ -99,7 +116,7 @@ const smallProjects = projects
   <div class="gallery-column-container gallery-column-container--col1">
     <div class="gallery-column gallery-column--left" data-gallery-id="column-left">
       {bigProjects.map((project, index) => (
-        <ProjectCard {...project} isFirst={index === 0} />
+        <ProjectCard {...project} isFirst={index === 0} variant="desktop" />
       ))}
     </div>
   </div>
@@ -116,7 +133,7 @@ const smallProjects = projects
   <div class="gallery-column-container gallery-column-container--col4">
     <div class="gallery-column gallery-column--right" data-gallery-id="column-right">
       {smallProjects.map((project, index) => (
-        <ProjectCard {...project} isFirst={index === 0} />
+        <ProjectCard {...project} isFirst={index === 0} variant="desktop" />
       ))}
     </div>
   </div>
@@ -145,6 +162,14 @@ const smallProjects = projects
     </div>
   </div>
 
+  {/* Per-project data for the desktop slide-in panels, one copy each */}
+  {projects.map((project) => (
+    <script
+      type="application/json"
+      data-project-json={project.id}
+      set:html={serializePanelData(project)}
+    />
+  ))}
 </main>
 
 <!-- Lightbox for full-screen image viewing (outside main-gallery to avoid transform issues) -->

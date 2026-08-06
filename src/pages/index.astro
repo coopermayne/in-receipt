@@ -6,7 +6,7 @@ import { initImages } from '../lib/images';
 import '../styles/global.css';
 import '../styles/mobile.css';
 
-// Initialize images and fetch projects from Supabase at build time
+// Initialize images and fetch projects from the content API at build time
 await initImages();
 const projects = await fetchProjects();
 ---

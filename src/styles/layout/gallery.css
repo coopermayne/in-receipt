@@ -38,17 +38,14 @@
 
 /* Desktop Layout */
 @media (min-width: 768px) {
+  /* No transform/will-change here: the project pages are position: fixed
+     children, and a transformed ancestor would become their containing
+     block and pin them to the gallery instead of the viewport. */
   .main-gallery {
     flex-direction: row;
-    will-change: transform;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    transition: transform var(--transition-slide) var(--easing-smooth);
-    /* Default: offset to hide left project page */
-    transform: translateX(calc(var(--project-left-width) * -1));
   }
 
-  /* Ensure all children participate in the transform */
+  /* Reduce flicker on the sliding children */
   .main-gallery > * {
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;

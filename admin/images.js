@@ -151,20 +151,31 @@ export async function deleteStored(id, ext) {
 // run sharp; collapse them onto one job.
 const inFlight = new Map();
 
-async function generate(id, ext, transform, destination) {
-  const source = originalPath(id, ext);
+async function generate(image, transform, destination) {
+  const source = originalPath(image.id, image.ext);
 
   let pipeline = sharp(source).rotate(); // honor EXIF orientation
 
   if (transform.fit === 'cover') {
-    pipeline = pipeline.resize({
-      width: transform.width,
-      height: transform.height,
-      fit: 'cover',
-      // Centred on purpose: the focal point is applied by the site as CSS
-      // object-position, so cropping around it here would double-apply it.
-      position: 'centre',
-    });
+    // Crop around the focal point, using CSS object-position semantics: the
+    // focal fraction of the scaled image is aligned with the same fraction of
+    // the target box (offset = focal × (scaled − target)), which clamps at the
+    // edges by construction. The admin's crop previews are object-position
+    // over the full image, so they show exactly this crop.
+    const tw = transform.width;
+    const th = transform.height;
+    const fx = image.focalPoint?.x ?? 0.5;
+    const fy = image.focalPoint?.y ?? 0.5;
+
+    const scale = Math.max(tw / image.width, th / image.height);
+    const scaledW = Math.max(tw, Math.round(image.width * scale));
+    const scaledH = Math.max(th, Math.round(image.height * scale));
+    const left = Math.min(scaledW - tw, Math.max(0, Math.round(fx * (scaledW - tw))));
+    const top = Math.min(scaledH - th, Math.max(0, Math.round(fy * (scaledH - th))));
+
+    pipeline = pipeline
+      .resize(scaledW, scaledH, { fit: 'fill' })
+      .extract({ left, top, width: tw, height: th });
   } else {
     pipeline = pipeline.resize({
       width: transform.width,
@@ -176,22 +187,24 @@ async function generate(id, ext, transform, destination) {
   const buffer = await pipeline.webp({ quality: transform.quality }).toBuffer();
 
   // Write then rename, so a reader never sees a half-written file.
-  await mkdir(join(CACHE_DIR, id), { recursive: true });
+  await mkdir(join(CACHE_DIR, image.id), { recursive: true });
   const temp = `${destination}.${process.pid}.tmp`;
   await writeFile(temp, buffer);
   await rename(temp, destination);
 }
 
 // Returns the path to the derivative, generating it if it isn't cached yet.
-export async function getDerivative(id, ext, transform) {
-  const destination = cachePath(id, transform.filename);
+// Takes the full image record — cover crops depend on its focal point and
+// stored dimensions, so callers that change the focal point must clearCache.
+export async function getDerivative(image, transform) {
+  const destination = cachePath(image.id, transform.filename);
 
   if (await exists(destination)) {
     return destination;
   }
 
   if (!inFlight.has(destination)) {
-    const job = generate(id, ext, transform, destination).finally(() => {
+    const job = generate(image, transform, destination).finally(() => {
       inFlight.delete(destination);
     });
     inFlight.set(destination, job);
@@ -213,12 +226,12 @@ const WARM_TRANSFORMS = [
   '1600-orig-scale-down-q90.webp',
 ];
 
-export function warmCache(id, ext) {
+export function warmCache(image) {
   for (const name of WARM_TRANSFORMS) {
     const transform = parseTransform(name);
     if (!transform) continue;
-    getDerivative(id, ext, transform).catch((error) => {
-      console.error(`Cache warm failed for ${id}/${name}:`, error.message);
+    getDerivative(image, transform).catch((error) => {
+      console.error(`Cache warm failed for ${image.id}/${name}:`, error.message);
     });
   }
 }

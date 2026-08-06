@@ -6,26 +6,32 @@
 }
 
 @media (min-width: 768px) {
+  /* The panels are fixed and parked just outside the viewport, so the
+     document itself never grows wider than 100vw. They slide in over the
+     columns' z-index layer (10), synchronized with the column transforms. */
   .project-page {
+    position: fixed;
+    top: 0;
     height: 100vh;
     display: flex;
     background: var(--color-project-page-bg);
     color: var(--color-project-page-text);
-    position: relative;
     z-index: 10;
     transition: transform var(--transition-slide) var(--easing-smooth);
   }
 
   /* Left project page */
   .project-page--left {
-    flex: 0 0 var(--project-left-width);
+    left: 0;
     width: var(--project-left-width);
+    transform: translateX(-100%);
   }
 
   /* Right project page */
   .project-page--right {
-    flex: 0 0 var(--project-right-width);
+    right: 0;
     width: var(--project-right-width);
+    transform: translateX(100%);
   }
 
   .project-page__panel {
@@ -119,10 +125,10 @@
 
   /* Slide animations */
   .main-gallery.project-open-left .project-page--left {
-    transform: translateX(var(--slide-offset));
+    transform: translateX(0);
   }
 
   .main-gallery.project-open-right .project-page--right {
-    transform: translateX(calc(var(--slide-right-offset) * -1));
+    transform: translateX(0);
   }
 }

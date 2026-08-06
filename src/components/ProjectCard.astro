@@ -1,11 +1,8 @@
 ---
 import {
-  getImage,
   getMobileThumbnail,
   getDesktopThumbnail,
   getMobileGalleryImage,
-  getLeftPanelGalleryImage,
-  getRightPanelGalleryImage,
 } from '../lib/images';
 
 interface Props {
@@ -20,72 +17,39 @@ interface Props {
   location?: string;
   type?: string;
   isFirst?: boolean;
+  // Cards render twice — once in the mobile rows, once in the desktop
+  // columns. Each copy only ever displays in its own breakpoint, so it only
+  // carries that context's srcset and markup. Desktop panel content is not
+  // duplicated here at all; it lives in the per-project JSON emitted once by
+  // Gallery.astro.
+  variant: 'mobile' | 'desktop';
 }
 
-const { id, title, category, thumbnail, shortDescription, fullDescription, images, year, location, type, isFirst = false } = Astro.props;
+const { id, title, category, thumbnail, shortDescription, fullDescription, images, year, location, type, isFirst = false, variant } = Astro.props;
 
-// Get thumbnail data for mobile and desktop contexts
-const mobileThumb = getMobileThumbnail(thumbnail, category);
-const desktopThumb = getDesktopThumbnail(thumbnail, category);
+const thumb = variant === 'mobile'
+  ? getMobileThumbnail(thumbnail, category)
+  : getDesktopThumbnail(thumbnail, category);
 
-// Prepare gallery images for both mobile (expanded) and desktop (panels)
-const mobileGalleryImages = images.map(imgId => ({
-  id: imgId,
-  ...getMobileGalleryImage(imgId),
-}));
-
-const leftPanelImages = images.map(imgId => ({
-  id: imgId,
-  ...getLeftPanelGalleryImage(imgId),
-}));
-
-const rightPanelImages = images.map(imgId => ({
-  id: imgId,
-  ...getRightPanelGalleryImage(imgId),
-}));
-
-// Data for JS (desktop panels use different image configs)
-const projectData = JSON.stringify({
-  leftPanelImages,
-  rightPanelImages,
-  year,
-  location,
-  type
-});
+// Expanded gallery is a mobile-only feature
+const mobileGalleryImages = variant === 'mobile'
+  ? images.map(imgId => ({ id: imgId, ...getMobileGalleryImage(imgId) }))
+  : [];
 ---
 
-<article
-  class="project-card"
-  data-project-id={id}
-  data-project-title={title}
-  data-project-description={fullDescription}
-  data-project-data={projectData}
->
+<article class="project-card" data-project-id={id}>
   <div class="project-card__inner">
     <div class="project-card__image-container">
-      <picture>
-        {/* Mobile: cropped based on category (3:4 big, 16:9 small) */}
-        <source
-          media="(max-width: 767px)"
-          srcset={mobileThumb.srcset}
-          sizes={mobileThumb.sizes}
-        />
-        {/* Desktop: context-aware sizing (24vw big, 12vw small) */}
-        <source
-          media="(min-width: 768px)"
-          srcset={desktopThumb.srcset}
-          sizes={desktopThumb.sizes}
-        />
-        <img
-          class="project-card__image"
-          src={desktopThumb.src}
-          alt={desktopThumb.alt || title}
-          loading={isFirst ? "eager" : "lazy"}
-          fetchpriority={isFirst ? "high" : "auto"}
-          style={`object-position: ${desktopThumb.focalPoint};`}
-          data-thumbnail-id={thumbnail}
-        />
-      </picture>
+      <img
+        class="project-card__image"
+        src={thumb.src}
+        srcset={thumb.srcset}
+        sizes={thumb.sizes}
+        alt={thumb.alt || title}
+        loading={isFirst ? "eager" : "lazy"}
+        fetchpriority={isFirst ? "high" : "auto"}
+        data-thumbnail-id={thumbnail}
+      />
     </div>
     <div class="project-card__content">
       <h2 class="project-card__title">{title}</h2>
@@ -93,37 +57,38 @@ const projectData = JSON.stringify({
     </div>
   </div>
 
-  <!-- Mobile: Preloaded project content (hidden until clicked) -->
-  <div class="project-card__expanded">
-    <button class="project-card__close" aria-label="Close">&times;</button>
-    <div class="project-card__expanded-content">
-      <div class="project-card__expanded-meta">
-        <div class="project-card__expanded-meta-item">
-          <span class="project-card__expanded-meta-label">Year</span>
-          <span class="project-card__expanded-meta-value">{year || '—'}</span>
+  {/* Mobile: preloaded project content (hidden until clicked) */}
+  {variant === 'mobile' && (
+    <div class="project-card__expanded">
+      <button class="project-card__close" aria-label="Close">&times;</button>
+      <div class="project-card__expanded-content">
+        <div class="project-card__expanded-meta">
+          <div class="project-card__expanded-meta-item">
+            <span class="project-card__expanded-meta-label">Year</span>
+            <span class="project-card__expanded-meta-value">{year || '—'}</span>
+          </div>
+          <div class="project-card__expanded-meta-item">
+            <span class="project-card__expanded-meta-label">Location</span>
+            <span class="project-card__expanded-meta-value">{location || '—'}</span>
+          </div>
+          <div class="project-card__expanded-meta-item">
+            <span class="project-card__expanded-meta-label">Type</span>
+            <span class="project-card__expanded-meta-value">{type || '—'}</span>
+          </div>
         </div>
-        <div class="project-card__expanded-meta-item">
-          <span class="project-card__expanded-meta-label">Location</span>
-          <span class="project-card__expanded-meta-value">{location || '—'}</span>
+        <p class="project-card__expanded-description">{fullDescription}</p>
+        <div class="project-card__expanded-gallery">
+          {mobileGalleryImages.map((img) => (
+            <img
+              src={img.src}
+              srcset={img.srcset}
+              sizes={img.sizes}
+              alt={img.alt}
+              loading="lazy"
+            />
+          ))}
         </div>
-        <div class="project-card__expanded-meta-item">
-          <span class="project-card__expanded-meta-label">Type</span>
-          <span class="project-card__expanded-meta-value">{type || '—'}</span>
-        </div>
-      </div>
-      <p class="project-card__expanded-description">{fullDescription}</p>
-      <div class="project-card__expanded-gallery">
-        {mobileGalleryImages.map((img) => (
-          <img
-            src={img.src}
-            srcset={img.srcset}
-            sizes={img.sizes}
-            alt={img.alt}
-            loading="lazy"
-            style={`object-position: ${img.focalPoint};`}
-          />
-        ))}
       </div>
     </div>
-  </div>
+  )}
 </article>

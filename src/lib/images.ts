@@ -3,7 +3,7 @@ import { fetchImages, MEDIA_BASE_URL, type ImageData } from './content';
 // Module-level cache for images data
 let imagesData: Record<string, ImageData> | null = null;
 
-// Initialize images from Supabase (call once at page level)
+// Initialize images from the content API (call once at page level)
 export async function initImages(): Promise<void> {
   if (imagesData === null) {
     imagesData = await fetchImages();
@@ -114,15 +114,6 @@ export function hasImage(id: string): boolean {
   return id in imagesData;
 }
 
-// Get focal point as CSS object-position value
-export function getFocalPointStyle(id: string): string {
-  const image = getImage(id);
-  if (!image?.focalPoint) return '50% 50%';
-  const x = Math.round(image.focalPoint.x * 100);
-  const y = Math.round(image.focalPoint.y * 100);
-  return `${x}% ${y}%`;
-}
-
 // Determine if an image is landscape, portrait, or square
 export function getOrientation(id: string): 'landscape' | 'portrait' | 'square' {
   const image = getImage(id);
@@ -148,11 +139,16 @@ export function getImageUrl(id: string, options: ImageOptions): string {
   const fit = options.fit || 'scale-down';
   const quality = options.quality || 80;
 
-  // Responses are cached for a year, so replacing an image under the same id
-  // has to change its URL or browsers would keep the old bytes. The upload
-  // timestamp does that; the server ignores the parameter.
+  // Responses are cached for a year, so anything that changes the rendered
+  // bytes under the same id has to change the URL or browsers would keep the
+  // old ones. That's the upload timestamp, plus the focal point — cover crops
+  // are cut around it server-side. The server ignores the parameter.
   const timestamp = Date.parse(image.uploadedAt);
-  const version = Number.isNaN(timestamp) ? '0' : timestamp.toString(36);
+  const stamp = Number.isNaN(timestamp) ? '0' : timestamp.toString(36);
+  const fp = image.focalPoint
+    ? `-${Math.round(image.focalPoint.x * 100)}x${Math.round(image.focalPoint.y * 100)}`
+    : '';
+  const version = `${stamp}${fp}`;
 
   return `${MEDIA_BASE_URL}/img/${id}/${options.width}-${ratio}-${fit}-q${quality}.webp?v=${version}`;
 }
@@ -203,11 +199,13 @@ function getDefaultSrc(
 // CONTEXT-SPECIFIC IMAGE GETTERS
 // ===========================================
 
+// The focal point never appears here: cover crops are cut around it
+// server-side (see admin/images.js), so rendered images need no CSS
+// object-position.
 export interface ResponsiveImage {
   src: string;
   srcset: string;
   sizes: string;
-  focalPoint: string;
   alt: string;
 }
 
@@ -218,7 +216,7 @@ export function getMobileThumbnail(
 ): ResponsiveImage {
   const image = getImage(id);
   if (!image) {
-    return { src: '', srcset: '', sizes: '', focalPoint: '50% 50%', alt: '' };
+    return { src: '', srcset: '', sizes: '', alt: '' };
   }
 
   const crop = category === 'big'
@@ -231,7 +229,6 @@ export function getMobileThumbnail(
     src: getDefaultSrc(id, ctx.widths, crop),
     srcset: buildSrcset(id, ctx.widths, crop),
     sizes: ctx.sizes,
-    focalPoint: getFocalPointStyle(id),
     alt: image.alt,
   };
 }
@@ -243,7 +240,7 @@ export function getDesktopThumbnail(
 ): ResponsiveImage {
   const image = getImage(id);
   if (!image) {
-    return { src: '', srcset: '', sizes: '', focalPoint: '50% 50%', alt: '' };
+    return { src: '', srcset: '', sizes: '', alt: '' };
   }
 
   // Small projects: crop to square if landscape
@@ -260,7 +257,6 @@ export function getDesktopThumbnail(
     src: getDefaultSrc(id, ctx.widths, crop),
     srcset: buildSrcset(id, ctx.widths, crop),
     sizes: ctx.sizes,
-    focalPoint: getFocalPointStyle(id),
     alt: image.alt,
   };
 }
@@ -269,7 +265,7 @@ export function getDesktopThumbnail(
 export function getMobileGalleryImage(id: string): ResponsiveImage {
   const image = getImage(id);
   if (!image) {
-    return { src: '', srcset: '', sizes: '', focalPoint: '50% 50%', alt: '' };
+    return { src: '', srcset: '', sizes: '', alt: '' };
   }
 
   const ctx = IMAGE_CONTEXTS.mobileGallery;
@@ -278,7 +274,6 @@ export function getMobileGalleryImage(id: string): ResponsiveImage {
     src: getDefaultSrc(id, ctx.widths, null),
     srcset: buildSrcset(id, ctx.widths, null),
     sizes: ctx.sizes,
-    focalPoint: getFocalPointStyle(id),
     alt: image.alt,
   };
 }
@@ -287,7 +282,7 @@ export function getMobileGalleryImage(id: string): ResponsiveImage {
 export function getLeftPanelGalleryImage(id: string): ResponsiveImage {
   const image = getImage(id);
   if (!image) {
-    return { src: '', srcset: '', sizes: '', focalPoint: '50% 50%', alt: '' };
+    return { src: '', srcset: '', sizes: '', alt: '' };
   }
 
   const ctx = IMAGE_CONTEXTS.leftPanelGallery;
@@ -296,7 +291,6 @@ export function getLeftPanelGalleryImage(id: string): ResponsiveImage {
     src: getDefaultSrc(id, ctx.widths, null),
     srcset: buildSrcset(id, ctx.widths, null),
     sizes: ctx.sizes,
-    focalPoint: getFocalPointStyle(id),
     alt: image.alt,
   };
 }
@@ -305,7 +299,7 @@ export function getLeftPanelGalleryImage(id: string): ResponsiveImage {
 export function getRightPanelGalleryImage(id: string): ResponsiveImage {
   const image = getImage(id);
   if (!image) {
-    return { src: '', srcset: '', sizes: '', focalPoint: '50% 50%', alt: '' };
+    return { src: '', srcset: '', sizes: '', alt: '' };
   }
 
   const ctx = IMAGE_CONTEXTS.rightPanelGallery;
@@ -314,7 +308,6 @@ export function getRightPanelGalleryImage(id: string): ResponsiveImage {
     src: getDefaultSrc(id, ctx.widths, null),
     srcset: buildSrcset(id, ctx.widths, null),
     sizes: ctx.sizes,
-    focalPoint: getFocalPointStyle(id),
     alt: image.alt,
   };
 }
@@ -323,7 +316,7 @@ export function getRightPanelGalleryImage(id: string): ResponsiveImage {
 export function getLightboxImage(id: string): ResponsiveImage {
   const image = getImage(id);
   if (!image) {
-    return { src: '', srcset: '', sizes: '', focalPoint: '50% 50%', alt: '' };
+    return { src: '', srcset: '', sizes: '', alt: '' };
   }
 
   const ctx = IMAGE_CONTEXTS.lightbox;
@@ -332,7 +325,6 @@ export function getLightboxImage(id: string): ResponsiveImage {
     src: getDefaultSrc(id, ctx.widths, null, 90), // Higher quality for lightbox
     srcset: buildSrcset(id, ctx.widths, null, 90),
     sizes: ctx.sizes,
-    focalPoint: getFocalPointStyle(id),
     alt: image.alt,
   };
 }

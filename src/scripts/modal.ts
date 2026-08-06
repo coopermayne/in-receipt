@@ -1,26 +1,11 @@
 // Sliding panel logic for desktop project pages
+import { getProjectData, type ProjectData } from './projectData';
+
 const mainGallery = document.querySelector('.main-gallery') as HTMLElement;
 const leftPanel = document.getElementById('project-page-left') as HTMLDivElement;
 const rightPanel = document.getElementById('project-page-right') as HTMLDivElement;
 
-interface ResponsiveImage {
-  id: string;
-  src: string;
-  srcset: string;
-  sizes: string;
-  focalPoint: string;
-  alt: string;
-}
-
-interface ProjectData {
-  leftPanelImages: ResponsiveImage[];
-  rightPanelImages: ResponsiveImage[];
-  year?: string;
-  location?: string;
-  type?: string;
-}
-
-function populatePanel(panel: HTMLDivElement, description: string, projectData: ProjectData, isRightPanel: boolean = false) {
+function populatePanel(panel: HTMLDivElement, projectData: ProjectData, isRightPanel: boolean = false) {
   const yearEl = panel.querySelector('[data-field="year"]') as HTMLSpanElement;
   const locationEl = panel.querySelector('[data-field="location"]') as HTMLSpanElement;
   const typeEl = panel.querySelector('[data-field="type"]') as HTMLSpanElement;
@@ -30,21 +15,22 @@ function populatePanel(panel: HTMLDivElement, description: string, projectData: 
   yearEl.textContent = projectData.year || '—';
   locationEl.textContent = projectData.location || '—';
   typeEl.textContent = projectData.type || '—';
-  descEl.textContent = description;
+  descEl.textContent = projectData.description;
 
   const images = isRightPanel ? projectData.rightPanelImages : projectData.leftPanelImages;
 
   if (galleryEl) {
-    galleryEl.innerHTML = (images || [])
-      .map(img => `<img
-        src="${img.src}"
-        srcset="${img.srcset}"
-        sizes="${img.sizes}"
-        alt="${img.alt}"
-        loading="lazy"
-        style="object-position: ${img.focalPoint};"
-      />`)
-      .join('');
+    galleryEl.replaceChildren(
+      ...(images || []).map(data => {
+        const img = document.createElement('img');
+        img.src = data.src;
+        img.srcset = data.srcset;
+        img.sizes = data.sizes;
+        img.alt = data.alt;
+        img.loading = 'lazy';
+        return img;
+      })
+    );
   }
 }
 
@@ -55,15 +41,14 @@ function openProject(card: HTMLElement) {
   // Only handle desktop columns
   if (!isLeftColumn && !isRightColumn) return;
 
-  // Get project data
-  const description = card.dataset.projectDescription || '';
-  const projectData: ProjectData = JSON.parse(card.dataset.projectData || '{}');
+  const projectData = getProjectData(card.dataset.projectId || '');
+  if (!projectData) return;
 
   if (isLeftColumn) {
-    populatePanel(leftPanel, description, projectData, false);
+    populatePanel(leftPanel, projectData, false);
     mainGallery.classList.add('project-open-left');
   } else if (isRightColumn) {
-    populatePanel(rightPanel, description, projectData, true);
+    populatePanel(rightPanel, projectData, true);
     mainGallery.classList.add('project-open-right');
   }
 }
