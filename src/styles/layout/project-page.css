@@ -74,7 +74,7 @@
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--color-bg);
+    color: var(--color-text-muted);
   }
 
   .project-page__meta-value {

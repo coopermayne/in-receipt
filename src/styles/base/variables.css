@@ -1,13 +1,13 @@
 /* CSS Custom Properties */
 :root {
   /* Colors */
-  --color-bg: #aa4925;
-  --color-text: #f8f4e9;
-  --color-text-muted: rgba(248, 244, 233, 0.7);
-  --color-overlay: rgba(34, 34, 34, 0.4);
-  --color-backdrop: rgba(170, 73, 37, 0.97);
-  --color-project-page-bg: #f8f4e9;
-  --color-project-page-text: #222;
+  --color-bg: #faf9f6;
+  --color-text: #1a1a1a;
+  --color-text-muted: rgba(26, 26, 26, 0.65);
+  --color-overlay: rgba(26, 26, 26, 0.4);
+  --color-backdrop: rgba(250, 249, 246, 0.97);
+  --color-project-page-bg: #faf9f6;
+  --color-project-page-text: #1a1a1a;
 
   /* Spacing */
   --spacing-sm: 0.5rem;
