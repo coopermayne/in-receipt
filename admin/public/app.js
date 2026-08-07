@@ -517,14 +517,27 @@ function renderProjectsList() {
   initProjectsSortable();
 }
 
+// Content problems that would break or degrade the published site
+function getProjectWarnings(project) {
+  const projectImages = project.images || [];
+  if (projectImages.length === 0) {
+    return ['This project has no images. It will appear empty on the site.'];
+  }
+  if (!project.thumbnail || !projectImages.includes(project.thumbnail)) {
+    return ['This project has no starred image, so it has no thumbnail on the site. Open the project and click the star on one of its images.'];
+  }
+  return [];
+}
+
 // Render a single project card
 function renderProjectCard(project) {
   const thumbnailUrl = images[project.thumbnail]
     ? getImageUrl(project.thumbnail, 400)
     : '';
+  const warnings = getProjectWarnings(project);
 
   return `
-    <div class="project-card" data-id="${project.id}">
+    <div class="project-card${warnings.length ? ' has-warning' : ''}" data-id="${project.id}">
       <div class="project-drag-handle">⋮⋮</div>
       ${thumbnailUrl
         ? `<img class="project-thumbnail" src="${thumbnailUrl}" alt="${project.title}">`
@@ -534,6 +547,10 @@ function renderProjectCard(project) {
         <div class="project-title">${project.title}</div>
         <div class="project-meta">${project.location} · ${project.year}</div>
       </div>
+      ${warnings.length
+        ? `<div class="project-warning" title="${warnings.join(' ')}">i</div>`
+        : ''
+      }
     </div>
   `;
 }
@@ -855,24 +872,54 @@ function setupProjectListeners() {
 // ============ PUBLISH ============
 
 const publishBtn = document.getElementById('publish-btn');
-const unpublishedBadge = document.getElementById('unpublished-badge');
+const publishStatusEl = document.getElementById('publish-status');
 
 let deployPollInterval = null;
 let lastKnownDeployId = null;
 
-// Track unpublished changes
+// Unpublished-changes state lives on the server (see /api/publish-state),
+// so it survives reloads and is consistent across browsers. These locals
+// just mirror it between fetches.
+let unpublishedChanges = false;
+let lastPublishedAt = null;
+
+async function loadPublishState() {
+  try {
+    const res = await fetch('/api/publish-state');
+    if (!res.ok) return;
+    const state = await res.json();
+    unpublishedChanges = state.hasUnpublishedChanges;
+    lastPublishedAt = state.lastPublishedAt;
+    updatePublishBadge();
+  } catch (error) {
+    console.error('Failed to load publish state:', error);
+  }
+}
+
+// Track unpublished changes (the server stamps content_modified_at as part
+// of the mutation itself; this just updates the UI without a refetch)
 function markAsChanged() {
-  localStorage.setItem('hasUnpublishedChanges', 'true');
+  unpublishedChanges = true;
   updatePublishBadge();
 }
 
 function markAsPublished() {
-  localStorage.removeItem('hasUnpublishedChanges');
+  unpublishedChanges = false;
+  lastPublishedAt = new Date().toISOString();
   updatePublishBadge();
 }
 
 function hasUnpublishedChanges() {
-  return localStorage.getItem('hasUnpublishedChanges') === 'true';
+  return unpublishedChanges;
+}
+
+function formatRelativeTime(isoString) {
+  const minutes = Math.round((Date.now() - Date.parse(isoString)) / 60000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.round(hours / 24)}d ago`;
 }
 
 function updatePublishBadge() {
@@ -882,9 +929,15 @@ function updatePublishBadge() {
   if (hasUnpublishedChanges()) {
     badge.classList.remove('hidden');
     publishBtn.title = 'You have unpublished changes';
+    publishStatusEl.textContent = 'Unpublished changes';
+    publishStatusEl.className = 'publish-status has-changes';
   } else {
     badge.classList.add('hidden');
     publishBtn.title = 'Publish changes to live site';
+    publishStatusEl.textContent = lastPublishedAt
+      ? `Up to date · published ${formatRelativeTime(lastPublishedAt)}`
+      : 'Up to date';
+    publishStatusEl.className = 'publish-status';
   }
 }
 
@@ -988,8 +1041,8 @@ async function handlePublish() {
   }
 }
 
-// Initialize badge on page load
-updatePublishBadge();
+// Initialize badge from server state on page load
+loadPublishState();
 
 publishBtn.addEventListener('click', handlePublish);
 

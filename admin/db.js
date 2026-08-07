@@ -51,6 +51,16 @@ const MIGRATIONS = [
   CREATE INDEX idx_projects_category ON projects(category);
   CREATE INDEX idx_projects_rank ON projects(rank);
   `,
+
+  // 2: key/value meta table. Holds content_modified_at (stamped by every
+  // content mutation) and last_published_at (stamped when a publish is
+  // triggered); comparing the two answers "are there unpublished changes?".
+  `
+  CREATE TABLE meta (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  );
+  `,
 ];
 
 function migrate() {
@@ -68,6 +78,44 @@ function migrate() {
 }
 
 migrate();
+
+// ============ META / PUBLISH STATE ============
+
+const getMetaStmt = db.prepare('SELECT value FROM meta WHERE key = ?');
+const setMetaStmt = db.prepare(`
+  INSERT INTO meta (key, value) VALUES (?, ?)
+  ON CONFLICT(key) DO UPDATE SET value = excluded.value
+`);
+
+function getMeta(key) {
+  return getMetaStmt.get(key)?.value ?? null;
+}
+
+function setMeta(key, value) {
+  setMetaStmt.run(key, value);
+}
+
+// Called by every content mutation below. ISO strings compare correctly
+// as strings, so no date parsing is needed anywhere.
+function touchContent() {
+  setMeta('content_modified_at', new Date().toISOString());
+}
+
+export function recordPublish() {
+  setMeta('last_published_at', new Date().toISOString());
+}
+
+export function getPublishState() {
+  const lastModifiedAt = getMeta('content_modified_at');
+  const lastPublishedAt = getMeta('last_published_at');
+  return {
+    lastModifiedAt,
+    lastPublishedAt,
+    hasUnpublishedChanges:
+      lastModifiedAt !== null &&
+      (lastPublishedAt === null || lastModifiedAt > lastPublishedAt),
+  };
+}
 
 // ============ ROW MAPPERS ============
 
@@ -163,20 +211,25 @@ export function upsertImage(id, data) {
     height: data.height || null,
     uploaded_at: data.uploadedAt || new Date().toISOString(),
   });
+  touchContent();
 }
 
 // Called when editing an existing image's alt text or focal point.
 export function updateImageMeta(id, data) {
-  return updateImageMetaStmt.run({
+  const changed = updateImageMetaStmt.run({
     id,
     focal_point_x: data.focalPoint?.x ?? 0.5,
     focal_point_y: data.focalPoint?.y ?? 0.5,
     alt: data.alt || null,
   }).changes > 0;
+  if (changed) touchContent();
+  return changed;
 }
 
 export function deleteImage(id) {
-  return deleteImageStmt.run(id).changes > 0;
+  const changed = deleteImageStmt.run(id).changes > 0;
+  if (changed) touchContent();
+  return changed;
 }
 
 // ============ PROJECTS ============
@@ -237,21 +290,26 @@ export function projectExists(id) {
 
 export function insertProject(data) {
   insertProjectStmt.run(projectToRow(data));
+  touchContent();
 }
 
 export function updateProject(id, data) {
   const changed = updateProjectStmt.run(projectToRow({ ...data, id })).changes;
   if (changed === 0) return null;
+  touchContent();
   return rowToProject(selectProject.get(id));
 }
 
 export function deleteProject(id) {
-  return deleteProjectStmt.run(id).changes > 0;
+  const changed = deleteProjectStmt.run(id).changes > 0;
+  if (changed) touchContent();
+  return changed;
 }
 
 // Rewrites rank to match the given order, scoped to one category.
 export const reorderProjects = db.transaction((category, projectIds) => {
   projectIds.forEach((id, index) => updateRankStmt.run(index, id, category));
+  touchContent();
 });
 
 // ============ PUBLIC CONTENT ============

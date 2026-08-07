@@ -16,6 +16,8 @@ import {
   deleteProject,
   reorderProjects,
   getContent,
+  recordPublish,
+  getPublishState,
   DB_PATH,
 } from './db.js';
 import {
@@ -332,10 +334,23 @@ app.post('/api/publish', async (req, res) => {
       throw new Error(`Netlify responded with ${response.status}`);
     }
 
+    recordPublish();
+
     res.json({ success: true, message: 'Build triggered' });
   } catch (error) {
     console.error('Publish error:', error);
     res.status(500).json({ error: 'Failed to trigger build' });
+  }
+});
+
+// Whether content has changed since the last publish was triggered.
+// Server-side state, so it's correct across browsers and devices.
+app.get('/api/publish-state', (req, res) => {
+  try {
+    res.json(getPublishState());
+  } catch (error) {
+    console.error('Publish state error:', error);
+    res.status(500).json({ error: 'Failed to get publish state' });
   }
 });
 

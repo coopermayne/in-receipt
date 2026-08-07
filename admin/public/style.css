@@ -129,6 +129,17 @@ h2 {
   font-size: 1rem;
 }
 
+.publish-status {
+  font-size: 0.75rem;
+  color: #999;
+  white-space: nowrap;
+}
+
+.publish-status.has-changes {
+  color: #b45309;
+  font-weight: 500;
+}
+
 .unpublished-badge {
   color: #ffc107;
   font-size: 0.75rem;
@@ -501,6 +512,29 @@ header {
 .project-card:hover {
   transform: translateX(4px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.project-card.has-warning {
+  background: #fdf3f3;
+  box-shadow: inset 0 0 0 1px #dc3545, 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.project-warning {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #dc3545;
+  color: white;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
 }
 
 .project-card.sortable-ghost {
