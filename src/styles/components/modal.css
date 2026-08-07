@@ -94,6 +94,7 @@
   height: auto;
   object-fit: cover;
   border-radius: 0;
+  border: 1px solid rgba(26, 26, 26, 0.1);
 }
 
 /* FLIP Animation Image */
