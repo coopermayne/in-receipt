@@ -873,6 +873,8 @@ function setupProjectListeners() {
 
 const publishBtn = document.getElementById('publish-btn');
 const publishStatusEl = document.getElementById('publish-status');
+const publishDiffBtn = document.getElementById('publish-diff-btn');
+const publishDiffPopover = document.getElementById('publish-diff-popover');
 
 let deployPollInterval = null;
 let lastKnownDeployId = null;
@@ -900,12 +902,14 @@ async function loadPublishState() {
 // of the mutation itself; this just updates the UI without a refetch)
 function markAsChanged() {
   unpublishedChanges = true;
+  publishDiffCache = null;
   updatePublishBadge();
 }
 
 function markAsPublished() {
   unpublishedChanges = false;
   lastPublishedAt = new Date().toISOString();
+  publishDiffCache = null;
   updatePublishBadge();
 }
 
@@ -931,6 +935,7 @@ function updatePublishBadge() {
     publishBtn.title = 'You have unpublished changes';
     publishStatusEl.textContent = 'Unpublished changes';
     publishStatusEl.className = 'publish-status has-changes';
+    publishDiffBtn.classList.remove('hidden');
   } else {
     badge.classList.add('hidden');
     publishBtn.title = 'Publish changes to live site';
@@ -938,8 +943,98 @@ function updatePublishBadge() {
       ? `Up to date · published ${formatRelativeTime(lastPublishedAt)}`
       : 'Up to date';
     publishStatusEl.className = 'publish-status';
+    publishDiffBtn.classList.add('hidden');
+    hidePublishDiff();
   }
 }
+
+// ---- "What changed?" popover ----
+
+let publishDiffCache = null;
+
+function escapeHtml(str) {
+  return String(str)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+}
+
+function renderPublishDiff(diff) {
+  if (!diff.available) {
+    return '<div class="diff-empty">Change details will be available after the next publish.</div>';
+  }
+  if (diff.clean) {
+    return '<div class="diff-empty">No content differences from the last publish.</div>';
+  }
+
+  const lines = [];
+  const line = (label, detail) => lines.push(
+    `<li><span class="diff-name">${escapeHtml(label)}</span>${
+      detail ? ` <span class="diff-detail">— ${escapeHtml(detail)}</span>` : ''
+    }</li>`
+  );
+
+  for (const p of diff.projects.added) line(`New project: ${p.title || p.id}`);
+  for (const p of diff.projects.deleted) line(`Deleted project: ${p.title || p.id}`);
+  for (const p of diff.projects.modified) line(p.title || p.id, p.fields.join(', '));
+  for (const category of diff.projects.reordered) {
+    line(category === 'big' ? 'Big projects reordered' : 'Little projects reordered');
+  }
+  for (const id of diff.images.added) line(`New image: ${id}`);
+  for (const id of diff.images.deleted) line(`Deleted image: ${id}`);
+  for (const img of diff.images.modified) line(`Image: ${img.id}`, img.changes.join(', '));
+
+  return `<ul class="diff-list">${lines.join('')}</ul>`;
+}
+
+async function showPublishDiff() {
+  publishDiffPopover.classList.remove('hidden');
+
+  if (!publishDiffCache) {
+    publishDiffPopover.innerHTML = '<div class="diff-empty">Loading…</div>';
+    try {
+      const res = await fetch('/api/publish-diff');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      publishDiffCache = await res.json();
+    } catch (error) {
+      console.error('Failed to load publish diff:', error);
+      publishDiffPopover.innerHTML = '<div class="diff-empty">Failed to load changes.</div>';
+      return;
+    }
+  }
+
+  publishDiffPopover.innerHTML = renderPublishDiff(publishDiffCache);
+}
+
+function hidePublishDiff() {
+  publishDiffPopover.classList.add('hidden');
+}
+
+publishDiffBtn.addEventListener('mouseenter', showPublishDiff);
+publishDiffBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (publishDiffPopover.classList.contains('hidden')) {
+    showPublishDiff();
+  } else {
+    hidePublishDiff();
+  }
+});
+
+// Close when the pointer leaves the icon+popover area, or on outside click
+document.addEventListener('click', (e) => {
+  if (!publishDiffPopover.contains(e.target) && e.target !== publishDiffBtn) {
+    hidePublishDiff();
+  }
+});
+publishDiffBtn.addEventListener('mouseleave', (e) => {
+  if (e.relatedTarget && publishDiffPopover.contains(e.relatedTarget)) return;
+  hidePublishDiff();
+});
+publishDiffPopover.addEventListener('mouseleave', (e) => {
+  if (e.relatedTarget === publishDiffBtn) return;
+  hidePublishDiff();
+});
 
 function resetPublishButton() {
   publishBtn.innerHTML = '<span class="publish-icon">🚀</span> Publish <span id="unpublished-badge" class="unpublished-badge hidden">●</span>';

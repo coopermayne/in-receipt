@@ -103,6 +103,129 @@ function touchContent() {
 
 export function recordPublish() {
   setMeta('last_published_at', new Date().toISOString());
+  // Snapshot what was published so the diff against it can answer
+  // "what will the next publish change?". The payload is small (metadata
+  // only, no binaries), so storing it whole beats event bookkeeping.
+  setMeta('published_content', JSON.stringify(getContent()));
+}
+
+// Scalar project fields worth naming in the diff, with UI labels.
+// rank is handled separately (reorders touch many rows at once).
+const PROJECT_DIFF_FIELDS = [
+  ['title', 'title'],
+  ['category', 'category'],
+  ['year', 'year'],
+  ['location', 'location'],
+  ['type', 'type'],
+  ['shortDescription', 'short description'],
+  ['fullDescription', 'full description'],
+];
+
+function diffProjectFields(before, after) {
+  const fields = [];
+  for (const [key, label] of PROJECT_DIFF_FIELDS) {
+    if ((before[key] ?? null) !== (after[key] ?? null)) fields.push(label);
+  }
+  if ((before.thumbnail ?? null) !== (after.thumbnail ?? null)) {
+    fields.push('starred image');
+  }
+
+  const beforeImgs = before.images || [];
+  const afterImgs = after.images || [];
+  const added = afterImgs.filter(id => !beforeImgs.includes(id)).length;
+  const removed = beforeImgs.filter(id => !afterImgs.includes(id)).length;
+  if (added || removed) {
+    const parts = [];
+    if (added) parts.push(`${added} added`);
+    if (removed) parts.push(`${removed} removed`);
+    fields.push(`images (${parts.join(', ')})`);
+  } else if (beforeImgs.join('\n') !== afterImgs.join('\n')) {
+    fields.push('images reordered');
+  }
+
+  return fields;
+}
+
+function diffImageFields(before, after) {
+  const changes = [];
+  if (before.uploadedAt !== after.uploadedAt || before.ext !== after.ext) {
+    changes.push('file replaced');
+  }
+  if ((before.alt ?? null) !== (after.alt ?? null)) changes.push('alt text');
+  if (
+    before.focalPoint.x !== after.focalPoint.x ||
+    before.focalPoint.y !== after.focalPoint.y
+  ) {
+    changes.push('focal point');
+  }
+  return changes;
+}
+
+// Rank-ordered project ids for one category, restricted to ids present in
+// both snapshots so additions/deletions don't read as reorders.
+function categoryOrder(projects, category, commonIds) {
+  return projects
+    .filter(p => p.category === category && commonIds.has(p.id))
+    .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+    .map(p => p.id)
+    .join('\n');
+}
+
+// Compares current content against the snapshot taken at last publish.
+// Derived from the actual data, so edits that cancel out show as no change.
+export function getPublishDiff() {
+  const raw = getMeta('published_content');
+  if (!raw) return { available: false };
+
+  const before = JSON.parse(raw);
+  const after = getContent();
+
+  const beforeById = new Map(before.projects.map(p => [p.id, p]));
+  const afterById = new Map(after.projects.map(p => [p.id, p]));
+
+  const projects = { added: [], deleted: [], modified: [], reordered: [] };
+  for (const p of after.projects) {
+    const prev = beforeById.get(p.id);
+    if (!prev) {
+      projects.added.push({ id: p.id, title: p.title });
+    } else {
+      const fields = diffProjectFields(prev, p);
+      if (fields.length) projects.modified.push({ id: p.id, title: p.title, fields });
+    }
+  }
+  for (const p of before.projects) {
+    if (!afterById.has(p.id)) projects.deleted.push({ id: p.id, title: p.title });
+  }
+
+  const commonIds = new Set(
+    after.projects.filter(p => beforeById.has(p.id)).map(p => p.id)
+  );
+  for (const category of ['big', 'small']) {
+    const beforeOrder = categoryOrder(before.projects, category, commonIds);
+    const afterOrder = categoryOrder(after.projects, category, commonIds);
+    if (beforeOrder !== afterOrder) projects.reordered.push(category);
+  }
+
+  const images = { added: [], deleted: [], modified: [] };
+  for (const [id, img] of Object.entries(after.images)) {
+    const prev = before.images[id];
+    if (!prev) {
+      images.added.push(id);
+    } else {
+      const changes = diffImageFields(prev, img);
+      if (changes.length) images.modified.push({ id, changes });
+    }
+  }
+  for (const id of Object.keys(before.images)) {
+    if (!(id in after.images)) images.deleted.push(id);
+  }
+
+  const clean =
+    !projects.added.length && !projects.deleted.length &&
+    !projects.modified.length && !projects.reordered.length &&
+    !images.added.length && !images.deleted.length && !images.modified.length;
+
+  return { available: true, clean, projects, images };
 }
 
 export function getPublishState() {

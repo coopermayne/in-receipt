@@ -18,6 +18,7 @@ import {
   getContent,
   recordPublish,
   getPublishState,
+  getPublishDiff,
   DB_PATH,
 } from './db.js';
 import {
@@ -351,6 +352,17 @@ app.get('/api/publish-state', (req, res) => {
   } catch (error) {
     console.error('Publish state error:', error);
     res.status(500).json({ error: 'Failed to get publish state' });
+  }
+});
+
+// What the next publish would change: current content diffed against the
+// snapshot taken when the last publish was triggered.
+app.get('/api/publish-diff', (req, res) => {
+  try {
+    res.json(getPublishDiff());
+  } catch (error) {
+    console.error('Publish diff error:', error);
+    res.status(500).json({ error: 'Failed to compute publish diff' });
   }
 });
 
