@@ -125,14 +125,15 @@
   }
 
   .gallery-column--left .project-card__image {
-    width: 100%;
+    /* Shrink-wrap the rendered image so the keyline hugs it (object-fit: contain
+       letterboxes inside the element box, leaving the border misaligned) */
+    width: auto;
+    max-width: 100%;
     height: auto;
     max-height: 50vh;
-    object-fit: contain;
-    object-position: center right;
+    margin-left: auto;
     transform: translateZ(0);
     display: block;
-    margin: 0;
   }
 
   /* RIGHT COLUMN (Col4): Image+text as unit, positioned in lower safe zone */
@@ -158,13 +159,12 @@
   }
 
   .gallery-column--right .project-card__image {
-    width: 100%;
+    width: auto;
+    max-width: 100%;
     height: auto;
     max-height: 30vh;
-    object-fit: contain;
-    object-position: center right;
+    margin-left: auto;
     transform: translateZ(0);
     display: block;
-    margin: 0;
   }
 }
