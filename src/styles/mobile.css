@@ -21,6 +21,11 @@
     flex: 0 0 40%;
   }
 
+  /* Row holding an expanded card sits above the other row */
+  .gallery-row-container--active {
+    z-index: 100;
+  }
+
   /* Gallery row fills container */
   .gallery-row {
     height: 100%;
@@ -204,6 +209,11 @@
 
   .mobile-contact-popup__content p {
     margin: var(--spacing-sm) 0;
+  }
+
+  .mobile-contact-popup__content a {
+    color: inherit;
+    text-decoration: none;
   }
 
   /* Hide info button during transition */
