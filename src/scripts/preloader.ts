@@ -1,73 +1,115 @@
-// Prioritized image loading with Intersection Observer
-// Load order: visible thumbnails → next thumbnails → gallery images as user scrolls
-import { getProjectData as getPanelData } from './projectData';
+// Warms the browser cache with exactly the files a project view will display,
+// so opening a project feels instant. Index thumbnails are left to native
+// eager/lazy loading — they never go through this queue.
+//
+// Order: whatever the visitor is pointing at or touching → projects visible
+// on screen (only once the page has finished loading and the browser is idle).
+import { getProjectData, type ResponsiveImage } from './projectData';
 
-// Track which images have been queued to avoid duplicates
-const queuedImages = new Set<string>();
-const loadedImages = new Set<string>();
+const DESKTOP = '(min-width: 768px)';
+const CONCURRENCY = 3;
+// Images that are on screen as soon as a project opens; the rest load natively
+// (lazily) once it is open. Mobile's expanded view starts with the description,
+// and background bytes cost more on a phone, so it warms fewer.
+const IDLE_IMAGES_PER_PROJECT = { desktop: 4, mobile: 2 };
+const INTENT_IMAGES_PER_PROJECT = 8;
 
-// Promise-based image loader
-function loadImage(src: string): Promise<void> {
-  return new Promise((resolve) => {
-    if (loadedImages.has(src)) {
-      resolve();
+type Job = { key: string; run: () => Promise<void> };
+
+class WarmQueue {
+  private high: Job[] = [];
+  private low: Job[] = [];
+  private active = 0;
+  private seen = new Set<string>();
+
+  add(job: Job, priority: 'high' | 'low') {
+    if (this.seen.has(job.key)) {
+      // Already queued at low priority: promote it
+      if (priority === 'high') {
+        const i = this.low.findIndex(j => j.key === job.key);
+        if (i !== -1) this.high.push(...this.low.splice(i, 1));
+      }
       return;
     }
-    const img = new Image();
-    img.onload = () => {
-      loadedImages.add(src);
-      resolve();
-    };
-    img.onerror = () => {
-      resolve(); // Don't block queue on errors
-    };
-    img.src = src;
+    this.seen.add(job.key);
+    (priority === 'high' ? this.high : this.low).push(job);
+    this.pump();
+  }
+
+  private pump() {
+    while (this.active < CONCURRENCY) {
+      const job = this.high.shift() ?? this.low.shift();
+      if (!job) return;
+      this.active++;
+      job.run().finally(() => {
+        this.active--;
+        this.pump();
+      });
+    }
+  }
+}
+
+const queue = new WarmQueue();
+
+// Detached image with the panel's own srcset + sizes, so the browser picks
+// the same candidate the panel <img> will pick and the open is a cache hit.
+function warmResponsive(img: ResponsiveImage): Promise<void> {
+  return new Promise(resolve => {
+    const el = new Image();
+    el.onload = el.onerror = () => resolve();
+    el.sizes = img.sizes;
+    el.srcset = img.srcset;
+    el.src = img.src;
   });
 }
 
-// Sequential loader - loads images one at a time in priority order
-class ImageLoadQueue {
-  private queue: string[] = [];
-  private isProcessing = false;
-
-  add(src: string, priority: 'high' | 'normal' = 'normal') {
-    if (queuedImages.has(src)) return;
-    queuedImages.add(src);
-
-    if (priority === 'high') {
-      this.queue.unshift(src);
-    } else {
-      this.queue.push(src);
-    }
-
-    this.process();
-  }
-
-  addMultiple(srcs: string[], priority: 'high' | 'normal' = 'normal') {
-    srcs.forEach(src => this.add(src, priority));
-  }
-
-  private async process() {
-    if (this.isProcessing) return;
-    this.isProcessing = true;
-
-    while (this.queue.length > 0) {
-      const src = this.queue.shift()!;
-      await loadImage(src);
-    }
-
-    this.isProcessing = false;
-  }
+// Mobile expanded-gallery images are already in the DOM (lazy, hidden until
+// the card opens); switching them to eager starts their own srcset fetch.
+function warmElement(el: HTMLImageElement): Promise<void> {
+  if (el.complete && el.naturalWidth > 0) return Promise.resolve();
+  return new Promise(resolve => {
+    el.addEventListener('load', () => resolve(), { once: true });
+    el.addEventListener('error', () => resolve(), { once: true });
+    el.loading = 'eager';
+  });
 }
 
-const imageQueue = new ImageLoadQueue();
+function warmCard(card: HTMLElement, priority: 'high' | 'low') {
+  const isMobileCard = card.closest('.gallery-row') !== null;
+  const limit = priority === 'high'
+    ? INTENT_IMAGES_PER_PROJECT
+    : IDLE_IMAGES_PER_PROJECT[isMobileCard ? 'mobile' : 'desktop'];
 
-function getProjectData(card: HTMLElement): { thumbnail: string; images: string[] } {
-  const thumbnail = card.querySelector('.project-card__image')?.getAttribute('src') || '';
-  const projectData = getPanelData(card.dataset.projectId || '');
-  // Preload the leftPanelImages srcs (these are the largest desktop versions)
-  const imageSrcs = (projectData?.leftPanelImages || []).map(img => img.src);
-  return { thumbnail, images: imageSrcs };
+  if (isMobileCard) {
+    const imgs = card.querySelectorAll<HTMLImageElement>('.project-card__expanded-gallery img');
+    [...imgs].slice(0, limit).forEach((el, i) =>
+      queue.add({ key: `${card.dataset.projectId}:m${i}`, run: () => warmElement(el) }, priority)
+    );
+    return;
+  }
+
+  const data = getProjectData(card.dataset.projectId || '');
+  if (!data) return;
+  // Right-column cards open the right panel, which has its own sizes
+  const images = card.closest('.gallery-column--right') ? data.rightPanelImages : data.leftPanelImages;
+  images.slice(0, limit).forEach(img =>
+    queue.add({ key: img.srcset || img.src, run: () => warmResponsive(img) }, priority)
+  );
+}
+
+// Cards in the layout that is actually showing at this breakpoint
+function activeCardSelector(): string {
+  return matchMedia(DESKTOP).matches ? '.gallery-column .project-card' : '.gallery-row .project-card';
+}
+
+function onIdle(fn: () => void) {
+  const run = () => ('requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 2000 }) : setTimeout(fn, 200));
+  if (document.readyState === 'complete') run();
+  else window.addEventListener('load', run, { once: true });
+}
+
+function saveData(): boolean {
+  return (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
 }
 
 function setupCardFadeIn() {
@@ -90,84 +132,42 @@ function setupCardFadeIn() {
   });
 }
 
-function setupPrioritizedLoading() {
-  // Get all gallery rows (mobile) and columns (desktop)
-  const rows = document.querySelectorAll('.gallery-row');
-  const columns = document.querySelectorAll('.gallery-column');
+// Background warming: projects whose cards are on screen, after load
+function setupIdleWarming() {
+  if (saveData()) return;
 
-  // Priority 1: First project in each row/column (thumbnails already eager, but queue gallery)
-  const firstCards: HTMLElement[] = [];
-
-  rows.forEach(row => {
-    const firstCard = row.querySelector('.project-card') as HTMLElement;
-    if (firstCard) firstCards.push(firstCard);
-  });
-
-  columns.forEach(col => {
-    const firstCard = col.querySelector('.project-card') as HTMLElement;
-    if (firstCard && !firstCards.includes(firstCard)) {
-      firstCards.push(firstCard);
-    }
-  });
-
-  // Load first project gallery images with high priority
-  firstCards.forEach(card => {
-    const { images } = getProjectData(card);
-    imageQueue.addMultiple(images, 'high');
-  });
-
-  // Priority 2: Second project thumbnails + gallery (load after first projects)
-  setTimeout(() => {
-    rows.forEach(row => {
-      const cards = row.querySelectorAll('.project-card');
-      if (cards[1]) {
-        const { thumbnail, images } = getProjectData(cards[1] as HTMLElement);
-        imageQueue.add(thumbnail, 'normal');
-        imageQueue.addMultiple(images, 'normal');
-      }
-    });
-  }, 100);
-
-  // Intersection Observer for remaining cards
-  const observerOptions = {
-    root: null,
-    rootMargin: '100% 0px', // Trigger one viewport ahead
-    threshold: 0
-  };
-
-  const cardObserver = new IntersectionObserver((entries) => {
+  const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const card = entry.target as HTMLElement;
-        const { thumbnail, images } = getProjectData(card);
-
-        // Queue thumbnail first, then gallery images
-        imageQueue.add(thumbnail, 'normal');
-        imageQueue.addMultiple(images, 'normal');
-
-        // Stop observing once queued
-        cardObserver.unobserve(card);
-      }
+      if (!entry.isIntersecting) return;
+      warmCard(entry.target as HTMLElement, 'low');
+      observer.unobserve(entry.target);
     });
-  }, observerOptions);
+  }, { threshold: 0.5 });
 
-  // Observe all cards except first ones (already handled)
-  const allCards = document.querySelectorAll('.project-card');
-  allCards.forEach((card, index) => {
-    // Skip first card in each container (index 0 in each row/column)
-    const isFirst = card.parentElement?.querySelector('.project-card') === card;
-    if (!isFirst) {
-      cardObserver.observe(card);
-    }
+  onIdle(() => {
+    document.querySelectorAll<HTMLElement>(activeCardSelector()).forEach(card => observer.observe(card));
   });
 }
+
+// Intent warming: hover/focus on desktop, touchstart on mobile. Registered
+// once on document so it survives Astro page swaps.
+function onIntent(e: Event) {
+  const card = (e.target as Element | null)?.closest?.('.project-card') as HTMLElement | null;
+  if (card && card.matches(activeCardSelector())) warmCard(card, 'high');
+}
+document.addEventListener('pointerover', onIntent, { passive: true });
+document.addEventListener('focusin', onIntent);
+document.addEventListener('touchstart', onIntent, { passive: true });
 
 function init() {
+  // ClientRouter fires astro:page-load on the first load too; the body is
+  // replaced on navigation, so this marks once per rendered page.
+  if (document.body.dataset.preloaderInit) return;
+  document.body.dataset.preloaderInit = 'true';
   setupCardFadeIn();
-  setupPrioritizedLoading();
+  setupIdleWarming();
 }
 
-// Run after DOM ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {

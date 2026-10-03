@@ -1,70 +1,80 @@
 /* Akkurat Font Family */
 @font-face {
   font-family: 'Akkurat';
-  src: url('/fonts/AkkuratLLTT-Thin.ttf') format('truetype');
+  src: url('/fonts/AkkuratLLTT-Thin.woff2') format('woff2');
+  font-display: swap;
   font-weight: 100;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Akkurat';
-  src: url('/fonts/AkkuratLLTT-ThinItalic.ttf') format('truetype');
+  src: url('/fonts/AkkuratLLTT-ThinItalic.woff2') format('woff2');
+  font-display: swap;
   font-weight: 100;
   font-style: italic;
 }
 
 @font-face {
   font-family: 'Akkurat';
-  src: url('/fonts/AkkuratLLTT-Light.ttf') format('truetype');
+  src: url('/fonts/AkkuratLLTT-Light.woff2') format('woff2');
+  font-display: swap;
   font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Akkurat';
-  src: url('/fonts/AkkuratLLTT-LightItalic.ttf') format('truetype');
+  src: url('/fonts/AkkuratLLTT-LightItalic.woff2') format('woff2');
+  font-display: swap;
   font-weight: 300;
   font-style: italic;
 }
 
 @font-face {
   font-family: 'Akkurat';
-  src: url('/fonts/AkkuratLLTT-Regular.ttf') format('truetype');
+  src: url('/fonts/AkkuratLLTT-Regular.woff2') format('woff2');
+  font-display: swap;
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Akkurat';
-  src: url('/fonts/AkkuratLLTT-Italic.ttf') format('truetype');
+  src: url('/fonts/AkkuratLLTT-Italic.woff2') format('woff2');
+  font-display: swap;
   font-weight: 400;
   font-style: italic;
 }
 
 @font-face {
   font-family: 'Akkurat';
-  src: url('/fonts/AkkuratLLTT-Bold.ttf') format('truetype');
+  src: url('/fonts/AkkuratLLTT-Bold.woff2') format('woff2');
+  font-display: swap;
   font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Akkurat';
-  src: url('/fonts/AkkuratLLTT-BoldItalic.ttf') format('truetype');
+  src: url('/fonts/AkkuratLLTT-BoldItalic.woff2') format('woff2');
+  font-display: swap;
   font-weight: 700;
   font-style: italic;
 }
 
 @font-face {
   font-family: 'Akkurat';
-  src: url('/fonts/AkkuratLLTT-Black.ttf') format('truetype');
+  src: url('/fonts/AkkuratLLTT-Black.woff2') format('woff2');
+  font-display: swap;
   font-weight: 900;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Akkurat';
-  src: url('/fonts/AkkuratLLTT-BlackItalic.ttf') format('truetype');
+  src: url('/fonts/AkkuratLLTT-BlackItalic.woff2') format('woff2');
+  font-display: swap;
   font-weight: 900;
   font-style: italic;
 }

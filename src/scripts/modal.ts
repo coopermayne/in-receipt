@@ -21,13 +21,15 @@ function populatePanel(panel: HTMLDivElement, projectData: ProjectData, isRightP
 
   if (galleryEl) {
     galleryEl.replaceChildren(
-      ...(images || []).map(data => {
+      ...(images || []).map((data, i) => {
         const img = document.createElement('img');
-        img.src = data.src;
-        img.srcset = data.srcset;
         img.sizes = data.sizes;
+        img.srcset = data.srcset;
+        img.src = data.src;
         img.alt = data.alt;
-        img.loading = 'lazy';
+        // The first screenful is usually already warmed by preloader.ts; load
+        // it eagerly so it paints as the panel slides in, not after.
+        img.loading = i < 4 ? 'eager' : 'lazy';
         return img;
       })
     );

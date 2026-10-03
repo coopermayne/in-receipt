@@ -11,6 +11,12 @@
   cursor: pointer;
 }
 
+/* <picture> only exists to pick a source; lay out as if the <img> were a
+   direct child of the image container */
+.project-card__image-container > picture {
+  display: contents;
+}
+
 .project-card__image {
   width: 100%;
   height: 100%;
