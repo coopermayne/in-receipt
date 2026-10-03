@@ -43,6 +43,10 @@ function setupMobileTransition() {
     const rowContainer = card.closest('.gallery-row-container') as HTMLElement;
     const isUpperRow = rowContainer?.getAttribute('data-category') === 'big';
 
+    // Lift this row above its sibling. iOS Safari layers a fixed overlay
+    // inside a scrolling row with that row, so the other row would paint on top.
+    rowContainer?.classList.add('gallery-row-container--active');
+
     // Get title position and fix it in place
     const contentEl = card.querySelector('.project-card__content') as HTMLElement;
 
@@ -95,6 +99,7 @@ function setupMobileTransition() {
       contentEl.style.zIndex = '';
     }
 
+    activeCard.closest('.gallery-row-container')?.classList.remove('gallery-row-container--active');
     activeCard.classList.remove('expanded', 'expanded--upper', 'expanded--lower');
     activeCard.style.removeProperty('--title-bottom');
     activeCard = null;
