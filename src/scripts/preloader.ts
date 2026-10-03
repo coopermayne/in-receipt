@@ -112,26 +112,6 @@ function saveData(): boolean {
   return (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
 }
 
-function setupCardFadeIn() {
-  const cardInners = document.querySelectorAll('.gallery-column .project-card__inner');
-
-  cardInners.forEach(inner => {
-    const img = inner.querySelector('.project-card__image') as HTMLImageElement;
-    if (!img) return;
-
-    if (img.complete && img.naturalHeight !== 0) {
-      inner.classList.add('loaded');
-    } else {
-      img.addEventListener('load', () => {
-        inner.classList.add('loaded');
-      });
-      img.addEventListener('error', () => {
-        inner.classList.add('loaded');
-      });
-    }
-  });
-}
-
 // Background warming: projects whose cards are on screen, after load
 function setupIdleWarming() {
   if (saveData()) return;
@@ -164,7 +144,6 @@ function init() {
   // replaced on navigation, so this marks once per rendered page.
   if (document.body.dataset.preloaderInit) return;
   document.body.dataset.preloaderInit = 'true';
-  setupCardFadeIn();
   setupIdleWarming();
 }
 

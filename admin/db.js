@@ -61,6 +61,14 @@ const MIGRATIONS = [
     value TEXT NOT NULL
   );
   `,
+
+  // 3: ThumbHash of each image (base64, ~25 bytes), which the site decodes
+  // into a blurred placeholder shown until the real image loads. Derived
+  // from the original, so NULL just means "not computed yet"; server.js
+  // backfills on startup.
+  `
+  ALTER TABLE images ADD COLUMN thumbhash TEXT;
+  `,
 ];
 
 function migrate() {
@@ -254,6 +262,7 @@ function rowToImage(row) {
     width: row.width,
     height: row.height,
     uploadedAt: row.uploaded_at,
+    thumbhash: row.thumbhash,
   };
 }
 
@@ -281,10 +290,10 @@ const deleteImageStmt = db.prepare('DELETE FROM images WHERE id = ?');
 const upsertImageStmt = db.prepare(`
   INSERT INTO images (
     id, ext, focal_point_x, focal_point_y,
-    alt, filename, width, height, uploaded_at
+    alt, filename, width, height, uploaded_at, thumbhash
   ) VALUES (
     @id, @ext, @focal_point_x, @focal_point_y,
-    @alt, @filename, @width, @height, @uploaded_at
+    @alt, @filename, @width, @height, @uploaded_at, @thumbhash
   )
   ON CONFLICT(id) DO UPDATE SET
     ext           = excluded.ext,
@@ -294,7 +303,8 @@ const upsertImageStmt = db.prepare(`
     filename      = excluded.filename,
     width         = excluded.width,
     height        = excluded.height,
-    uploaded_at   = excluded.uploaded_at
+    uploaded_at   = excluded.uploaded_at,
+    thumbhash     = excluded.thumbhash
 `);
 
 // Metadata-only edit: must not disturb the columns that describe the file
@@ -333,6 +343,7 @@ export function upsertImage(id, data) {
     width: data.width || null,
     height: data.height || null,
     uploaded_at: data.uploadedAt || new Date().toISOString(),
+    thumbhash: data.thumbhash || null,
   });
   touchContent();
 }
@@ -347,6 +358,25 @@ export function updateImageMeta(id, data) {
   }).changes > 0;
   if (changed) touchContent();
   return changed;
+}
+
+// Rows still waiting on a ThumbHash, e.g. ones uploaded before the column
+// existed.
+const selectMissingThumbhash = db.prepare(
+  'SELECT * FROM images WHERE thumbhash IS NULL'
+);
+const setThumbhashStmt = db.prepare(
+  'UPDATE images SET thumbhash = ? WHERE id = ?'
+);
+
+export function listImagesMissingThumbhash() {
+  return selectMissingThumbhash.all().map(row => ({ id: row.id, ...rowToImage(row) }));
+}
+
+// Derived data, not an edit: deliberately doesn't touchContent, so a backfill
+// doesn't flag the site as having unpublished changes.
+export function setThumbhash(id, thumbhash) {
+  setThumbhashStmt.run(thumbhash, id);
 }
 
 export function deleteImage(id) {

@@ -27,6 +27,9 @@ export interface ImageData {
   width: number;
   height: number;
   uploadedAt: string;
+  // Base64 ThumbHash, decoded client-side into a blurred placeholder.
+  // Empty until the admin has computed one.
+  thumbhash: string;
 }
 
 export interface Project {
@@ -82,6 +85,7 @@ function normalizeImage(image: Partial<ImageData>): ImageData {
     width: image.width || 0,
     height: image.height || 0,
     uploadedAt: image.uploadedAt || '',
+    thumbhash: image.thumbhash || '',
   };
 }
 

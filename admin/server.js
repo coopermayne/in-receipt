@@ -19,6 +19,8 @@ import {
   recordPublish,
   getPublishState,
   getPublishDiff,
+  listImagesMissingThumbhash,
+  setThumbhash,
   DB_PATH,
 } from './db.js';
 import {
@@ -30,6 +32,8 @@ import {
   clearCache,
   unlinkOriginal,
   warmCache,
+  computeThumbhash,
+  originalPath,
 } from './images.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -447,8 +451,29 @@ app.get('/api/deploy-status', async (req, res) => {
   }
 });
 
+// Fill in ThumbHashes for images uploaded before they existed (or whose
+// encode failed). Sequential and in the background, so startup isn't held up;
+// the site picks them up on its next build.
+async function backfillThumbhashes() {
+  const missing = listImagesMissingThumbhash();
+  if (!missing.length) return;
+
+  let filled = 0;
+  for (const image of missing) {
+    const hash = await computeThumbhash(originalPath(image.id, image.ext));
+    if (hash) {
+      setThumbhash(image.id, hash);
+      filled++;
+    }
+  }
+  console.log(`ThumbHash backfill: ${filled} of ${missing.length} images`);
+}
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Admin server running at http://localhost:${PORT}`);
   console.log(`Database: ${DB_PATH}`);
+  backfillThumbhashes().catch((error) => {
+    console.error('ThumbHash backfill failed:', error);
+  });
 });

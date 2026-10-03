@@ -1,4 +1,5 @@
 import sharp from 'sharp';
+import { rgbaToThumbHash } from 'thumbhash';
 import { mkdir, rename, rm, unlink, writeFile, access } from 'fs/promises';
 import { join } from 'path';
 import { DATA_DIR } from './db.js';
@@ -126,7 +127,30 @@ export async function storeOriginal(id, buffer, filename) {
 
   await writeFile(originalPath(id, ext), buffer);
 
-  return { ext, width, height, filename };
+  const thumbhash = await computeThumbhash(buffer);
+
+  return { ext, width, height, filename, thumbhash };
+}
+
+// ThumbHash encodes a blurred stand-in for the whole image in ~25 bytes,
+// which the site paints until the real image arrives. The encoder caps
+// input at 100x100. Returns base64, or null on failure: a missing
+// placeholder just means the image box stays empty while loading, so it
+// must never fail an upload.
+export async function computeThumbhash(input) {
+  try {
+    const { data, info } = await sharp(input)
+      .rotate() // honor EXIF orientation, like the derivatives
+      .resize(100, 100, { fit: 'inside' })
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    const hash = rgbaToThumbHash(info.width, info.height, data);
+    return Buffer.from(hash).toString('base64');
+  } catch (error) {
+    console.error('ThumbHash failed:', error.message);
+    return null;
+  }
 }
 
 // Removes just the stored original, e.g. one orphaned by a format change.

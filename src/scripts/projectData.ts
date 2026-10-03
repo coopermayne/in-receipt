@@ -7,6 +7,10 @@ export interface ResponsiveImage {
   srcset: string;
   sizes: string;
   alt: string;
+  width: number;
+  height: number;
+  thumbhash: string;
+  placeholderStyle: string;
 }
 
 export interface ProjectData {
