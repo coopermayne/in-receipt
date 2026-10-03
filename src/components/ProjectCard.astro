@@ -31,6 +31,16 @@ const thumb = variant === 'mobile'
   ? getMobileThumbnail(thumbnail, category)
   : getDesktopThumbnail(thumbnail, category);
 
+// Desktop column thumbnails are width: auto inside a shrink-to-fit box, so
+// they'd be zero-width until the file arrives. The ratio lets the CSS give
+// them their final size up front (see project-card.css).
+const thumbStyle = [
+  thumb.placeholderStyle,
+  variant === 'desktop' && thumb.width && thumb.height
+    ? `--aspect: ${(thumb.width / thumb.height).toFixed(4)}`
+    : '',
+].filter(Boolean).join('; ');
+
 // Expanded gallery is a mobile-only feature
 const mobileGalleryImages = variant === 'mobile'
   ? images.map(imgId => ({ id: imgId, ...getMobileGalleryImage(imgId) }))
@@ -46,6 +56,10 @@ const mobileGalleryImages = variant === 'mobile'
         srcset={thumb.srcset}
         sizes={thumb.sizes}
         alt={thumb.alt || title}
+        width={thumb.width || undefined}
+        height={thumb.height || undefined}
+        data-thumbhash={thumb.thumbhash || undefined}
+        style={thumbStyle || undefined}
         loading={isFirst ? "eager" : "lazy"}
         fetchpriority={isFirst ? "high" : "auto"}
         data-thumbnail-id={thumbnail}
@@ -84,6 +98,10 @@ const mobileGalleryImages = variant === 'mobile'
               srcset={img.srcset}
               sizes={img.sizes}
               alt={img.alt}
+              width={img.width || undefined}
+              height={img.height || undefined}
+              data-thumbhash={img.thumbhash || undefined}
+              style={img.placeholderStyle || undefined}
               loading="lazy"
             />
           ))}

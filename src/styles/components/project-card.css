@@ -59,16 +59,6 @@
     position: relative;
   }
 
-  /* Hide card content until image loads, then fade in */
-  .gallery-column .project-card__inner {
-    opacity: 0;
-    transition: opacity 800ms ease;
-  }
-
-  .gallery-column .project-card__inner.loaded {
-    opacity: 1;
-  }
-
   /* Shared column card styles */
   .gallery-column .project-card__content {
     position: relative;
@@ -126,8 +116,11 @@
 
   .gallery-column--left .project-card__image {
     /* Shrink-wrap the rendered image so the keyline hugs it (object-fit: contain
-       letterboxes inside the element box, leaving the border misaligned) */
-    width: auto;
+       letterboxes inside the element box, leaving the border misaligned).
+       The width is what it resolves to once loaded (sizes is 24vw), set up
+       front from --aspect so the placeholder has a box. Without --aspect the
+       calc is invalid and this falls back to auto. */
+    width: min(24vw, calc(50vh * var(--aspect)));
     max-width: 100%;
     height: auto;
     max-height: 50vh;
@@ -159,7 +152,8 @@
   }
 
   .gallery-column--right .project-card__image {
-    width: auto;
+    /* Same as the left column, at 12vw / 30vh */
+    width: min(12vw, calc(30vh * var(--aspect)));
     max-width: 100%;
     height: auto;
     max-height: 30vh;

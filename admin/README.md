@@ -64,6 +64,15 @@ must stay in sync with `IMAGE_CONTEXTS` / `CROP_PRESETS` in
 URLs carry a `?v=` token derived from the upload timestamp so replacing an
 image under an existing id isn't masked by the long cache lifetime.
 
+### Placeholders
+
+Each upload also stores a ThumbHash (`images.thumbhash`, ~30 base64 chars):
+a tiny encoding of the image's colors and shape. The site puts it on every
+`<img>` as `data-thumbhash`, and `src/scripts/placeholders.ts` decodes it into
+a blurred background that shows until the real file loads. Images that
+predate the column (or whose encode failed) are backfilled on server start;
+the site picks them up on its next publish.
+
 ## Features
 
 - **Upload images** - Drag & drop or browse to upload images to local storage
