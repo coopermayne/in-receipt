@@ -70,26 +70,6 @@ function getProjectData(card: HTMLElement): { thumbnail: string; images: string[
   return { thumbnail, images: imageSrcs };
 }
 
-function setupCardFadeIn() {
-  const cardInners = document.querySelectorAll('.gallery-column .project-card__inner');
-
-  cardInners.forEach(inner => {
-    const img = inner.querySelector('.project-card__image') as HTMLImageElement;
-    if (!img) return;
-
-    if (img.complete && img.naturalHeight !== 0) {
-      inner.classList.add('loaded');
-    } else {
-      img.addEventListener('load', () => {
-        inner.classList.add('loaded');
-      });
-      img.addEventListener('error', () => {
-        inner.classList.add('loaded');
-      });
-    }
-  });
-}
-
 function setupPrioritizedLoading() {
   // Get all gallery rows (mobile) and columns (desktop)
   const rows = document.querySelectorAll('.gallery-row');
@@ -163,7 +143,6 @@ function setupPrioritizedLoading() {
 }
 
 function init() {
-  setupCardFadeIn();
   setupPrioritizedLoading();
 }
 

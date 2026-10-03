@@ -27,6 +27,12 @@ img {
   max-width: 100%;
 }
 
+/* ThumbHash placeholder (scripts/placeholders.ts); position is set inline */
+img[data-thumbhash] {
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
 button {
   font: inherit;
   cursor: pointer;

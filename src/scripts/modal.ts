@@ -1,5 +1,6 @@
 // Sliding panel logic for desktop project pages
 import { getProjectData, type ProjectData } from './projectData';
+import { applyPlaceholder } from './placeholders';
 
 const mainGallery = document.querySelector('.main-gallery') as HTMLElement;
 const leftPanel = document.getElementById('project-page-left') as HTMLDivElement;
@@ -27,7 +28,16 @@ function populatePanel(panel: HTMLDivElement, projectData: ProjectData, isRightP
         img.srcset = data.srcset;
         img.sizes = data.sizes;
         img.alt = data.alt;
+        if (data.width && data.height) {
+          img.width = data.width;
+          img.height = data.height;
+        }
+        if (data.thumbhash) {
+          img.dataset.thumbhash = data.thumbhash;
+          img.style.cssText = data.placeholderStyle;
+        }
         img.loading = 'lazy';
+        applyPlaceholder(img);
         return img;
       })
     );
