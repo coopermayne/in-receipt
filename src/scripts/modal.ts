@@ -1,6 +1,6 @@
 // Sliding panel logic for desktop project pages
 import { getProjectData, type ProjectData } from './projectData';
-import { applyPlaceholder } from './placeholders';
+import { applyPlaceholder, decode as decodeThumbHash } from './placeholders';
 
 const mainGallery = document.querySelector('.main-gallery') as HTMLElement;
 const leftPanel = document.getElementById('project-page-left') as HTMLDivElement;
@@ -169,26 +169,103 @@ function updateNavVisibility() {
   lightboxNext.classList.toggle('hidden', currentImageIndex >= currentGalleryImages.length - 1);
 }
 
+// Full-size files are 0.5–1.7 MB and rendered on demand the first time, so
+// fetch them before they are asked for: on hover, and the neighbours of the
+// image being viewed. Held until loaded so the request isn't dropped.
+const warming = new Map<string, HTMLImageElement>();
+const warmed = new Set<string>();
+
+function warmLightbox(img: HTMLImageElement | undefined) {
+  if (!img) return;
+  const url = getLightboxUrl(img.src || img.currentSrc);
+  if (warmed.has(url)) return;
+  warmed.add(url);
+  const el = new Image();
+  el.onload = el.onerror = () => warming.delete(url);
+  warming.set(url, el);
+  el.src = url;
+}
+
+const BLANK_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+let showToken = 0;
+let spinnerTimer: ReturnType<typeof setTimeout> | undefined;
+
+// Give the lightbox image the box the full-size file will have (2560px
+// scale-down, fitted to the viewport), so the ThumbHash placeholder and the
+// sharp file occupy exactly the same space. Without dimensions, CSS sizes it.
+function sizeLightboxImage(source: HTMLImageElement) {
+  const container = lightboxImage.parentElement;
+  const w0 = Number(source.getAttribute('width')) || 0;
+  const h0 = Number(source.getAttribute('height')) || 0;
+  if (!container || !w0 || !h0) {
+    lightboxImage.style.width = '';
+    lightboxImage.style.height = '';
+    return;
+  }
+  const w = Math.min(2560, w0);
+  const h = (w * h0) / w0;
+  const cs = getComputedStyle(container);
+  const boxW = container.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const boxH = container.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  const scale = Math.min(1, boxW / w, boxH / h);
+  lightboxImage.style.width = `${Math.round(w * scale)}px`;
+  lightboxImage.style.height = `${Math.round(h * scale)}px`;
+}
+
 function showImage(index: number) {
   if (!lightboxImage || index < 0 || index >= currentGalleryImages.length) return;
 
+  const token = ++showToken;
   currentImageIndex = index;
   const imgElement = currentGalleryImages[index];
-  const thumbnailSrc = imgElement.src || imgElement.currentSrc;
-  const highQualitySrc = getLightboxUrl(thumbnailSrc);
-  const alt = imgElement.alt || '';
+  const highQualitySrc = getLightboxUrl(imgElement.src || imgElement.currentSrc);
 
-  // Reset state and show loader
-  lightboxImage.classList.remove('loaded');
-  lightboxLoader?.classList.add('visible');
+  clearTimeout(spinnerTimer);
+  lightboxLoader?.classList.remove('visible');
+  lightboxImage.alt = imgElement.alt || '';
+  sizeLightboxImage(imgElement);
+  lightboxImage.classList.add('loaded');
 
-  // Load high-quality version
-  lightboxImage.alt = alt;
-  lightboxImage.onload = () => {
-    lightboxLoader?.classList.remove('visible');
-    lightboxImage.classList.add('loaded');
+  const full = new Image();
+  full.src = highQualitySrc;
+
+  const showFull = () => {
+    lightboxImage.src = highQualitySrc;
+    lightboxImage.style.backgroundImage = '';
+    lightboxImage.style.backgroundColor = '';
   };
-  lightboxImage.src = highQualitySrc;
+  const warmNeighbours = () => {
+    warmLightbox(currentGalleryImages[index + 1]);
+    warmLightbox(currentGalleryImages[index - 1]);
+  };
+
+  // Already warmed (hover, or a neighbour): show it straight away
+  if (full.complete && full.naturalWidth > 0) {
+    showFull();
+    warmNeighbours();
+    updateNavVisibility();
+    return;
+  }
+
+  // Otherwise the image's ThumbHash fills the final box until the file is in.
+  // Spinner only when there is no ThumbHash and the wait is noticeable.
+  const hash = imgElement.dataset.thumbhash;
+  const placeholder = hash ? decodeThumbHash(hash) : null;
+  lightboxImage.src = BLANK_PIXEL;
+  lightboxImage.style.backgroundImage = placeholder ? `url(${placeholder})` : '';
+  lightboxImage.style.backgroundColor = imgElement.style.backgroundColor;
+  lightboxImage.style.backgroundSize = '100% 100%';
+  if (!placeholder) {
+    spinnerTimer = setTimeout(() => lightboxLoader?.classList.add('visible'), 300);
+  }
+
+  full.decode().catch(() => {}).then(() => {
+    if (token !== showToken) return;
+    clearTimeout(spinnerTimer);
+    lightboxLoader?.classList.remove('visible');
+    if (full.naturalWidth > 0) showFull();
+    warmNeighbours();
+  });
 
   updateNavVisibility();
 }
@@ -237,8 +314,10 @@ function closeLightbox() {
   setTimeout(() => {
     if (lightboxImage) {
       lightboxImage.src = '';
+      lightboxImage.removeAttribute('style');
       lightboxImage.classList.remove('loaded');
     }
+    clearTimeout(spinnerTimer);
     lightboxLoader?.classList.remove('visible');
     currentGalleryImages = [];
     currentImageIndex = 0;
@@ -262,6 +341,16 @@ if (lightbox) {
       openLightbox(galleryImage);
       return;
     }
+  });
+
+  // Warm the full-size file while the pointer is on a gallery image
+  document.addEventListener('pointerover', (e) => {
+    const img = (e.target as Element | null)?.closest?.('.project-page__gallery img');
+    if (img instanceof HTMLImageElement && window.innerWidth >= 768) warmLightbox(img);
+  }, { passive: true });
+
+  window.addEventListener('resize', () => {
+    if (lightbox.classList.contains('open')) sizeLightboxImage(currentGalleryImages[currentImageIndex]);
   });
 
   // Navigation buttons
