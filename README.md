@@ -64,6 +64,41 @@ Preview the production build:
 npm run preview
 ```
 
+## Testing
+
+The tests build the site against a mock content API (`tests/support/`), so
+they need no admin app, `.env` or real content. One-time setup after
+`npm install`:
+
+```bash
+npx playwright install
+```
+
+Then:
+
+```bash
+npm test              # everything below except iOS Simulator
+npm run test:desktop  # Chrome, Safari (WebKit) and Firefox at desktop size
+npm run test:mobile   # emulated iPhone 15, iPhone SE and Pixel 7
+npm run test:report   # open the HTML report from the last run
+npx playwright test --ui   # watch tests run step by step
+```
+
+A failed test leaves a screenshot and a trace in `test-results/`;
+`npm run test:report` shows both.
+
+Playwright's WebKit is Safari's engine but not iOS Safari itself, so a bug
+that only shows on a real iPhone can slip past it. For that, run the same
+key mobile checks in Mobile Safari in the Xcode iOS Simulator:
+
+```bash
+safaridriver --enable   # one time, asks for your password
+npm run test:ios        # IOS_DEVICE="iPhone 15" npm run test:ios to pick one
+```
+
+This needs Xcode with an iOS Simulator runtime installed. Run it before
+merging anything that changes the mobile layout.
+
 ## Image Admin Tool
 
 The `/admin` folder contains the content backend: a small Express app that stores projects and images on the host and serves them to the site. See `admin/README.md`.
