@@ -8,7 +8,7 @@ import { thumbHashToDataURL } from 'thumbhash';
 // so decode each hash once.
 const decoded = new Map<string, string>();
 
-function decode(hash: string): string | null {
+export function decode(hash: string): string | null {
   let url = decoded.get(hash);
   if (url === undefined) {
     try {
