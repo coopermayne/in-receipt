@@ -8,6 +8,8 @@ function isMobile(): boolean {
 
 let activeCard: HTMLElement | null = null;
 let savedScrollPositions: number[] = [];
+let overlayHost: HTMLElement | null = null;
+let moved: { el: HTMLElement; parent: Node; next: Node | null }[] = [];
 
 function setupMobileTransition() {
   const infoBtn = document.querySelector('.mobile-info-btn');
@@ -43,31 +45,34 @@ function setupMobileTransition() {
     const rowContainer = card.closest('.gallery-row-container') as HTMLElement;
     const isUpperRow = rowContainer?.getAttribute('data-category') === 'big';
 
-    // Lift this row above its sibling. iOS Safari layers a fixed overlay
-    // inside a scrolling row with that row, so the other row would paint on top.
-    rowContainer?.classList.add('gallery-row-container--active');
+    // Move the overlay and title out of the scrolling row into a fixed host
+    // on <body>. iOS Safari clips fixed elements to an overflow scroller, so
+    // left inside the row the overlay only covered that row's half.
+    const expandedEl = card.querySelector('.project-card__expanded') as HTMLElement | null;
+    const contentEl = card.querySelector('.project-card__content') as HTMLElement | null;
+    const host = document.createElement('div');
+    host.className = `mobile-project-overlay ${isUpperRow ? 'expanded--upper' : 'expanded--lower'}`;
+    host.dataset.category = isUpperRow ? 'big' : 'small';
 
-    // Get title position and fix it in place
-    const contentEl = card.querySelector('.project-card__content') as HTMLElement;
-
+    // Fix the title in its current viewport position so it doesn't move
     if (contentEl) {
       const contentRect = contentEl.getBoundingClientRect();
-
-      // Fix the original title in its current viewport position
       contentEl.style.position = 'fixed';
       contentEl.style.top = `${contentRect.top}px`;
       contentEl.style.left = `${contentRect.left}px`;
       contentEl.style.zIndex = '150';
-
-      // Store bottom position for content layout
-      card.style.setProperty('--title-bottom', `${contentRect.bottom}px`);
+      // Expanded content starts below the title
+      host.style.setProperty('--title-bottom', `${contentRect.bottom}px`);
     }
+    moved = [];
+    [expandedEl, contentEl].forEach((el) => {
+      if (!el) return;
+      moved.push({ el, parent: el.parentNode as Node, next: el.nextSibling });
+      host.appendChild(el);
+    });
+    document.body.appendChild(host);
+    overlayHost = host;
 
-    // Add position class
-    card.classList.remove('expanded--upper', 'expanded--lower');
-    card.classList.add(isUpperRow ? 'expanded--upper' : 'expanded--lower');
-
-    // Expand the card
     card.classList.add('expanded');
     activeCard = card;
 
@@ -90,6 +95,12 @@ function setupMobileTransition() {
   function closeActiveCard() {
     if (!activeCard) return;
 
+    // Put the overlay and title back in the card
+    moved.forEach(({ el, parent, next }) => parent.insertBefore(el, next));
+    moved = [];
+    overlayHost?.remove();
+    overlayHost = null;
+
     // Reset title positioning
     const contentEl = activeCard.querySelector('.project-card__content') as HTMLElement;
     if (contentEl) {
@@ -99,9 +110,7 @@ function setupMobileTransition() {
       contentEl.style.zIndex = '';
     }
 
-    activeCard.closest('.gallery-row-container')?.classList.remove('gallery-row-container--active');
-    activeCard.classList.remove('expanded', 'expanded--upper', 'expanded--lower');
-    activeCard.style.removeProperty('--title-bottom');
+    activeCard.classList.remove('expanded');
     activeCard = null;
 
     // Show info button
