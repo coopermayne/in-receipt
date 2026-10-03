@@ -31,6 +31,10 @@ const thumb = variant === 'mobile'
   ? getMobileThumbnail(thumbnail, category)
   : getDesktopThumbnail(thumbnail, category);
 
+// Media query for the breakpoint where this copy of the card is hidden
+const hiddenMedia = variant === 'mobile' ? '(min-width: 768px)' : '(max-width: 767px)';
+const BLANK_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+
 // Desktop column thumbnails are width: auto inside a shrink-to-fit box, so
 // they'd be zero-width until the file arrives. The ratio lets the CSS give
 // them their final size up front (see project-card.css).
@@ -50,20 +54,25 @@ const mobileGalleryImages = variant === 'mobile'
 <article class="project-card" data-project-id={id}>
   <div class="project-card__inner">
     <div class="project-card__image-container">
-      <img
-        class="project-card__image"
-        src={thumb.src}
-        srcset={thumb.srcset}
-        sizes={thumb.sizes}
-        alt={thumb.alt || title}
-        width={thumb.width || undefined}
-        height={thumb.height || undefined}
-        data-thumbhash={thumb.thumbhash || undefined}
-        style={thumbStyle || undefined}
-        loading={isFirst ? "eager" : "lazy"}
-        fetchpriority={isFirst ? "high" : "auto"}
-        data-thumbnail-id={thumbnail}
-      />
+      {/* Both layouts are in the DOM; the eager first card of the hidden one
+          would still download. At the other breakpoint it gets a 1px blank. */}
+      <picture>
+        {isFirst && <source media={hiddenMedia} srcset={BLANK_PIXEL} />}
+        <img
+          class="project-card__image"
+          src={thumb.src}
+          srcset={thumb.srcset}
+          sizes={thumb.sizes}
+          alt={thumb.alt || title}
+          width={thumb.width || undefined}
+          height={thumb.height || undefined}
+          data-thumbhash={thumb.thumbhash || undefined}
+          style={thumbStyle || undefined}
+          loading={isFirst ? "eager" : "lazy"}
+          fetchpriority={isFirst ? "high" : "auto"}
+          data-thumbnail-id={thumbnail}
+        />
+      </picture>
     </div>
     <div class="project-card__content">
       <h2 class="project-card__title">{title}</h2>

@@ -22,11 +22,11 @@ function populatePanel(panel: HTMLDivElement, projectData: ProjectData, isRightP
 
   if (galleryEl) {
     galleryEl.replaceChildren(
-      ...(images || []).map(data => {
+      ...(images || []).map((data, i) => {
         const img = document.createElement('img');
-        img.src = data.src;
-        img.srcset = data.srcset;
         img.sizes = data.sizes;
+        img.srcset = data.srcset;
+        img.src = data.src;
         img.alt = data.alt;
         if (data.width && data.height) {
           img.width = data.width;
@@ -36,7 +36,9 @@ function populatePanel(panel: HTMLDivElement, projectData: ProjectData, isRightP
           img.dataset.thumbhash = data.thumbhash;
           img.style.cssText = data.placeholderStyle;
         }
-        img.loading = 'lazy';
+        // The first screenful is usually already warmed by preloader.ts; load
+        // it eagerly so it paints as the panel slides in, not after.
+        img.loading = i < 4 ? 'eager' : 'lazy';
         applyPlaceholder(img);
         return img;
       })
