@@ -60,3 +60,10 @@ test('studio link stays put while the CV scrolls', async ({ page }) => {
   await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
   expect((await link.boundingBox())!.y).toBeCloseTo(before!.y, 0);
 });
+
+test('uses its own icons, not the I/R set', async ({ page, request }) => {
+  const hrefs = await page.locator('link[rel="icon"], link[rel="apple-touch-icon"]')
+    .evaluateAll((links) => links.map((l) => l.getAttribute('href')));
+  expect(hrefs).toEqual(['/hallie-favicon.ico', '/hallie-favicon.svg', '/hallie-apple-touch-icon.png']);
+  for (const href of hrefs) expect((await request.get(href!)).ok()).toBe(true);
+});

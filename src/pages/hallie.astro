@@ -74,7 +74,11 @@ const personSchema = JSON.stringify({
     <title>{name}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={SITE_URL} />
+    <!-- Own icons, so hallieblack.com doesn't fall back to the site-wide
+         I/R set at /favicon.ico and /apple-touch-icon.png -->
+    <link rel="icon" href="/hallie-favicon.ico" sizes="32x32" />
     <link rel="icon" href="/hallie-favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/hallie-apple-touch-icon.png" />
     <link rel="preload" href="/fonts/AkkuratLLTT-Bold.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/AkkuratLLTT-Light.woff2" as="font" type="font/woff2" crossorigin />
     <meta name="theme-color" content="#faf9f6" />
