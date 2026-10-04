@@ -228,12 +228,17 @@ export function getPublishDiff() {
     if (!(id in after.images)) images.deleted.push(id);
   }
 
+  // Snapshots from before the profile existed have no key at all
+  const profileChanged =
+    JSON.stringify(before.profile ?? null) !== JSON.stringify(after.profile ?? null);
+
   const clean =
+    !profileChanged &&
     !projects.added.length && !projects.deleted.length &&
     !projects.modified.length && !projects.reordered.length &&
     !images.added.length && !images.deleted.length && !images.modified.length;
 
-  return { available: true, clean, projects, images };
+  return { available: true, clean, projects, images, profileChanged };
 }
 
 export function getPublishState() {
@@ -468,10 +473,80 @@ export const reorderProjects = db.transaction((category, projectIds) => {
 // ============ PUBLIC CONTENT ============
 
 // Everything the Astro build needs, in one request.
+// ============ PROFILE ============
+// Hallie's profile page (hallieblack.com): one small document, so it lives
+// in meta as JSON rather than in its own table. null until first saved; the
+// site falls back to its built-in defaults until then.
+
+const PROFILE_TEXT_FIELDS = ['name', 'role', 'location', 'bio', 'email', 'phone', 'featuredProjectId'];
+
+function cleanText(value, max = 5000) {
+  return typeof value === 'string' ? value.trim().slice(0, max) : '';
+}
+
+// Whitelists the shape so the build only ever sees the fields it knows.
+export function normalizeProfile(input) {
+  const profile = {};
+  for (const key of PROFILE_TEXT_FIELDS) profile[key] = cleanText(input?.[key]);
+
+  const sections = Array.isArray(input?.cv) ? input.cv : [];
+  profile.cv = sections
+    .map(section => ({
+      heading: cleanText(section?.heading, 200),
+      entries: (Array.isArray(section?.entries) ? section.entries : [])
+        .map(entry => ({
+          years: cleanText(entry?.years, 100),
+          title: cleanText(entry?.title, 500),
+          detail: cleanText(entry?.detail, 500),
+        }))
+        .filter(entry => entry.years || entry.title || entry.detail),
+    }))
+    .filter(section => section.heading || section.entries.length);
+
+  return profile;
+}
+
+// Starting point shown in the admin before the profile is first saved. Keep
+// in step with the site's fallback in src/lib/profile.ts.
+export const DEFAULT_PROFILE = normalizeProfile({
+  name: 'Hallie Black',
+  role: 'Architect',
+  location: 'Los Angeles, California',
+  bio: 'Hallie Black is an architect based in Los Angeles and the founder of In Receipt, an architecture studio working on residential and small-scale projects.',
+  email: 'inreceipt@gmail.com',
+  phone: '(424) 256-6076',
+  featuredProjectId: '',
+  cv: [
+    { heading: 'Practice', entries: [
+      { years: '20XX–present', title: 'Founder, In Receipt', detail: 'Los Angeles' },
+      { years: '20XX–20XX', title: 'Position, Firm', detail: 'City' },
+    ] },
+    { heading: 'Education', entries: [{ years: '20XX', title: 'Degree, School', detail: 'City' }] },
+    { heading: 'Licensure', entries: [{ years: '20XX', title: 'Licensed Architect', detail: 'State' }] },
+    { heading: 'Teaching', entries: [{ years: '20XX', title: 'Course, School' }] },
+    { heading: 'Awards and Publications', entries: [{ years: '20XX', title: 'Award or publication', detail: 'Publisher' }] },
+  ],
+});
+
+export function getProfile() {
+  const raw = getMeta('profile');
+  return raw ? JSON.parse(raw) : null;
+}
+
+export function setProfile(input) {
+  const profile = normalizeProfile(input);
+  if (JSON.stringify(profile) !== JSON.stringify(getProfile())) {
+    setMeta('profile', JSON.stringify(profile));
+    touchContent();
+  }
+  return profile;
+}
+
 export function getContent() {
   return {
     images: listImages(),
     projects: listProjects(),
+    profile: getProfile(),
   };
 }
 

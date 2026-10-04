@@ -47,6 +47,29 @@ export const projects = [
   images: [`img${i + 6}`, `img${(i + 7) % 12}`, `img${(i + 8) % 12}`],
 }));
 
+// What the admin's Profile tab saves (hallieblack.com)
+export const profile = {
+  name: 'Test Person',
+  role: 'Architect',
+  location: 'Los Angeles, California',
+  bio: 'First paragraph of the bio.\n\nSecond paragraph of the bio.',
+  email: 'test@example.com',
+  phone: '(424) 555-0100',
+  featuredProjectId: 'p1',
+  cv: [
+    {
+      heading: 'Practice',
+      entries: [
+        { years: '2020–present', title: 'Founder, Test Studio', detail: 'Los Angeles' },
+        { years: '2015–2020', title: 'Project Architect, Firm', detail: '' },
+      ],
+    },
+    { heading: 'Education', entries: [{ years: '2014', title: 'M.Arch, School', detail: '' }] },
+    // Empty sections are left off the page
+    { heading: 'Teaching', entries: [] },
+  ],
+};
+
 // Solid gray PNG, served for every image request
 function png(width, height) {
   const crcTable = Array.from({ length: 256 }, (_, n) => {
@@ -88,7 +111,7 @@ export function startMockApi(port) {
   const server = http.createServer((req, res) => {
     if (req.url.startsWith('/api/content')) {
       res.setHeader('content-type', 'application/json');
-      res.end(JSON.stringify({ images, projects }));
+      res.end(JSON.stringify({ images, projects, profile }));
     } else if (req.url.startsWith('/img/')) {
       res.setHeader('content-type', 'image/png');
       res.end(placeholder);

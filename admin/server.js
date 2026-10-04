@@ -19,6 +19,9 @@ import {
   recordPublish,
   getPublishState,
   getPublishDiff,
+  getProfile,
+  setProfile,
+  DEFAULT_PROFILE,
   listImagesMissingThumbhash,
   setThumbhash,
   DB_PATH,
@@ -319,6 +322,32 @@ app.delete('/api/projects/:id', (req, res) => {
   } catch (error) {
     console.error('Delete project error:', error);
     res.status(500).json({ error: 'Failed to delete project' });
+  }
+});
+
+// ============ PROFILE API ============
+
+// Hallie's profile page. Until first saved, the form starts from defaults
+// and the site keeps using its own fallback.
+app.get('/api/profile', (req, res) => {
+  try {
+    const saved = getProfile();
+    res.json({ profile: saved ?? DEFAULT_PROFILE, saved: saved !== null });
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({ error: 'Failed to get profile' });
+  }
+});
+
+app.put('/api/profile', (req, res) => {
+  try {
+    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+      return res.status(400).json({ error: 'Expected a profile object' });
+    }
+    res.json({ success: true, profile: setProfile(req.body) });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ error: 'Failed to update profile' });
   }
 });
 

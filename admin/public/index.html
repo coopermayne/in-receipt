@@ -14,6 +14,7 @@
       <nav class="tabs">
         <button class="tab active" data-tab="images">Images</button>
         <button class="tab" data-tab="projects">Projects</button>
+        <button class="tab" data-tab="profile">Profile</button>
       </nav>
       <div class="publish-area">
         <a href="https://in-receipt.netlify.app/" target="_blank" class="site-link">View Site ↗</a>
@@ -56,6 +57,81 @@
           <div id="projects-list-small" class="projects-list" data-category="small">
             <!-- Little projects will be populated here -->
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Profile Section (hallieblack.com) -->
+    <section id="profile-section" class="tab-content hidden">
+      <div class="section-header">
+        <div>
+          <h2>Profile</h2>
+          <p class="section-subtitle">Shown at <a href="https://hallieblack.com/" target="_blank">hallieblack.com ↗</a> after the next publish.</p>
+        </div>
+        <div class="profile-actions">
+          <span id="profile-save-status" class="profile-save-status"></span>
+          <button id="profile-save-btn" class="btn btn-primary">Save Profile</button>
+        </div>
+      </div>
+
+      <div id="profile-unsaved-note" class="profile-note hidden">
+        Not saved yet: the site is showing its built-in defaults. Edit below and save to take over.
+      </div>
+
+      <div class="profile-form">
+        <div class="profile-card">
+          <h3>About</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="profile-name">Name</label>
+              <input type="text" id="profile-name">
+            </div>
+            <div class="form-group">
+              <label for="profile-role">Role</label>
+              <input type="text" id="profile-role" placeholder="Architect">
+            </div>
+            <div class="form-group">
+              <label for="profile-location">Location</label>
+              <input type="text" id="profile-location" placeholder="Los Angeles, California">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="profile-bio">Bio</label>
+            <textarea id="profile-bio" rows="5" placeholder="A short paragraph. Leave a blank line between paragraphs."></textarea>
+          </div>
+        </div>
+
+        <div class="profile-card">
+          <h3>Contact</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="profile-email">Email</label>
+              <input type="email" id="profile-email">
+            </div>
+            <div class="form-group">
+              <label for="profile-phone">Phone</label>
+              <input type="tel" id="profile-phone" placeholder="(424) 256-6076">
+            </div>
+          </div>
+          <p class="help-text">Leave a field blank to hide it.</p>
+        </div>
+
+        <div class="profile-card">
+          <h3>In Receipt link</h3>
+          <div class="form-group">
+            <label for="profile-featured">Image</label>
+            <select id="profile-featured"></select>
+          </div>
+          <p class="help-text">The starred image of the chosen project illustrates the link to inreceiptstudio.com.</p>
+        </div>
+
+        <div class="profile-card">
+          <div class="profile-card-header">
+            <h3>CV</h3>
+            <button id="cv-add-section-btn" class="btn btn-secondary">+ Add Section</button>
+          </div>
+          <p class="help-text">One entry per line: <code>years | title | detail</code>. The detail is optional, e.g. <code>2018–2021 | Project Architect, Firm Name | Los Angeles</code></p>
+          <div id="cv-sections" class="cv-sections"></div>
         </div>
       </div>
     </section>

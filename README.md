@@ -64,6 +64,20 @@ Preview the production build:
 npm run preview
 ```
 
+## Two domains, one build
+
+The same Netlify site serves both domains:
+
+- **inreceiptstudio.com** serves the gallery (`src/pages/index.astro`).
+- **hallieblack.com** serves Hallie's profile page (`src/pages/hallie.astro`,
+  built to `/hallie/`). A domain-level rewrite in `netlify.toml` maps that
+  domain's root to it; fonts and `/_astro` assets come from the shared build.
+
+hallieblack.com must be added to the Netlify site as a domain alias (not a
+separate site) for the rewrite to apply. The profile's bio, contact details,
+CV and featured project are edited in the admin's Profile tab and go live on
+the next publish, like everything else.
+
 ## Testing
 
 The tests build the site against a mock content API (`tests/support/`), so

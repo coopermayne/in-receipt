@@ -435,6 +435,7 @@ const deleteProjectBtn = document.getElementById('delete-project-btn');
 const tabs = document.querySelectorAll('.tab');
 const imagesSection = document.getElementById('images-section');
 const projectsSection = document.getElementById('projects-section');
+const profileSection = document.getElementById('profile-section');
 
 // Tab Switching
 function setupTabs() {
@@ -447,14 +448,11 @@ function setupTabs() {
       tab.classList.add('active');
 
       // Update sections
-      if (targetTab === 'images') {
-        imagesSection.classList.remove('hidden');
-        projectsSection.classList.add('hidden');
-      } else {
-        imagesSection.classList.add('hidden');
-        projectsSection.classList.remove('hidden');
-        loadProjects();
-      }
+      imagesSection.classList.toggle('hidden', targetTab !== 'images');
+      projectsSection.classList.toggle('hidden', targetTab !== 'projects');
+      profileSection.classList.toggle('hidden', targetTab !== 'profile');
+      if (targetTab === 'projects') loadProjects();
+      if (targetTab === 'profile') loadProfile();
     });
   });
 }
@@ -975,6 +973,7 @@ function renderPublishDiff(diff) {
     }</li>`
   );
 
+  if (diff.profileChanged) line('Profile updated');
   for (const p of diff.projects.added) line(`New project: ${p.title || p.id}`);
   for (const p of diff.projects.deleted) line(`Deleted project: ${p.title || p.id}`);
   for (const p of diff.projects.modified) line(p.title || p.id, p.fields.join(', '));
@@ -1136,6 +1135,181 @@ async function handlePublish() {
   }
 }
 
+// ============ PROFILE ============
+// Hallie's profile page (hallieblack.com). The CV is edited as plain text,
+// one "years | title | detail" line per entry, and parsed on save.
+
+const profileFields = {
+  name: document.getElementById('profile-name'),
+  role: document.getElementById('profile-role'),
+  location: document.getElementById('profile-location'),
+  bio: document.getElementById('profile-bio'),
+  email: document.getElementById('profile-email'),
+  phone: document.getElementById('profile-phone'),
+  featuredProjectId: document.getElementById('profile-featured'),
+};
+const cvSectionsEl = document.getElementById('cv-sections');
+const profileSaveBtn = document.getElementById('profile-save-btn');
+const profileSaveStatus = document.getElementById('profile-save-status');
+const profileUnsavedNote = document.getElementById('profile-unsaved-note');
+
+let profileDirty = false;
+
+function entriesToText(entries) {
+  return entries
+    .map(e => [e.years, e.title, e.detail].filter((v, i) => v || i < 2).join(' | '))
+    .join('\n');
+}
+
+function textToEntries(text) {
+  return text
+    .split('\n')
+    .map(line => line.trim())
+    .filter(Boolean)
+    .map(line => {
+      const [years = '', title = '', ...rest] = line.split('|').map(part => part.trim());
+      return { years, title, detail: rest.join(' | ') };
+    });
+}
+
+function renderCvSection(section = { heading: '', entries: [] }) {
+  const el = document.createElement('div');
+  el.className = 'cv-section-editor';
+  el.innerHTML = `
+    <div class="cv-section-editor-header">
+      <input type="text" class="cv-heading" placeholder="Section heading, e.g. Education">
+      <button class="btn btn-secondary btn-small" data-action="up" title="Move up">↑</button>
+      <button class="btn btn-secondary btn-small" data-action="down" title="Move down">↓</button>
+      <button class="btn btn-danger btn-small" data-action="remove" title="Remove section">Remove</button>
+    </div>
+    <textarea class="cv-entries" rows="4" placeholder="2018–2021 | Project Architect, Firm Name | Los Angeles"></textarea>
+  `;
+  el.querySelector('.cv-heading').value = section.heading;
+  el.querySelector('.cv-entries').value = entriesToText(section.entries);
+  return el;
+}
+
+function readCvSections() {
+  return [...cvSectionsEl.querySelectorAll('.cv-section-editor')].map(el => ({
+    heading: el.querySelector('.cv-heading').value.trim(),
+    entries: textToEntries(el.querySelector('.cv-entries').value),
+  }));
+}
+
+async function renderFeaturedOptions(selectedId) {
+  if (!projects.length) {
+    try {
+      const res = await fetch('/api/projects');
+      projects = (await res.json()).projects || [];
+    } catch {
+      projects = [];
+    }
+  }
+  const big = projects
+    .filter(p => p.category === 'big')
+    .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0));
+  const select = profileFields.featuredProjectId;
+  select.innerHTML = '<option value="">First big project (default)</option>' +
+    big.map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.title || p.id)}</option>`).join('');
+  select.value = big.some(p => p.id === selectedId) ? selectedId : '';
+}
+
+function setProfileStatus(text, className = '') {
+  profileSaveStatus.textContent = text;
+  profileSaveStatus.className = `profile-save-status ${className}`;
+}
+
+async function loadProfile() {
+  if (profileDirty) return; // don't clobber edits when switching tabs
+  try {
+    const res = await fetch('/api/profile');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const { profile, saved } = await res.json();
+
+    for (const [key, input] of Object.entries(profileFields)) {
+      if (key !== 'featuredProjectId') input.value = profile[key] || '';
+    }
+    await renderFeaturedOptions(profile.featuredProjectId);
+
+    cvSectionsEl.innerHTML = '';
+    for (const section of profile.cv) cvSectionsEl.appendChild(renderCvSection(section));
+
+    profileUnsavedNote.classList.toggle('hidden', saved);
+    setProfileStatus('');
+  } catch (error) {
+    console.error('Failed to load profile:', error);
+    setProfileStatus('Failed to load profile', 'error');
+  }
+}
+
+async function handleProfileSave() {
+  const profile = { cv: readCvSections() };
+  for (const [key, input] of Object.entries(profileFields)) profile[key] = input.value.trim();
+
+  profileSaveBtn.disabled = true;
+  setProfileStatus('Saving…');
+  try {
+    const res = await fetch('/api/profile', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(profile),
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'Failed to save profile');
+
+    profileDirty = false;
+    profileUnsavedNote.classList.add('hidden');
+    markAsChanged();
+    setProfileStatus('Saved', 'success');
+    // Re-render from what the server kept (blank CV lines are dropped)
+    await loadProfile();
+    setProfileStatus('Saved', 'success');
+  } catch (error) {
+    console.error('Save profile error:', error);
+    setProfileStatus(error.message || 'Failed to save profile', 'error');
+  } finally {
+    profileSaveBtn.disabled = false;
+  }
+}
+
+function setupProfileListeners() {
+  profileSaveBtn.addEventListener('click', handleProfileSave);
+
+  document.getElementById('cv-add-section-btn').addEventListener('click', () => {
+    const el = renderCvSection();
+    cvSectionsEl.appendChild(el);
+    el.querySelector('.cv-heading').focus();
+    profileDirty = true;
+  });
+
+  cvSectionsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const el = btn.closest('.cv-section-editor');
+    if (btn.dataset.action === 'up' && el.previousElementSibling) {
+      el.parentNode.insertBefore(el, el.previousElementSibling);
+    } else if (btn.dataset.action === 'down' && el.nextElementSibling) {
+      el.parentNode.insertBefore(el.nextElementSibling, el);
+    } else if (btn.dataset.action === 'remove') {
+      const heading = el.querySelector('.cv-heading').value.trim() || 'this section';
+      if (!confirm(`Remove ${heading}?`)) return;
+      el.remove();
+    } else {
+      return;
+    }
+    profileDirty = true;
+    setProfileStatus('Unsaved changes', 'pending');
+  });
+
+  document.getElementById('profile-section').addEventListener('input', () => {
+    profileDirty = true;
+    setProfileStatus('Unsaved changes', 'pending');
+  });
+
+  window.addEventListener('beforeunload', (e) => {
+    if (profileDirty) e.preventDefault();
+  });
+}
+
 // Initialize badge from server state on page load
 loadPublishState();
 
@@ -1144,4 +1318,5 @@ publishBtn.addEventListener('click', handlePublish);
 // Start
 setupTabs();
 setupProjectListeners();
+setupProfileListeners();
 init();

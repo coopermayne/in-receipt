@@ -49,6 +49,8 @@ export interface Project {
 interface ContentPayload {
   images: Record<string, Partial<ImageData>>;
   projects: Array<Partial<Project>>;
+  // Absent from older admin versions; null until saved in the admin
+  profile?: Partial<import('./profile').Profile> | null;
 }
 
 // One request serves the whole build; memoized so multiple callers share it.
@@ -119,4 +121,9 @@ export async function fetchImages(): Promise<Record<string, ImageData>> {
 export async function fetchProjects(): Promise<Project[]> {
   const { projects } = await fetchContent();
   return projects.map(normalizeProject);
+}
+
+export async function fetchContentProfile() {
+  const { profile } = await fetchContent();
+  return profile ?? null;
 }

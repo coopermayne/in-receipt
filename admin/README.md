@@ -32,6 +32,14 @@ npm start
 
 Then open http://localhost:3001
 
+## Profile
+
+The Profile tab edits Hallie's page at hallieblack.com: name, role, bio,
+contact details, which project illustrates the In Receipt link, and the CV.
+CV entries are typed one per line as `years | title | detail`. The profile
+is stored as JSON in the `meta` table and served in `/api/content`; until it
+is first saved, `profile` is `null` and the site uses its built-in defaults.
+
 ## Storage
 
 Everything lives under `$DATA_DIR`:

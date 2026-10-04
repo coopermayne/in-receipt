@@ -1,23 +1,48 @@
 ---
 // Profile page for hallieblack.com. Netlify rewrites that domain's root here
 // (see netlify.toml); inreceiptstudio.com keeps serving the gallery at /.
+// Content is edited in the admin's Profile tab.
 import { fetchProjects } from '../lib/content';
 import { initImages, getDesktopThumbnail } from '../lib/images';
-import { profile } from '../lib/profile';
+import { fetchProfile, bioParagraphs, telHref, STUDIO } from '../lib/profile';
 import '../styles/base/fonts.css';
 import '../styles/base/variables.css';
 import '../styles/profile.css';
 
 await initImages();
-const projects = await fetchProjects();
+const [projects, profile] = await Promise.all([fetchProjects(), fetchProfile()]);
 
-// Lead image for the studio link: the top-ranked big project
-const featured = projects
+const SITE_URL = 'https://hallieblack.com/';
+const { name, role, location, email, phone, cv } = profile;
+const bio = bioParagraphs(profile.bio);
+const roleLine = [role, location].filter(Boolean).join(', ');
+const sections = cv.filter(section => section.entries.length);
+
+// Lead image for the studio link: the chosen project, else the top-ranked
+// big project
+const bigProjects = projects
   .filter(p => p.category === 'big' && p.thumbnail)
-  .sort((a, b) => a.rank - b.rank)[0];
-const featuredImage = featured ? getDesktopThumbnail(featured.thumbnail, 'big') : null;
+  .sort((a, b) => a.rank - b.rank);
+const featured = bigProjects.find(p => p.id === profile.featuredProjectId) ?? bigProjects[0];
+const thumb = featured ? getDesktopThumbnail(featured.thumbnail, 'big') : null;
+const image = thumb?.src ? thumb : null;
 
-const { name, role, location, bio, contact, studio, cv } = profile;
+const description = bio[0] || `${name}${roleLine ? `, ${roleLine}` : ''}.`;
+
+// Largest rendition in the srcset, for link previews
+const shareImage = image ? image.srcset.split(', ').at(-1)?.split(' ')[0] ?? image.src : '';
+
+const personSchema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name,
+  url: SITE_URL,
+  jobTitle: role || undefined,
+  email: email ? `mailto:${email}` : undefined,
+  telephone: phone || undefined,
+  worksFor: { '@type': 'Organization', name: STUDIO.name, url: STUDIO.url },
+}).replace(/</g, '\\u003c');
+
 ---
 
 <!DOCTYPE html>
@@ -25,71 +50,95 @@ const { name, role, location, bio, contact, studio, cv } = profile;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={`${name}, ${role.toLowerCase()} in ${location}. Founder of ${studio.name}.`} />
-    <link rel="canonical" href="https://hallieblack.com/" />
     <title>{name}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={SITE_URL} />
+    <link rel="icon" href="/hallie-favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/AkkuratLLTT-Bold.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/AkkuratLLTT-Light.woff2" as="font" type="font/woff2" crossorigin />
+    <meta name="theme-color" content="#faf9f6" />
+    <meta property="og:type" content="profile" />
+    <meta property="og:title" content={name} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={SITE_URL} />
+    {shareImage && <meta property="og:image" content={shareImage} />}
+    <meta name="twitter:card" content={shareImage ? 'summary_large_image' : 'summary'} />
+    <script is:inline type="application/ld+json" set:html={personSchema} />
   </head>
   <body class="profile">
-    <div class="profile__rule profile__rule--left"></div>
-    <div class="profile__rule profile__rule--right"></div>
+    <div class="profile__rule profile__rule--left" aria-hidden="true"></div>
+    <div class="profile__rule profile__rule--right" aria-hidden="true"></div>
 
     <main class="profile__main">
       <header class="profile__header">
         <h1 class="profile__name">{name}</h1>
-        <p class="profile__role">{role}, {location}</p>
+        {roleLine && <p class="profile__role">{roleLine}</p>}
+        {(email || phone) && (
+          <ul class="profile__contact" aria-label="Contact">
+            {email && <li><a href={`mailto:${email}`}>{email}</a></li>}
+            {phone && <li><a href={telHref(phone)}>{phone}</a></li>}
+          </ul>
+        )}
       </header>
 
-      <section class="profile__bio">
-        {bio.map(paragraph => <p>{paragraph}</p>)}
-      </section>
+      {bio.length > 0 && (
+        <section class="profile__bio" aria-label="About">
+          {bio.map(paragraph => <p>{paragraph}</p>)}
+        </section>
+      )}
 
-      <a class="studio-link" href={studio.url}>
-        {featuredImage && featuredImage.src && (
-          <img
-            class="studio-link__image"
-            src={featuredImage.src}
-            srcset={featuredImage.srcset}
-            sizes="(min-width: 768px) 20vw, calc(100vw - 2rem)"
-            width={featuredImage.width}
-            height={featuredImage.height}
-            alt={featuredImage.alt || featured?.title || ''}
-            style={featuredImage.placeholderStyle}
-          />
+      <a class:list={['studio-link', { 'studio-link--text-only': !image }]} href={STUDIO.url}>
+        {image && (
+          <span class="studio-link__frame">
+            <img
+              class="studio-link__image"
+              src={image.src}
+              srcset={image.srcset}
+              sizes="(min-width: 768px) 20vw, calc(100vw - 2rem)"
+              width={image.width}
+              height={image.height}
+              alt=""
+              data-thumbhash={image.thumbhash || undefined}
+              style={image.placeholderStyle}
+            />
+          </span>
         )}
         <span class="studio-link__label">
-          <span class="studio-link__name">{studio.name.toUpperCase()}</span>
-          <span class="studio-link__tagline">{studio.tagline}</span>
-          <span class="studio-link__url">{studio.urlDisplay} &rarr;</span>
+          <span class="studio-link__kicker">Studio</span>
+          <span class="studio-link__name">{STUDIO.name.toUpperCase()}</span>
+          <span class="studio-link__tagline">{STUDIO.tagline}</span>
+          <span class="studio-link__url">{STUDIO.urlDisplay}<span class="studio-link__arrow" aria-hidden="true"> &rarr;</span></span>
         </span>
       </a>
 
-      <section class="profile__cv" aria-label="CV">
-        {cv.map(section => (
-          <div class="cv-section">
-            <h2 class="cv-section__heading">{section.heading}</h2>
-            <ul class="cv-section__list">
-              {section.entries.map(entry => (
-                <li class="cv-entry">
-                  <span class="cv-entry__years">{entry.years}</span>
-                  <span class="cv-entry__title">{entry.title}</span>
-                  {entry.detail && <span class="cv-entry__detail">{entry.detail}</span>}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </section>
+      {sections.length > 0 && (
+        <section class="profile__cv" aria-label="CV">
+          {sections.map(section => (
+            <div class="cv-section">
+              {section.heading && <h2 class="cv-section__heading">{section.heading}</h2>}
+              <ul class="cv-section__list">
+                {section.entries.map(entry => (
+                  <li class="cv-entry">
+                    <span class="cv-entry__years">{entry.years}</span>
+                    <span class="cv-entry__title">{entry.title}</span>
+                    {entry.detail && <span class="cv-entry__detail">{entry.detail}</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </section>
+      )}
 
-      <section class="profile__contact" aria-label="Contact">
-        <h2 class="cv-section__heading">Contact</h2>
-        <p><a href={`mailto:${contact.email}`}>{contact.email}</a></p>
-        <p><a href={`tel:${contact.phone}`}>{contact.phoneDisplay}</a></p>
-      </section>
+      <footer class="profile__footer">
+        <span>&copy; {new Date().getFullYear()} {name}</span>
+      </footer>
     </main>
 
     <aside class="profile__sidebar" aria-hidden="true">
-      <span class="profile__sidebar-title">{name.toUpperCase()}</span>
+      <span class="profile__sidebar-title" style={`--chars: ${Math.max(name.length, 4)}`}>{name.toUpperCase()}</span>
     </aside>
 
+    <script src="../scripts/placeholders.ts"></script>
   </body>
 </html>

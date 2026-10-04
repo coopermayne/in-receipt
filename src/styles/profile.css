@@ -11,6 +11,10 @@
   padding: 0;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body.profile {
   font-family: var(--font-stack);
   font-weight: 300;
@@ -25,9 +29,24 @@ body.profile {
   text-decoration: none;
 }
 
+.profile a:focus-visible {
+  outline: 1px dotted var(--color-text);
+  outline-offset: 4px;
+}
+
 .profile img {
   display: block;
   max-width: 100%;
+}
+
+/* ThumbHash placeholder (scripts/placeholders.ts); position is set inline */
+.profile img[data-thumbhash] {
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.profile ul {
+  list-style: none;
 }
 
 /* ---------- Mobile (default): one column ---------- */
@@ -35,6 +54,7 @@ body.profile {
 .profile__main {
   padding: var(--spacing-xl) var(--spacing-md);
   padding-top: calc(var(--spacing-xl) + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(var(--spacing-xl) + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
@@ -45,8 +65,9 @@ body.profile {
   display: none;
 }
 
+/* Header */
 .profile__name {
-  font-size: 2.5rem;
+  font-size: clamp(2.25rem, 11vw, 2.75rem);
   font-weight: 700;
   line-height: 0.95;
   letter-spacing: -0.02em;
@@ -54,12 +75,32 @@ body.profile {
 }
 
 .profile__role {
+  margin-top: var(--spacing-md);
+}
+
+.profile__contact {
   margin-top: var(--spacing-sm);
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--spacing-lg);
+  row-gap: 0.25rem;
   color: var(--color-text-muted);
 }
 
+.profile__contact a {
+  border-bottom: 1px dotted transparent;
+  transition: border-color var(--transition-fast) ease, color var(--transition-fast) ease;
+}
+
+.profile__contact a:hover {
+  color: var(--color-text);
+  border-bottom-color: var(--color-text);
+}
+
+/* Bio */
 .profile__bio {
   max-width: 34rem;
+  font-size: 1.0625rem;
 }
 
 .profile__bio p + p {
@@ -73,12 +114,16 @@ body.profile {
   gap: var(--spacing-md);
 }
 
+.studio-link__frame {
+  display: block;
+  overflow: hidden;
+  border: 1px solid rgba(26, 26, 26, 0.1);
+}
+
 .studio-link__image {
   width: 100%;
   height: auto;
-  background-size: cover;
-  border: 1px solid rgba(26, 26, 26, 0.1);
-  transition: opacity var(--transition-fast) ease;
+  transition: transform 600ms var(--easing-smooth);
 }
 
 .studio-link__label {
@@ -86,28 +131,53 @@ body.profile {
   flex-direction: column;
 }
 
-.studio-link__name {
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.1;
+.studio-link__kicker {
+  font-size: 0.75rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.25rem;
 }
 
-.studio-link__tagline,
-.studio-link__url {
+.studio-link__name {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.studio-link__tagline {
   font-size: 0.875rem;
   color: var(--color-text-muted);
 }
 
 .studio-link__url {
   margin-top: var(--spacing-sm);
-  color: var(--color-text);
+  font-size: 0.875rem;
   border-bottom: 1px dotted var(--color-text);
   align-self: flex-start;
 }
 
-.studio-link:hover .studio-link__image,
-.studio-link:focus-visible .studio-link__image {
-  opacity: 0.85;
+.studio-link__arrow {
+  display: inline-block;
+  transition: transform var(--transition-fast) var(--easing-smooth);
+}
+
+.studio-link:hover .studio-link__image {
+  transform: scale(1.03);
+}
+
+.studio-link:hover .studio-link__arrow,
+.studio-link:focus-visible .studio-link__arrow {
+  transform: translateX(4px);
+}
+
+/* Without an image the link stands as a bordered block */
+.studio-link--text-only {
+  border-top: 1px dotted var(--color-text);
+  border-bottom: 1px dotted var(--color-text);
+  padding: var(--spacing-lg) 0;
 }
 
 /* CV */
@@ -127,21 +197,22 @@ body.profile {
   border-bottom: 1px dotted var(--color-text);
 }
 
-.cv-section__list {
-  list-style: none;
-}
-
 .cv-entry {
   display: grid;
-  grid-template-columns: 7.5rem 1fr;
+  grid-template-columns: 7rem 1fr;
   column-gap: var(--spacing-md);
-  padding: 0.25rem 0;
+  padding: 0.3rem 0;
   font-size: 0.9375rem;
+  line-height: 1.4;
 }
 
 .cv-entry__years {
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
+}
+
+.cv-entry__title {
+  grid-column: 2;
 }
 
 .cv-entry__detail {
@@ -150,19 +221,62 @@ body.profile {
   color: var(--color-text-muted);
 }
 
-.profile__contact p {
-  margin: 0.25rem 0;
+.profile__footer {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* Entrance, matching the gallery title's fade */
+@keyframes profile-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes profile-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.profile__header,
+.profile__bio,
+.studio-link,
+.profile__cv {
+  animation: profile-rise 700ms var(--easing-smooth) both;
+}
+
+.profile__bio { animation-delay: 80ms; }
+.studio-link { animation-delay: 160ms; }
+.profile__cv { animation-delay: 240ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .profile *,
+  .profile *::before,
+  .profile *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 /* ---------- Desktop: the gallery's column grid ---------- */
 
 @media (min-width: 768px) {
-  /* Content fills col1 + the empty column; the sidebar and studio link sit
-     where IN RECEIPT's title and right project column do */
+  /* Content fills col1 + the empty column; the name sidebar and studio link
+     sit where IN RECEIPT's title and right project column do */
   .profile__main {
     width: var(--contact-left);
-    padding: 4rem 4vw 6rem;
+    padding: 4rem 4vw 3rem;
     gap: 4rem;
+    min-height: 100vh;
   }
 
   .profile__rule {
@@ -197,7 +311,10 @@ body.profile {
   }
 
   .profile__sidebar-title {
-    font-size: 8.5cqh; /* 12 characters across ~90% of the column height */
+    /* Sized to the name's length (--chars, set inline) so it runs ~85% of
+       the column height, like IN RECEIPT's title; capped by the column
+       width so a short name never overflows sideways */
+    font-size: min(calc(85cqh / (var(--chars) * 0.6)), 75cqw);
     font-weight: 700;
     line-height: 0.85;
     letter-spacing: -0.02em;
@@ -205,36 +322,120 @@ body.profile {
     writing-mode: vertical-rl;
     text-orientation: mixed;
     transform: rotate(180deg);
+    animation: profile-fade 800ms ease both;
   }
 
   .profile__name {
-    font-size: 4rem;
+    font-size: clamp(3rem, 5vw, 5rem);
   }
 
   .profile__bio {
-    font-size: 1.125rem;
+    font-size: 1.1875rem;
+    line-height: 1.45;
   }
 
   .studio-link {
     position: fixed;
     top: 50%;
     left: calc(var(--contact-right) + var(--col4-gap));
-    width: var(--col4-width);
+    width: calc(var(--col4-width) - 2vw);
     transform: translateY(-50%);
+    animation-name: profile-fade;
   }
 
+  /* Full column width; tall images are cropped rather than overflowing */
   .studio-link__image {
-    max-height: 60vh;
-    width: auto;
-    max-width: 100%;
+    max-height: 55vh;
+    object-fit: cover;
   }
 
-  .profile__cv,
-  .profile__contact {
+  .profile__cv {
     max-width: 40rem;
   }
 
   .cv-entry {
     grid-template-columns: 9rem 1fr;
+  }
+}
+
+/* ---------- Print: a clean one-column CV ---------- */
+
+@media print {
+  @page {
+    margin: 18mm 16mm;
+  }
+
+  body.profile {
+    background: #fff;
+    font-size: 10pt;
+  }
+
+  .profile__rule,
+  .profile__sidebar,
+  .studio-link__frame,
+  .studio-link__kicker,
+  .studio-link__arrow,
+  .profile__footer {
+    display: none !important;
+  }
+
+  .profile__main {
+    width: auto;
+    min-height: 0;
+    padding: 0;
+    gap: 8mm;
+  }
+
+  .profile__header,
+  .profile__bio,
+  .studio-link,
+  .profile__cv {
+    animation: none;
+  }
+
+  .profile__name {
+    font-size: 26pt;
+  }
+
+  .profile__bio {
+    font-size: 10.5pt;
+    max-width: none;
+  }
+
+  .studio-link {
+    position: static;
+    transform: none;
+    width: auto;
+    flex-direction: row;
+    gap: 0;
+  }
+
+  .studio-link__label {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 3mm;
+  }
+
+  .studio-link__name {
+    font-size: 11pt;
+  }
+
+  .studio-link__url {
+    margin: 0;
+    border: none;
+  }
+
+  .cv-section {
+    break-inside: avoid;
+  }
+
+  .cv-section__heading {
+    border-bottom: 0.5pt solid var(--color-text);
+  }
+
+  .cv-entry {
+    grid-template-columns: 32mm 1fr;
+    font-size: 10pt;
   }
 }
