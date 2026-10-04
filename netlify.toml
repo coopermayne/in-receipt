@@ -2,3 +2,17 @@
   command = "npm run build"
   publish = "dist"
 
+# hallieblack.com is a domain alias of this site. Serve Hallie's profile at
+# its root instead of the gallery; every other path (fonts, /_astro assets)
+# falls through to the shared build. inreceiptstudio.com is unaffected.
+[[redirects]]
+  from = "https://hallieblack.com/"
+  to = "/hallie/"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "https://www.hallieblack.com/"
+  to = "/hallie/"
+  status = 200
+  force = true

@@ -1,0 +1,240 @@
+/* Profile page (hallieblack.com). Shares the gallery's fonts, palette and
+   column grid (base/variables.css) but none of its fixed-viewport layout:
+   this page scrolls normally. */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body.profile {
+  font-family: var(--font-stack);
+  font-weight: 300;
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.profile a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.profile img {
+  display: block;
+  max-width: 100%;
+}
+
+/* ---------- Mobile (default): one column ---------- */
+
+.profile__main {
+  padding: var(--spacing-xl) var(--spacing-md);
+  padding-top: calc(var(--spacing-xl) + env(safe-area-inset-top, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.profile__rule,
+.profile__sidebar {
+  display: none;
+}
+
+.profile__name {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.profile__role {
+  margin-top: var(--spacing-sm);
+  color: var(--color-text-muted);
+}
+
+.profile__bio {
+  max-width: 34rem;
+}
+
+.profile__bio p + p {
+  margin-top: var(--spacing-md);
+}
+
+/* Featured link to the studio site */
+.studio-link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.studio-link__image {
+  width: 100%;
+  height: auto;
+  background-size: cover;
+  border: 1px solid rgba(26, 26, 26, 0.1);
+  transition: opacity var(--transition-fast) ease;
+}
+
+.studio-link__label {
+  display: flex;
+  flex-direction: column;
+}
+
+.studio-link__name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.studio-link__tagline,
+.studio-link__url {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.studio-link__url {
+  margin-top: var(--spacing-sm);
+  color: var(--color-text);
+  border-bottom: 1px dotted var(--color-text);
+  align-self: flex-start;
+}
+
+.studio-link:hover .studio-link__image,
+.studio-link:focus-visible .studio-link__image {
+  opacity: 0.85;
+}
+
+/* CV */
+.profile__cv {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.cv-section__heading {
+  font-size: 0.75rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  border-bottom: 1px dotted var(--color-text);
+}
+
+.cv-section__list {
+  list-style: none;
+}
+
+.cv-entry {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  column-gap: var(--spacing-md);
+  padding: 0.25rem 0;
+  font-size: 0.9375rem;
+}
+
+.cv-entry__years {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.cv-entry__detail {
+  grid-column: 2;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.profile__contact p {
+  margin: 0.25rem 0;
+}
+
+/* ---------- Desktop: the gallery's column grid ---------- */
+
+@media (min-width: 768px) {
+  /* Content fills col1 + the empty column; the sidebar and studio link sit
+     where IN RECEIPT's title and right project column do */
+  .profile__main {
+    width: var(--contact-left);
+    padding: 4rem 4vw 6rem;
+    gap: 4rem;
+  }
+
+  .profile__rule {
+    display: block;
+    position: fixed;
+    top: 0;
+    width: 0;
+    height: 100%;
+    border-left: 1px dotted var(--color-text);
+    pointer-events: none;
+  }
+
+  .profile__rule--left {
+    left: var(--contact-left);
+  }
+
+  .profile__rule--right {
+    left: var(--contact-right);
+  }
+
+  .profile__sidebar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: var(--contact-left);
+    width: var(--col-contact-width);
+    height: 100vh;
+    overflow: hidden;
+    container-type: size;
+  }
+
+  .profile__sidebar-title {
+    font-size: 8.5cqh; /* 12 characters across ~90% of the column height */
+    font-weight: 700;
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+  }
+
+  .profile__name {
+    font-size: 4rem;
+  }
+
+  .profile__bio {
+    font-size: 1.125rem;
+  }
+
+  .studio-link {
+    position: fixed;
+    top: 50%;
+    left: calc(var(--contact-right) + var(--col4-gap));
+    width: var(--col4-width);
+    transform: translateY(-50%);
+  }
+
+  .studio-link__image {
+    max-height: 60vh;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .profile__cv,
+  .profile__contact {
+    max-width: 40rem;
+  }
+
+  .cv-entry {
+    grid-template-columns: 9rem 1fr;
+  }
+}

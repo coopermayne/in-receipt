@@ -1,0 +1,95 @@
+---
+// Profile page for hallieblack.com. Netlify rewrites that domain's root here
+// (see netlify.toml); inreceiptstudio.com keeps serving the gallery at /.
+import { fetchProjects } from '../lib/content';
+import { initImages, getDesktopThumbnail } from '../lib/images';
+import { profile } from '../lib/profile';
+import '../styles/base/fonts.css';
+import '../styles/base/variables.css';
+import '../styles/profile.css';
+
+await initImages();
+const projects = await fetchProjects();
+
+// Lead image for the studio link: the top-ranked big project
+const featured = projects
+  .filter(p => p.category === 'big' && p.thumbnail)
+  .sort((a, b) => a.rank - b.rank)[0];
+const featuredImage = featured ? getDesktopThumbnail(featured.thumbnail, 'big') : null;
+
+const { name, role, location, bio, contact, studio, cv } = profile;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={`${name}, ${role.toLowerCase()} in ${location}. Founder of ${studio.name}.`} />
+    <link rel="canonical" href="https://hallieblack.com/" />
+    <title>{name}</title>
+  </head>
+  <body class="profile">
+    <div class="profile__rule profile__rule--left"></div>
+    <div class="profile__rule profile__rule--right"></div>
+
+    <main class="profile__main">
+      <header class="profile__header">
+        <h1 class="profile__name">{name}</h1>
+        <p class="profile__role">{role}, {location}</p>
+      </header>
+
+      <section class="profile__bio">
+        {bio.map(paragraph => <p>{paragraph}</p>)}
+      </section>
+
+      <a class="studio-link" href={studio.url}>
+        {featuredImage && featuredImage.src && (
+          <img
+            class="studio-link__image"
+            src={featuredImage.src}
+            srcset={featuredImage.srcset}
+            sizes="(min-width: 768px) 20vw, calc(100vw - 2rem)"
+            width={featuredImage.width}
+            height={featuredImage.height}
+            alt={featuredImage.alt || featured?.title || ''}
+            style={featuredImage.placeholderStyle}
+          />
+        )}
+        <span class="studio-link__label">
+          <span class="studio-link__name">{studio.name.toUpperCase()}</span>
+          <span class="studio-link__tagline">{studio.tagline}</span>
+          <span class="studio-link__url">{studio.urlDisplay} &rarr;</span>
+        </span>
+      </a>
+
+      <section class="profile__cv" aria-label="CV">
+        {cv.map(section => (
+          <div class="cv-section">
+            <h2 class="cv-section__heading">{section.heading}</h2>
+            <ul class="cv-section__list">
+              {section.entries.map(entry => (
+                <li class="cv-entry">
+                  <span class="cv-entry__years">{entry.years}</span>
+                  <span class="cv-entry__title">{entry.title}</span>
+                  {entry.detail && <span class="cv-entry__detail">{entry.detail}</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </section>
+
+      <section class="profile__contact" aria-label="Contact">
+        <h2 class="cv-section__heading">Contact</h2>
+        <p><a href={`mailto:${contact.email}`}>{contact.email}</a></p>
+        <p><a href={`tel:${contact.phone}`}>{contact.phoneDisplay}</a></p>
+      </section>
+    </main>
+
+    <aside class="profile__sidebar" aria-hidden="true">
+      <span class="profile__sidebar-title">{name.toUpperCase()}</span>
+    </aside>
+
+  </body>
+</html>
