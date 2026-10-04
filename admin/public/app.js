@@ -1147,7 +1147,10 @@ const profileFields = {
   email: document.getElementById('profile-email'),
   phone: document.getElementById('profile-phone'),
   featuredProjectId: document.getElementById('profile-featured'),
+  portraitImageId: document.getElementById('profile-portrait'),
 };
+// Fields filled by renderProfileSelects rather than directly
+const PROFILE_SELECTS = ['featuredProjectId', 'portraitImageId'];
 const cvSectionsEl = document.getElementById('cv-sections');
 const profileSaveBtn = document.getElementById('profile-save-btn');
 const profileSaveStatus = document.getElementById('profile-save-status');
@@ -1214,6 +1217,14 @@ async function renderFeaturedOptions(selectedId) {
   select.value = big.some(p => p.id === selectedId) ? selectedId : '';
 }
 
+function renderPortraitOptions(selectedId) {
+  const select = profileFields.portraitImageId;
+  const ids = Object.keys(images).sort();
+  select.innerHTML = '<option value="">Built-in photo (default)</option>' +
+    ids.map(id => `<option value="${escapeHtml(id)}">${escapeHtml(id)}</option>`).join('');
+  select.value = ids.includes(selectedId) ? selectedId : '';
+}
+
 function setProfileStatus(text, className = '') {
   profileSaveStatus.textContent = text;
   profileSaveStatus.className = `profile-save-status ${className}`;
@@ -1227,9 +1238,10 @@ async function loadProfile() {
     const { profile, saved } = await res.json();
 
     for (const [key, input] of Object.entries(profileFields)) {
-      if (key !== 'featuredProjectId') input.value = profile[key] || '';
+      if (!PROFILE_SELECTS.includes(key)) input.value = profile[key] || '';
     }
     await renderFeaturedOptions(profile.featuredProjectId);
+    renderPortraitOptions(profile.portraitImageId);
 
     cvSectionsEl.innerHTML = '';
     for (const section of profile.cv) cvSectionsEl.appendChild(renderCvSection(section));

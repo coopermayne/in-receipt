@@ -3,7 +3,7 @@
 // (see netlify.toml); inreceiptstudio.com keeps serving the gallery at /.
 // Content is edited in the admin's Profile tab.
 import { fetchProjects } from '../lib/content';
-import { initImages, getDesktopThumbnail } from '../lib/images';
+import { initImages, getDesktopThumbnail, getImage, getImageUrl } from '../lib/images';
 import { fetchProfile, bioParagraphs, telHref, STUDIO } from '../lib/profile';
 import '../styles/base/fonts.css';
 import '../styles/base/variables.css';
@@ -27,16 +27,37 @@ const featured = bigProjects.find(p => p.id === profile.featuredProjectId) ?? bi
 const thumb = featured ? getDesktopThumbnail(featured.thumbnail, 'big') : null;
 const image = thumb?.src ? thumb : null;
 
+// Portrait: a library image chosen in the admin, else the built-in photo.
+// Square either way; library images are cropped around their focal point.
+const PORTRAIT_WIDTHS = [300, 450, 600, 800];
+const PORTRAIT_SIZES = '(min-width: 768px) 16vw, 40vw';
+const libraryPortrait = profile.portraitImageId ? getImage(profile.portraitImageId) : null;
+const portrait = libraryPortrait
+  ? {
+      src: getImageUrl(profile.portraitImageId, { width: 600, ratio: '1x1', fit: 'cover' }),
+      srcset: PORTRAIT_WIDTHS
+        .map(w => `${getImageUrl(profile.portraitImageId, { width: w, ratio: '1x1', fit: 'cover' })} ${w}w`)
+        .join(', '),
+      alt: libraryPortrait.alt || `Portrait of ${name}`,
+    }
+  : {
+      src: '/images/hallie-portrait-800.webp',
+      srcset: '/images/hallie-portrait-400.webp 400w, /images/hallie-portrait-800.webp 800w',
+      alt: `Portrait of ${name}`,
+    };
+
 const description = bio[0] || `${name}${roleLine ? `, ${roleLine}` : ''}.`;
 
-// Largest rendition in the srcset, for link previews
-const shareImage = image ? image.srcset.split(', ').at(-1)?.split(' ')[0] ?? image.src : '';
+// Link previews show the portrait, at its largest rendition
+const largest = portrait.srcset.split(', ').at(-1)?.split(' ')[0] ?? portrait.src;
+const shareImage = new URL(largest, SITE_URL).href;
 
 const personSchema = JSON.stringify({
   '@context': 'https://schema.org',
   '@type': 'Person',
   name,
   url: SITE_URL,
+  image: shareImage,
   jobTitle: role || undefined,
   email: email ? `mailto:${email}` : undefined,
   telephone: phone || undefined,
@@ -61,8 +82,9 @@ const personSchema = JSON.stringify({
     <meta property="og:title" content={name} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={SITE_URL} />
-    {shareImage && <meta property="og:image" content={shareImage} />}
-    <meta name="twitter:card" content={shareImage ? 'summary_large_image' : 'summary'} />
+    <meta property="og:image" content={shareImage} />
+    <meta property="og:image:alt" content={portrait.alt} />
+    <meta name="twitter:card" content="summary" />
     <script is:inline type="application/ld+json" set:html={personSchema} />
   </head>
   <body class="profile">
@@ -71,14 +93,26 @@ const personSchema = JSON.stringify({
 
     <main class="profile__main">
       <header class="profile__header">
-        <h1 class="profile__name">{name}</h1>
-        {roleLine && <p class="profile__role">{roleLine}</p>}
-        {(email || phone) && (
-          <ul class="profile__contact" aria-label="Contact">
-            {email && <li><a href={`mailto:${email}`}>{email}</a></li>}
-            {phone && <li><a href={telHref(phone)}>{phone}</a></li>}
-          </ul>
-        )}
+        <img
+          class="profile__portrait"
+          src={portrait.src}
+          srcset={portrait.srcset}
+          sizes={PORTRAIT_SIZES}
+          width="800"
+          height="800"
+          alt={portrait.alt}
+          fetchpriority="high"
+        />
+        <div class="profile__intro">
+          <h1 class="profile__name">{name}</h1>
+          {roleLine && <p class="profile__role">{roleLine}</p>}
+          {(email || phone) && (
+            <ul class="profile__contact" aria-label="Contact">
+              {email && <li><a href={`mailto:${email}`}>{email}</a></li>}
+              {phone && <li><a href={telHref(phone)}>{phone}</a></li>}
+            </ul>
+          )}
+        </div>
       </header>
 
       {bio.length > 0 && (

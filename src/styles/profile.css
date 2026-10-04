@@ -66,6 +66,22 @@ body.profile {
 }
 
 /* Header */
+.profile__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.profile__portrait {
+  width: 55%;
+  max-width: 16rem;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: #d9d8d4;
+  filter: grayscale(1);
+}
+
 .profile__name {
   font-size: clamp(2.25rem, 11vw, 2.75rem);
   font-weight: 700;
@@ -199,7 +215,7 @@ body.profile {
 
 .cv-entry {
   display: grid;
-  grid-template-columns: 7rem 1fr;
+  grid-template-columns: 6.25rem 1fr;
   column-gap: var(--spacing-md);
   padding: 0.3rem 0;
   font-size: 0.9375rem;
@@ -325,8 +341,21 @@ body.profile {
     animation: profile-fade 800ms ease both;
   }
 
+  /* Portrait beside the name, the text sitting on its baseline */
+  .profile__header {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 2.5vw;
+  }
+
+  .profile__portrait {
+    flex: 0 0 auto;
+    width: 16vw;
+    max-width: 18rem;
+  }
+
   .profile__name {
-    font-size: clamp(3rem, 5vw, 5rem);
+    font-size: clamp(2.75rem, 4.6vw, 5rem);
   }
 
   .profile__bio {
@@ -373,6 +402,7 @@ body.profile {
   .profile__rule,
   .profile__sidebar,
   .studio-link__frame,
+  .profile__portrait,
   .studio-link__kicker,
   .studio-link__arrow,
   .profile__footer {

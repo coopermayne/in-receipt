@@ -14,6 +14,14 @@ test('shows the profile saved in the admin', async ({ page }) => {
   await expect(page.locator('.profile__contact a').nth(1)).toHaveAttribute('href', 'tel:+14245550100');
 });
 
+test('shows the built-in portrait beside the name', async ({ page }) => {
+  const portrait = page.locator('.profile__portrait');
+  await expect(portrait).toHaveAttribute('src', '/images/hallie-portrait-800.webp');
+  await expect.poll(() => portrait.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+  const [photo, name] = await Promise.all([portrait.boundingBox(), page.locator('.profile__name').boundingBox()]);
+  expect(photo!.x + photo!.width).toBeLessThan(name!.x);
+});
+
 test('renders CV sections and skips empty ones', async ({ page }) => {
   await expect(page.locator('.cv-section__heading')).toHaveText(['Practice', 'Education']);
   await expect(page.locator('.cv-entry')).toHaveCount(3);

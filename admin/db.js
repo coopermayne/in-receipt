@@ -478,7 +478,7 @@ export const reorderProjects = db.transaction((category, projectIds) => {
 // in meta as JSON rather than in its own table. null until first saved; the
 // site falls back to its built-in defaults until then.
 
-const PROFILE_TEXT_FIELDS = ['name', 'role', 'location', 'bio', 'email', 'phone', 'featuredProjectId'];
+const PROFILE_TEXT_FIELDS = ['name', 'role', 'location', 'bio', 'email', 'phone', 'featuredProjectId', 'portraitImageId'];
 
 function cleanText(value, max = 5000) {
   return typeof value === 'string' ? value.trim().slice(0, max) : '';
@@ -510,21 +510,29 @@ export function normalizeProfile(input) {
 // in step with the site's fallback in src/lib/profile.ts.
 export const DEFAULT_PROFILE = normalizeProfile({
   name: 'Hallie Black',
-  role: 'Architect',
+  role: 'Architectural Designer',
   location: 'Los Angeles, California',
-  bio: 'Hallie Black is an architect based in Los Angeles and the founder of In Receipt, an architecture studio working on residential and small-scale projects.',
+  bio: 'Hallie Black is an architectural designer and educator based in Los Angeles. She is Director of Stray Dog Café at Morphosis, where she manages special research projects, design work, publications and artwork, and assists Thom Mayne in teaching at SCI-Arc and the University of Pennsylvania.\n\nShe is a guest lecturer at the University of Southern California and UCLA Architecture and Urban Design, and runs In Receipt, her architecture studio. She holds a Bachelor of Architecture from Cornell University.',
   email: 'inreceipt@gmail.com',
   phone: '(424) 256-6076',
   featuredProjectId: '',
+  portraitImageId: '',
   cv: [
     { heading: 'Practice', entries: [
-      { years: '20XX–present', title: 'Founder, In Receipt', detail: 'Los Angeles' },
-      { years: '20XX–20XX', title: 'Position, Firm', detail: 'City' },
+      { years: '2021–present', title: 'Director, Stray Dog Café, Morphosis', detail: 'Culver City, California' },
     ] },
-    { heading: 'Education', entries: [{ years: '20XX', title: 'Degree, School', detail: 'City' }] },
-    { heading: 'Licensure', entries: [{ years: '20XX', title: 'Licensed Architect', detail: 'State' }] },
-    { heading: 'Teaching', entries: [{ years: '20XX', title: 'Course, School' }] },
-    { heading: 'Awards and Publications', entries: [{ years: '20XX', title: 'Award or publication', detail: 'Publisher' }] },
+    { heading: 'Teaching', entries: [
+      { years: '2024–present', title: 'Guest Lecturer, UCLA Architecture and Urban Design', detail: '' },
+      { years: '2021–present', title: 'Guest Lecturer, University of Southern California', detail: 'Arch 402b, vertical studio for fourth-year B.Arch students' },
+      { years: '2021–present', title: 'Teaching assistance for Thom Mayne', detail: 'SCI-Arc and University of Pennsylvania' },
+      { years: '2019–2020', title: 'Teaching Associate, Cornell University', detail: 'Ithaca, New York' },
+    ] },
+    { heading: 'Editorial', entries: [
+      { years: '2019–2020', title: 'Managing Editor, Cornell University', detail: 'Ithaca, New York' },
+    ] },
+    { heading: 'Education', entries: [
+      { years: '2014–2019', title: 'Bachelor of Architecture, Cornell University', detail: 'Ithaca, New York' },
+    ] },
   ],
 });
 

@@ -111,7 +111,12 @@ export function startMockApi(port) {
   const server = http.createServer((req, res) => {
     if (req.url.startsWith('/api/content')) {
       res.setHeader('content-type', 'application/json');
-      res.end(JSON.stringify({ images, projects, profile }));
+      res.end(JSON.stringify({
+        images,
+        projects,
+        // MOCK_DEFAULT_PROFILE=1 previews the site's built-in profile
+        profile: process.env.MOCK_DEFAULT_PROFILE ? null : profile,
+      }));
     } else if (req.url.startsWith('/img/')) {
       res.setHeader('content-type', 'image/png');
       res.end(placeholder);
